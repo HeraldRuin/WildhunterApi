@@ -120,23 +120,40 @@ class HotelsPath
                     new OA\Property(
                         property: "order_by",
                         type: "string",
-                        example: "created_at"
+                        example: "created_at",
+                        nullable: true
                     ),
                     new OA\Property(
                         property: "order_direction",
                         type: "string",
                         example: "desc",
+                        nullable: true,
                         enum: ["asc", "desc"]
                     ),
                     new OA\Property(
                         property: "limit",
+                        description: "Количество элементов на странице. Если не передано, используется настройка hotel_page_limit_item или 9",
                         type: "integer",
-                        example: 10
+                        example: 10,
+                        nullable: true
                     ),
                 ]
             )
         ),
         tags: ["Hotels"],
+        parameters: [
+            new OA\Parameter(
+                name: "page",
+                description: "Номер страницы. Если не передан, возвращается первая страница",
+                in: "query",
+                required: false,
+                schema: new OA\Schema(
+                    type: "integer",
+                    example: 1,
+                    minimum: 1
+                )
+            ),
+        ],
         responses: [
             new OA\Response(
                 ref: "#/components/responses/SuccessResponse",
