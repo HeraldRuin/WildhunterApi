@@ -11,6 +11,7 @@ use Modules\Hotel\Services\HotelService;
 use Modules\Hotel\Http\Resources\HotelResource;
 use Modules\Hotel\Http\Request\HotelFilterRequest;
 use Modules\Hotel\Http\Request\HotelSearchRequest;
+use Modules\Hotel\Http\Resources\HotelSearchResource;
 
 class HotelController extends Controller
 {
@@ -33,7 +34,7 @@ class HotelController extends Controller
         $result = $this->hotelService->searchHotels($dto);
 
         return new SuccessResponse(
-            data: HotelResource::collection($result['data'])
+            data: HotelSearchResource::collection($result['data'])
         );
     }
 }
