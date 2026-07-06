@@ -102,6 +102,22 @@ class HotelsPath
                         nullable: true
                     ),
                     new OA\Property(
+                        property: "price",
+                        description: "Цена",
+                        type: "number",
+                        format: "float",
+                        example: 4000,
+                        nullable: true
+                    ),
+                    new OA\Property(
+                        property: "star_rate",
+                        description: "Рейтинг",
+                        type: "number",
+                        format: "float",
+                        example: 4,
+                        nullable: true
+                    ),
+                    new OA\Property(
                         property: "order_by",
                         type: "string",
                         example: "created_at"
