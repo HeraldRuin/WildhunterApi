@@ -3,16 +3,17 @@
 namespace Modules\Hotel\Models;
 
 use App\Observers\HotelObserver;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Modules\Review\Models\Review;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Modules\User\Models\UserWishList;
 use Modules\Booking\Models\Bookable;
 use Modules\Media\Helpers\FileHelper;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Modules\User\Models\UserWishList;
 
 class Hotel extends Bookable
 {
@@ -101,5 +102,10 @@ class Hotel extends Bookable
     public function hotelRooms(): HasMany
     {
         return $this->hasMany(HotelRoom::class, 'parent_id', 'id');
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class, 'object_id');
     }
 }
