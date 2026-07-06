@@ -8,6 +8,7 @@ use Modules\Hotel\Dto\HotelFilterData;
 use Modules\Hotel\Dto\HotelSearchData;
 use App\Http\Responses\SuccessResponse;
 use Modules\Hotel\Services\HotelService;
+use App\Http\Resources\PaginateResource;
 use Modules\Hotel\Http\Resources\HotelResource;
 use Modules\Hotel\Http\Request\HotelFilterRequest;
 use Modules\Hotel\Http\Request\HotelSearchRequest;
@@ -34,7 +35,7 @@ class HotelController extends Controller
         $result = $this->hotelService->searchHotels($dto);
 
         return new SuccessResponse(
-            data: HotelSearchResource::collection($result['data'])
+            data: new PaginateResource($result['data'], HotelSearchResource::class)
         );
     }
 }
