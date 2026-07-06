@@ -7,5 +7,5 @@ use Modules\Location\Traits\HasLocation;
 
 class Bookable extends BaseModel
 {
-        use HasLocation;
+    use HasLocation;
 }
