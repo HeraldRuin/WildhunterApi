@@ -3,27 +3,32 @@
 namespace Modules\Hotel\Models;
 
 use App\Observers\HotelObserver;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Modules\Booking\Models\Bookable;
 use Modules\Media\Helpers\FileHelper;
 use Illuminate\Notifications\Notifiable;
-//use Modules\Booking\Traits\CapturesService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Modules\User\Models\UserWishList;
 
 class Hotel extends Bookable
 {
     use SoftDeletes;
     use Notifiable;
 //    use CapturesService;
+
+    protected $translation_class = HotelTranslation::class;
     protected $table                              = 'bc_hotels';
-    public    $type                               = 'hotel';
+    public string $type                               = 'hotel';
     protected $fillable      = [
         'title',
         'content',
         'status',
     ];
-    protected string $slugField     = 'slug';
-    protected string $slugFromField = 'title';
-    protected string $seo_type      = 'hotel';
+
     protected $casts = [
         'policy' => 'array',
         'extra_price' => 'array',
@@ -59,5 +64,42 @@ class Hotel extends Bookable
     public function scopePublished($query)
     {
         return $query->where('status', 'publish');
+    }
+
+    public function hasWishList(): HasOne
+    {
+        return $this->hasOne(UserWishList::class, 'object_id', 'id')->where('object_model', $this->type)->where('user_id', Auth::id() ?? 0);
+    }
+
+    /**
+     * Исключает отели с заблокированными комнатами в диапазоне дат
+     */
+    public function scopeExcludeBlockedForDates(Builder $query, string $rangeStart, string $rangeEndForDays): Builder
+    {
+        $blockedHotelIds = DB::table('bc_hotel_rooms as r')
+            ->join('bc_hotel_room_dates as d', function ($join) use ($rangeStart, $rangeEndForDays) {
+                $join->on('d.target_id', '=', 'r.id')
+                    ->whereBetween(DB::raw('DATE(d.start_date)'), [$rangeStart, $rangeEndForDays]);
+            })
+            ->select('r.parent_id')
+            ->groupBy('r.parent_id')
+            ->havingRaw('SUM(d.active) = 0')
+            ->pluck('r.parent_id')
+            ->all();
+
+        if (!empty($blockedHotelIds)) {
+            $query->whereNotIn('bc_hotels.id', $blockedHotelIds);
+        }
+
+        return $query;
+    }
+
+    public function rooms(): HasMany
+    {
+        return $this->hasMany(HotelRoom::class, 'parent_id', 'id')->where('status', "publish");
+    }
+    public function hotelRooms(): HasMany
+    {
+        return $this->hasMany(HotelRoom::class, 'parent_id', 'id');
     }
 }
