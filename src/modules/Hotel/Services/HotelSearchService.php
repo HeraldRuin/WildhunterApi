@@ -25,13 +25,13 @@ class HotelSearchService
             ->thenReturn();
 
         return $payload['query']
-            ->groupBy('bc_hotels.id')
             ->with([
                 'location',
                 'hasWishList' => function ($q) use ($userId) {
                     $q->where('user_id', $userId);
-                }
-//                'translation',
+                },
+                'reviews',
+                'translation',
             ]);
     }
 
