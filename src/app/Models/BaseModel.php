@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\HasTranslations;
 use Illuminate\Database\Eloquent\Model;
 
 class BaseModel extends Model
 {
+    use HasTranslations;
+
     protected $dateFormat    = 'Y-m-d H:i:s';
 
     public static function getModelName()
