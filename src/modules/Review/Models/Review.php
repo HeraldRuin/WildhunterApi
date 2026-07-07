@@ -11,6 +11,21 @@ class Review extends BaseModel
 {
     use SoftDeletes;
 
+    public const string RATING_EXCELLENT = 'excellent';
+    public const string RATING_VERY_GOOD = 'very_good';
+    public const string RATING_AVERAGE = 'average';
+    public const string RATING_POOR = 'poor';
+    public const string RATING_TERRIBLE = 'terrible';
+    public const string RATING_NOT_RATED = 'not_rated';
+
+    public const array RATINGS = [
+        self::RATING_EXCELLENT => 'Превосходный',
+        self::RATING_VERY_GOOD => 'Очень хороший',
+        self::RATING_AVERAGE => 'Хороший',
+        self::RATING_POOR => 'Плохой',
+        self::RATING_TERRIBLE => 'Ужасный',
+    ];
+
     const string APPROVED = 'approved';
 
     protected $table    = 'bc_review';
