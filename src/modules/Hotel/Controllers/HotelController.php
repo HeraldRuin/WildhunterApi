@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Modules\Hotel\Dto\HotelFilterData;
 use Modules\Hotel\Dto\HotelSearchData;
 use App\Http\Responses\SuccessResponse;
+use Modules\Hotel\Models\Hotel;
 use Modules\Hotel\Services\HotelService;
 use App\Http\Resources\PaginateResource;
 use Modules\Hotel\Http\Resources\HotelResource;
@@ -37,5 +38,10 @@ class HotelController extends Controller
         return new SuccessResponse(
             data: new PaginateResource($result['data'], HotelSearchResource::class)
         );
+    }
+
+    public function priceRange(): JsonResponse
+    {
+        return new SuccessResponse(data: Hotel::getMinMaxPrice());
     }
 }

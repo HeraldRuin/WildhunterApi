@@ -67,6 +67,19 @@ class Hotel extends Bookable
         return $query->where('status', 'publish');
     }
 
+    public static function getMinMaxPrice(): array
+    {
+        $result = static::query()
+            ->where('status', 'publish')
+            ->selectRaw('MIN(price) as min_price, MAX(price) as max_price')
+            ->first();
+
+        return [
+            'min_price' => $result?->min_price ?? 0,
+            'max_price' => $result?->max_price ?? 100,
+        ];
+    }
+
     public function hasWishList(): HasOne
     {
         return $this->hasOne(UserWishList::class, 'object_id', 'id')->where('object_model', $this->type)->where('user_id', Auth::id() ?? 0);
