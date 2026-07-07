@@ -17,9 +17,9 @@ class ReviewController extends Controller
     {
     }
 
-    public function ratings(): array
+    public function ratings(): JsonResponse
     {
-        return Review::RATINGS;
+        return new SuccessResponse(data: Review::RATINGS);
     }
 
     public function indexByService(ServiceReviewRequest $request, Review $review): JsonResponse
