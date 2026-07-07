@@ -33,6 +33,10 @@ return [
 
         'children_must_be_integer' => 'Количество детей должно быть числом',
         'children_min_value' => 'Минимальное количество детей — 0',
+
+        'star_rate_must_be_array' => 'Поле "рейтинг" должно быть массивом',
+        'star_rate_item_must_be_string' => 'Значение рейтинга должно быть строкой',
+        'star_rate_invalid' => 'Выбранный рейтинг недоступен',
     ],
     'successes' => [
 
