@@ -108,4 +108,18 @@ class ReviewPath
     )]
     public function GetServiceReviews(): void
     {}
+
+    #[OA\Get(
+        path: "/api/" . ApiConfig::VERSION . "/reviews/ratings",
+        summary: "Получить список доступных рейтингов",
+        tags: ["Reviews"],
+        responses: [
+            new OA\Response(
+                ref: "#/components/responses/SuccessResponse",
+                response: 200
+            ),
+        ]
+    )]
+    public function GetRatings(): void
+    {}
 }
