@@ -52,9 +52,9 @@ class HotelSearchRequest extends FormRequest
 
             'order_by.string' => __('hotel.validation.order_by_must_be_string'),
 
-            'star_rate.array' => __('validation.star_rate_must_be_array'),
-            'star_rate.*.string' => __('validation.star_rate_item_must_be_string'),
-            'star_rate.*.in' => __('validation.star_rate_invalid'),
+            'star_rate.array' => __('hotel.validation.star_rate_must_be_array'),
+            'star_rate.*.string' => __('hotel.validation.star_rate_item_must_be_string'),
+            'star_rate.*.in' => __('hotel.validation.star_rate_invalid'),
 
             'order_direction.string' => __('hotel.validation.order_direction_must_be_string'),
             'order_direction.in' => __('hotel.validation.order_direction_invalid'),
