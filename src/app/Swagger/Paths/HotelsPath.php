@@ -112,9 +112,11 @@ class HotelsPath
                     new OA\Property(
                         property: "star_rate",
                         description: "Рейтинг",
-                        type: "number",
-                        format: "float",
-                        example: 4,
+                        type: "array",
+                        items: new OA\Items(
+                            type: "string",
+                            example: "excellent"
+                        ),
                         nullable: true
                     ),
                     new OA\Property(
