@@ -25,6 +25,14 @@ class Review extends BaseModel
         self::RATING_POOR => 'Плохой',
         self::RATING_TERRIBLE => 'Ужасный',
     ];
+    public const array RATING_VALUES = [
+        self::RATING_EXCELLENT => 5,
+        self::RATING_VERY_GOOD => 4,
+        self::RATING_AVERAGE => 3,
+        self::RATING_POOR => 2,
+        self::RATING_TERRIBLE => 1,
+        self::RATING_NOT_RATED => 0,
+    ];
 
     const string APPROVED = 'approved';
 
@@ -49,6 +57,15 @@ class Review extends BaseModel
             ])
             ->values()
             ->toArray();
+    }
+
+    public static function getScoresByRatings(array $ratings): array
+    {
+        return collect($ratings)
+            ->map(fn (string $rating) => self::RATING_VALUES[$rating] ?? null)
+            ->filter(static fn ($score) => $score !== null)
+            ->values()
+            ->all();
     }
 
     public static function getDisplayTextScoreByLever($lever): string
