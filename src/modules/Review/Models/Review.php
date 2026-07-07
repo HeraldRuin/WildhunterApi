@@ -40,6 +40,17 @@ class Review extends BaseModel
         'author_id',
     ];
 
+    public static function getRatings(): array
+    {
+        return collect(self::RATINGS)
+            ->map(fn($label, $value) => [
+                'value' => $value,
+                'label' => $label,
+            ])
+            ->values()
+            ->toArray();
+    }
+
     public static function getDisplayTextScoreByLever($lever): string
     {
         return match ($lever) {
