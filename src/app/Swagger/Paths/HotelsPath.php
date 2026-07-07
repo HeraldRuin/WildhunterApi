@@ -172,4 +172,20 @@ class HotelsPath
     public function search(): void
     {}
 
+    #[OA\Get(
+        path: "/api/" . ApiConfig::VERSION . "/hotels/price-range",
+        summary: "Получить минимальную и максимальную стоимость отелей",
+        security: [['bearerAuth' => []]],
+        tags: ["Hotels"],
+        responses: [
+            new OA\Response(
+                ref: "#/components/responses/SuccessResponse",
+                response: 200
+            ),
+        ]
+    )]
+    public function priceRange(): void
+    {
+    }
+
 }
