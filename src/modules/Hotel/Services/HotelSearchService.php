@@ -2,9 +2,9 @@
 
 namespace Modules\Hotel\Services;
 
+use Modules\Hotel\Models\Hotel;
 use Illuminate\Pipeline\Pipeline;
 use Modules\Hotel\Dto\HotelSearchData;
-use Modules\Hotel\Models\Hotel;
 
 class HotelSearchService
 {
@@ -39,9 +39,9 @@ class HotelSearchService
     {
         return [
             \Modules\Hotel\Filters\LocationFilter::class,
-//            \App\Services\Hotel\Filters\PriceFilter::class,
-//            \App\Services\Hotel\Filters\AnimalFilter::class,
-//            \App\Services\Hotel\Filters\StarRateFilter::class,
+//            \Modules\Hotel\Filters\PriceFilter::class,
+//            \Modules\Hotel\Filters\AnimalFilter::class,
+            \Modules\Hotel\Filters\StarRateFilter::class,
             \Modules\Hotel\Filters\DateAvailabilityFilter::class,
         ];
     }
