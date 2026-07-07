@@ -24,6 +24,10 @@ class HotelSearchRequest extends FormRequest
                 Rule::in(array_keys(Review::RATINGS)),
             ],
 
+            'price' => ['nullable', 'array'],
+            'price.min' => ['nullable','numeric', 'min:0'],
+            'price.max' => ['nullable', 'numeric', 'min:0', 'gte:price.min'],
+
             'order_by' => ['nullable', 'string'],
             'order_direction' => ['nullable', 'string', 'in:asc,desc'],
             'limit' => ['nullable', 'numeric', 'min:1'],
@@ -55,6 +59,13 @@ class HotelSearchRequest extends FormRequest
             'star_rate.array' => __('hotel.validation.star_rate_must_be_array'),
             'star_rate.*.string' => __('hotel.validation.star_rate_item_must_be_string'),
             'star_rate.*.in' => __('hotel.validation.star_rate_invalid'),
+
+            'price.array' => __('hotel.validation.price_must_be_array'),
+            'price.min.numeric' => __('hotel.validation.price_min_must_be_numeric'),
+            'price.max.numeric' => __('hotel.validation.price_max_must_be_numeric'),
+            'price.min.min' => __('hotel.validation.price_must_be_positive'),
+            'price.max.min' => __('hotel.validation.price_must_be_positive'),
+            'price.max.gte' => __('hotel.validation.price_max_must_be_greater_than_min'),
 
             'order_direction.string' => __('hotel.validation.order_direction_must_be_string'),
             'order_direction.in' => __('hotel.validation.order_direction_invalid'),
