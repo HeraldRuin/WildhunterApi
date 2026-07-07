@@ -17,6 +17,11 @@ class ReviewController extends Controller
     {
     }
 
+    public function ratings(): array
+    {
+        return Review::RATINGS;
+    }
+
     public function indexByService(ServiceReviewRequest $request, Review $review): JsonResponse
     {
         $dto = ReviewServiceData::fromRequest($request);
