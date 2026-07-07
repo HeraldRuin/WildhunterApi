@@ -22,11 +22,11 @@ return [
         'limit_min_value' => 'Минимальное значение limit — 1',
     ],
     'rate_text' => [
-        'excellent' => 'Отлично',
-        'very_good' => 'Очень хорошо',
-        'average' => 'Средний',
+        'excellent' => 'Превосходный',
+        'very_good' => 'Очень хороший',
+        'average' => 'Хороший',
         'poor' => 'Плохой',
-        'terrible' => 'Ужасно',
+        'terrible' => 'Ужасный',
         'not_rated' => 'Без рейтинга',
     ],
 
