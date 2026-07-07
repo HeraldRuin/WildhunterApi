@@ -103,10 +103,24 @@ class HotelsPath
                     ),
                     new OA\Property(
                         property: "price",
-                        description: "Цена",
-                        type: "number",
-                        format: "float",
-                        example: 4000,
+                        description: "Диапазон цены",
+                        properties: [
+                            new OA\Property(
+                                property: "min",
+                                description: "Минимальная цена",
+                                type: "number",
+                                format: "float",
+                                example: 3000
+                            ),
+                            new OA\Property(
+                                property: "max",
+                                description: "Максимальная цена",
+                                type: "number",
+                                format: "float",
+                                example: 10000
+                            ),
+                        ],
+                        type: "object",
                         nullable: true
                     ),
                     new OA\Property(
