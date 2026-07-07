@@ -2,6 +2,8 @@
 
 namespace Modules\Hotel\Http\Request;
 
+use Illuminate\Validation\Rule;
+use Modules\Review\Models\Review;
 use Illuminate\Foundation\Http\FormRequest;
 
 class HotelSearchRequest extends FormRequest
@@ -15,6 +17,12 @@ class HotelSearchRequest extends FormRequest
             'check_out' => ['required', 'date', 'after:check_in'],
             'adults' => ['nullable', 'integer', 'min:1'],
             'children' => ['nullable', 'integer', 'min:0'],
+
+            'star_rate' => ['nullable', 'array'],
+            'star_rate.*' => [
+                'string',
+                Rule::in(array_keys(Review::RATINGS)),
+            ],
 
             'order_by' => ['nullable', 'string'],
             'order_direction' => ['nullable', 'string', 'in:asc,desc'],
@@ -43,6 +51,10 @@ class HotelSearchRequest extends FormRequest
             'children.min' => __('hotel.validation.children_min_value'),
 
             'order_by.string' => __('hotel.validation.order_by_must_be_string'),
+
+            'star_rate.array' => __('validation.star_rate_must_be_array'),
+            'star_rate.*.string' => __('validation.star_rate_item_must_be_string'),
+            'star_rate.*.in' => __('validation.star_rate_invalid'),
 
             'order_direction.string' => __('hotel.validation.order_direction_must_be_string'),
             'order_direction.in' => __('hotel.validation.order_direction_invalid'),
