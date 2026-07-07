@@ -37,6 +37,12 @@ return [
         'star_rate_must_be_array' => 'Поле "рейтинг" должно быть массивом',
         'star_rate_item_must_be_string' => 'Значение рейтинга должно быть строкой',
         'star_rate_invalid' => 'Выбранный рейтинг недоступен',
+
+        'price_must_be_array' => 'Поле "цена" должно быть массивом',
+        'price_min_must_be_numeric' => 'Минимальная цена должна быть числом',
+        'price_max_must_be_numeric' => 'Максимальная цена должна быть числом',
+        'price_must_be_positive' => 'Цена не может быть отрицательной',
+        'price_max_must_be_greater_than_min' => 'Максимальная цена должна быть больше или равна минимальной',
     ],
     'successes' => [
 
