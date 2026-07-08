@@ -5,8 +5,8 @@ namespace App\Swagger\Tags;
 use OpenApi\Attributes as OA;
 
 #[OA\Tag(
-    name: "Reviews",
-    description: "Отзывы"
+    name: "Reviews/Ratings",
+    description: "Отзывы и рейтинг"
 )]
 
 class ReviewsTag

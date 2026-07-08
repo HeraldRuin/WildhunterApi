@@ -37,7 +37,7 @@ class ReviewPath
                 ]
             )
         ),
-        tags: ["Reviews"],
+        tags: ["Reviews/Ratings"],
         parameters: [
             new OA\Parameter(
                 name: "id",
@@ -94,7 +94,7 @@ class ReviewPath
                  ]
              )
          ),
-        tags: ["Reviews"],
+        tags: ["Reviews/Ratings"],
         responses: [
             new OA\Response(
                 ref: "#/components/responses/SuccessResponse",
@@ -112,7 +112,7 @@ class ReviewPath
     #[OA\Get(
         path: "/api/" . ApiConfig::VERSION . "/reviews/ratings",
         summary: "Получить список доступных рейтингов",
-        tags: ["Reviews"],
+        tags: ["Reviews/Ratings"],
         responses: [
             new OA\Response(
                 ref: "#/components/responses/SuccessResponse",
