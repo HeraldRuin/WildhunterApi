@@ -40,7 +40,7 @@ class HotelSearchService
         return [
             \Modules\Hotel\Filters\LocationFilter::class,
             \Modules\Hotel\Filters\PriceFilter::class,
-//            \Modules\Hotel\Filters\AnimalFilter::class,
+            \Modules\Hotel\Filters\AnimalFilter::class,
             \Modules\Hotel\Filters\StarRateFilter::class,
             \Modules\Hotel\Filters\DateAvailabilityFilter::class,
         ];
