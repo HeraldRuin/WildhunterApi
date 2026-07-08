@@ -8,9 +8,7 @@ class PriceFilter
     {
         $query = $payload['query'];
         $dto = $payload['dto'];
-        \Log::info('Result', [
-            'Result' => $dto,
-        ]);
+
         if (!empty($dto->price)) {
             $min = $dto->price['min'] ?? null;
             $max = $dto->price['max'] ?? null;
