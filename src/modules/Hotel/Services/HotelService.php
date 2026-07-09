@@ -2,6 +2,7 @@
 
 namespace Modules\Hotel\Services;
 
+use App\Exceptions\ValidationException;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\DB;
@@ -29,6 +30,26 @@ class HotelService
         return [
             'code' => '',
             'data' => $hotels
+        ];
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function getHotel($hotelId): array
+    {
+        $hotel = Hotel::published()->find($hotelId);
+
+        if (!$hotel) {
+            throw new ValidationException(
+                errorCode: 'hotel_not_found',
+                domain: 'hotel'
+            );
+        }
+
+        return [
+            'code' => '',
+            'data' => $hotel
         ];
     }
 
