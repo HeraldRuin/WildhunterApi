@@ -52,6 +52,39 @@ class HotelsPath
     public function offers(): void
     {}
 
+    #[OA\Get(
+        path: "/api/" . ApiConfig::VERSION . "/hotels/{id}",
+        summary: "Получить информацию об отеле",
+        security: [['bearerAuth' => []]],
+        tags: ["Hotels"],
+        parameters: [
+            new OA\Parameter(
+                name: "id",
+                description: "ID отеля",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(
+                    type: "integer",
+                    example: 27,
+                    minimum: 1
+                )
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                ref: "#/components/responses/SuccessResponse",
+                response: 200
+            ),
+//            new OA\Response(
+//                ref: "#/components/responses/NotFoundResponse",
+//                response: 404
+//            ),
+        ]
+    )]
+    public function show(): void
+    {
+    }
+
     #[OA\Post(
         path: "/api/" . ApiConfig::VERSION . "/hotels/search",
         summary: "Поиск отелей",
@@ -93,13 +126,6 @@ class HotelsPath
                         description: "Количество взрослых гостей",
                         type: "integer",
                         example: 1
-                    ),
-                    new OA\Property(
-                        property: "children",
-                        description: "Количество детей",
-                        type: "integer",
-                        example: 0,
-                        nullable: true
                     ),
                     new OA\Property(
                         property: "price",
