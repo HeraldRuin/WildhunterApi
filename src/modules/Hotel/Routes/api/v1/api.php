@@ -6,6 +6,7 @@ use Modules\Hotel\Controllers\HotelController;
 Route::post('/hotels/offers', [HotelController::class, 'getHotels']);
 Route::post('/hotels/search', [HotelController::class, 'searchHotels']);
 Route::get('/hotels/price-range', [HotelController::class, 'priceRange']);
+Route::get('/hotels/{hotel}', [HotelController::class, 'getHotel']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
