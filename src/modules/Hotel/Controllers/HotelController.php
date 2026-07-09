@@ -2,6 +2,7 @@
 
 namespace Modules\Hotel\Controllers;
 
+use App\Exceptions\ValidationException;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use Modules\Hotel\Dto\HotelFilterData;
@@ -27,6 +28,18 @@ class HotelController extends Controller
 
         return new SuccessResponse(
             data: HotelResource::collection($result['data'])
+        );
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function getHotel($id): JsonResponse
+    {
+        $result = $this->hotelService->getHotel($id);
+
+        return new SuccessResponse(
+            data: new HotelResource($result['data'])
         );
     }
 
