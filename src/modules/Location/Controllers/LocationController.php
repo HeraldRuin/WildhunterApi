@@ -6,9 +6,10 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Responses\SuccessResponse;
 use Modules\Location\Dto\LocationFilterData;
-use Modules\Location\Http\Request\LocationFilterRequest;
-use Modules\Location\Http\Resources\LocationResource;
 use Modules\Location\Services\LocationService;
+use Modules\Location\Http\Request\LocationFilterRequest;
+use Modules\Location\Http\Resources\BestLocationResource;
+use Modules\Location\Http\Resources\LocationResource;
 
 
 class LocationController extends Controller
