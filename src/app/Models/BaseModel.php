@@ -19,4 +19,9 @@ class BaseModel extends Model
     {
         return $this->find($id);
     }
+
+    public static function getTableName()
+    {
+        return with(new static)->table;
+    }
 }
