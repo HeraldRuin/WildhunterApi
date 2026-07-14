@@ -7,10 +7,21 @@ use OpenApi\Attributes as OA;
 
 class AttributesPath
 {
-    #[OA\Get(
-        path: "/api/" . ApiConfig::VERSION . "/hotels/attributes",
-        summary: "Получить список атрибутов для отелей",
+    #[OA\Post(
+        path: "/api/" . ApiConfig::VERSION . "/services/attributes",
+        summary: "Получить список атрибутов для сервиса",
         security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(
+                        property: "type",
+                        type: "string",
+                        example: "hotel",
+                    ),
+                ]
+            )
+        ),
         tags: ["Attributes"],
         responses: [
             new OA\Response(
