@@ -43,6 +43,7 @@ class HotelSearchService
             \Modules\Hotel\Filters\AnimalFilter::class,
             \Modules\Hotel\Filters\StarRateFilter::class,
             \Modules\Hotel\Filters\DateAvailabilityFilter::class,
+            \Modules\Hotel\Filters\TermFilter::class,
         ];
     }
 }
