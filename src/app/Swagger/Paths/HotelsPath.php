@@ -160,6 +160,16 @@ class HotelsPath
                         nullable: true
                     ),
                     new OA\Property(
+                        property: "term_ids",
+                        description: "Массив ID терминов (атрибутов) для фильтрации отелей",
+                        type: "array",
+                        items: new OA\Items(
+                            type: "integer",
+                            example: 12
+                        ),
+                        nullable: true
+                    ),
+                    new OA\Property(
                         property: "order_by",
                         type: "string",
                         example: "created_at",
