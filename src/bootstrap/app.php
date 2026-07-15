@@ -2,6 +2,7 @@
 
 use App\Exceptions\BaseException;
 use App\Http\Middleware\AttachTraceId;
+use App\Http\Middleware\EnsureValidJson;
 use Illuminate\Foundation\Application;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Validation\ValidationException;
@@ -18,9 +19,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->api(
-        [
+        $middleware->api([
             AttachTraceId::class,
+            EnsureValidJson::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
