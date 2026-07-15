@@ -19,10 +19,10 @@ class HotelSearchRequest extends FormRequest
             'children' => ['nullable', 'integer', 'min:0'],
 
             'star_rate' => ['nullable', 'array'],
-            'star_rate.*' => [
-                'string',
-                Rule::in(array_keys(Review::RATINGS)),
-            ],
+            'star_rate.*' => ['string', Rule::in(array_keys(Review::RATINGS))],
+
+            'term_ids' => ['nullable', 'array'],
+            'term_ids.*' => ['integer', Rule::exists('bc_terms', 'id')],
 
             'price' => ['nullable', 'array'],
             'price.min' => ['nullable','numeric', 'min:0'],
@@ -59,6 +59,10 @@ class HotelSearchRequest extends FormRequest
             'star_rate.array' => __('hotel.validation.star_rate_must_be_array'),
             'star_rate.*.string' => __('hotel.validation.star_rate_item_must_be_string'),
             'star_rate.*.in' => __('hotel.validation.star_rate_invalid'),
+
+            'term_ids.array' => __('hotel.validation.term_ids_must_be_array'),
+            'term_ids.*.integer' => __('hotel.validation.term_id_must_be_integer'),
+            'term_ids.*.exists' => __('hotel.validation.term_id_not_exists'),
 
             'price.array' => __('hotel.validation.price_must_be_array'),
             'price.min.numeric' => __('hotel.validation.price_min_must_be_numeric'),
