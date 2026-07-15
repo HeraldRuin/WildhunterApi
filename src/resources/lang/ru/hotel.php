@@ -38,6 +38,10 @@ return [
         'star_rate_item_must_be_string' => 'Значение рейтинга должно быть строкой',
         'star_rate_invalid' => 'Выбранный рейтинг недоступен',
 
+        'term_ids_must_be_array' => 'Поле "term_ids" должно быть массивом.',
+        'term_id_must_be_integer' => 'Каждый идентификатор термина должен быть целым числом.',
+        'term_id_not_exists' => 'Один или несколько указанных терминов не существуют.',
+
         'price_must_be_array' => 'Поле "цена" должно быть массивом',
         'price_min_must_be_numeric' => 'Минимальная цена должна быть числом',
         'price_max_must_be_numeric' => 'Максимальная цена должна быть числом',
