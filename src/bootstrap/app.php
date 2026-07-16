@@ -3,6 +3,7 @@
 use App\Exceptions\BaseException;
 use App\Http\Middleware\AttachTraceId;
 use App\Http\Middleware\EnsureValidJson;
+use App\Http\Responses\NotFoundResponse;
 use Illuminate\Foundation\Application;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Validation\ValidationException;
@@ -36,11 +37,7 @@ return Application::configure(basePath: dirname(__DIR__))
             }
 
             if ($e instanceof NotFoundHttpException) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Ресурс не найден',
-                    'error_code' => 'not_found',
-                ], 404);
+                return new NotFoundResponse('', 'not_found_resource', 'core');
             }
 
             if ($e instanceof ValidationException) {
