@@ -34,9 +34,9 @@ class HotelController extends Controller
     /**
      * @throws ValidationException
      */
-    public function getHotel($id): JsonResponse
+    public function getHotel($location, $slug): JsonResponse
     {
-        $result = $this->hotelService->getHotel($id);
+        $result = $this->hotelService->getHotel($location, $slug);
 
         return new SuccessResponse(
             data: new HotelResource($result['data'])

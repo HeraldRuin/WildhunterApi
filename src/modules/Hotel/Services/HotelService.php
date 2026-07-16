@@ -36,9 +36,9 @@ class HotelService
     /**
      * @throws ValidationException
      */
-    public function getHotel($hotelId): array
+    public function getHotel($location, $slug): array
     {
-        $hotel = Hotel::published()->find($hotelId);
+        $hotel = Hotel::published()->where('slug', $slug)->first();
 
         if (!$hotel) {
             throw new ValidationException(
