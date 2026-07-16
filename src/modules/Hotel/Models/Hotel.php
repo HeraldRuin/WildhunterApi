@@ -3,6 +3,7 @@
 namespace Modules\Hotel\Models;
 
 use App\Observers\HotelObserver;
+use Modules\Animals\Models\Animal;
 use Modules\Review\Models\Review;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -14,6 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Hotel extends Bookable
 {
@@ -120,5 +122,10 @@ class Hotel extends Bookable
     public function reviews(): HasMany
     {
         return $this->hasMany(Review::class, 'object_id');
+    }
+
+    public function animals(): BelongsToMany
+    {
+        return $this->belongsToMany(Animal::class, 'bc_hotel_animals', 'hotel_id', 'animal_id')->withPivot('status');
     }
 }
