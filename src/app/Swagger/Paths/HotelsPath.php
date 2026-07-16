@@ -43,42 +43,47 @@ class HotelsPath
                 ref: "#/components/responses/ValidationError",
                 response: 422
             ),
-            new OA\Response(
-                ref: "#/components/responses/AuthResponse",
-                response: 401
-            ),
         ]
     )]
     public function offers(): void
     {}
 
     #[OA\Get(
-        path: "/api/" . ApiConfig::VERSION . "/hotels/{id}",
+        path: "/api/" . ApiConfig::VERSION . "/hotels/{location}/{slug}",
         summary: "Получить информацию об отеле",
         security: [['bearerAuth' => []]],
         tags: ["Hotels"],
         parameters: [
             new OA\Parameter(
-                name: "id",
-                description: "ID отеля",
+                name: "slug",
+                description: "Slug отеля",
                 in: "path",
                 required: true,
                 schema: new OA\Schema(
-                    type: "integer",
-                    example: 27,
-                    minimum: 1
+                    type: "string",
+                    example: "dva-olenia"
                 )
             ),
+            new OA\Parameter(
+                name: "location",
+                description: "локация отеля",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(
+                    type: "string",
+                    example: "moskovskaia-oblast",
+                )
+            )
         ],
         responses: [
             new OA\Response(
                 ref: "#/components/responses/SuccessResponse",
                 response: 200
             ),
-//            new OA\Response(
-//                ref: "#/components/responses/NotFoundResponse",
-//                response: 404
-//            ),
+            new OA\Response(
+                ref: "#/components/responses/NotFoundResponse",
+                response: 404
+            ),
         ]
     )]
     public function show(): void
@@ -214,10 +219,6 @@ class HotelsPath
             new OA\Response(
                 ref: "#/components/responses/ValidationError",
                 response: 422
-            ),
-            new OA\Response(
-                ref: "#/components/responses/AuthResponse",
-                response: 401
             ),
         ]
     )]
