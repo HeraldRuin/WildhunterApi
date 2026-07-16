@@ -28,7 +28,7 @@ class EnsureValidJson
                 'message' => 'Ошибка валидации',
                 'error_code' => 'validation_error',
                 'errors' => [
-                    'body' => [__('core.invalid_json_body')],
+                    'body' => [__('core.errors.invalid_json_body')],
                 ],
                 'trace_id' => $request->attributes->get('trace_id'),
             ], 422);
