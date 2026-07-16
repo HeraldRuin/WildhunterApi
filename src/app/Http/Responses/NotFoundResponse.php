@@ -26,10 +26,5 @@ final class NotFoundResponse extends JsonResponse
             return __($this->domain . '.errors.' . $this->code, $this->replace);
         }
         return $this->message;
-//        if ($this->message !== '') {
-//            return $this->message;
-//        }
-//
-//        return 'Запрашиваемый ресурс не найден';
     }
 }
