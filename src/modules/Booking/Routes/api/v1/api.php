@@ -6,5 +6,9 @@ use Modules\Booking\Controllers\BookingController;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/bookings', [BookingController::class, 'store']);
+
+    Route::get('/bookings/{code}/checkout', [BookingController::class, 'checkout']);
+    Route::post('/bookings/{code}/checkout', [BookingController::class, 'doCheckout']);
+
     Route::get('/users/{id}/bookings', [BookingController::class, 'bookingHistory']);
 });
