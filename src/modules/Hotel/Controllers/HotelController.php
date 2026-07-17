@@ -2,9 +2,9 @@
 
 namespace Modules\Hotel\Controllers;
 
-use App\Exceptions\ValidationException;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use App\Exceptions\NotFoundException;
 use Modules\Hotel\Dto\HotelFilterData;
 use Modules\Hotel\Dto\HotelSearchData;
 use App\Http\Responses\SuccessResponse;
@@ -14,6 +14,7 @@ use App\Http\Resources\PaginateResource;
 use Modules\Hotel\Http\Resources\HotelResource;
 use Modules\Hotel\Http\Request\HotelFilterRequest;
 use Modules\Hotel\Http\Request\HotelSearchRequest;
+use Modules\Hotel\Http\Resources\HotelOffersResource;
 use Modules\Hotel\Http\Resources\HotelSearchResource;
 
 class HotelController extends Controller
@@ -27,12 +28,13 @@ class HotelController extends Controller
         $result = $this->hotelService->getHotels($dto);
 
         return new SuccessResponse(
-            data: HotelResource::collection($result['data'])
+            data: HotelOffersResource::collection($result['data'])
         );
     }
 
+
     /**
-     * @throws ValidationException
+     * @throws NotFoundException
      */
     public function getHotel($location, $slug): JsonResponse
     {
