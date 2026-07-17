@@ -2,6 +2,7 @@
 
 namespace Modules\Hotel\Http\Resources;
 
+use Modules\Hotel\Models\Hotel;
 use App\Http\Resources\BaseJsonResource;
 use Modules\Location\Http\Resources\LocationResource;
 
