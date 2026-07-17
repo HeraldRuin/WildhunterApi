@@ -16,6 +16,40 @@ return [
         'not_all_hunters_confirmed' => 'Не все приглашённые участники подтвердили приглашение. Дождитесь ответа всех участников',
         'booking_hunter_gathering_not_started' => 'Сбор охотников не начат',
     ],
+    'validation' => [
+        'hotel_id_required' => 'Укажите отель',
+        'hotel_id_must_be_integer' => 'ID отеля должен быть числом',
+        'hotel_id_not_found' => 'Отель не найден',
+
+        'animal_id_must_be_integer' => 'ID животного должен быть числом',
+        'animal_id_not_found' => 'Животное не найдено',
+
+        'check_in_required' => 'Укажите дату заезда',
+        'check_in_must_be_date' => 'Дата заезда должна быть корректной датой',
+        'check_in_must_be_today_or_later' => 'Дата заезда не может быть в прошлом',
+
+        'check_out_required' => 'Укажите дату выезда',
+        'check_out_must_be_date' => 'Дата выезда должна быть корректной датой',
+        'check_out_must_be_after_check_in' => 'Дата выезда должна быть позже даты заезда',
+
+        'adults_must_be_integer' => 'Количество взрослых должно быть числом',
+        'adults_min_value' => 'Минимальное количество взрослых — 1',
+
+        'hunters_must_be_integer' => 'Количество охотников должно быть числом',
+        'hunters_min_value' => 'Минимальное количество охотников — 1',
+
+        'rooms_required' => 'Выберите хотя бы один номер',
+        'rooms_must_be_array' => 'Список номеров должен быть массивом',
+        'rooms_min_value' => 'Выберите хотя бы один номер',
+
+        'room_id_required' => 'Укажите ID номера',
+        'room_id_must_be_integer' => 'ID номера должен быть числом',
+        'room_id_not_found' => 'Номер не найден или не принадлежит выбранному отелю',
+
+        'room_number_required' => 'Укажите количество номеров',
+        'room_number_must_be_integer' => 'Количество номеров должно быть числом',
+        'room_number_min_value' => 'Минимальное количество номеров — 1',
+    ],
     'successes' => [
         'place_selected' => 'Выбранное место занято за вами',
         'place_cancelled' => 'Выбранное место освобожденно',
