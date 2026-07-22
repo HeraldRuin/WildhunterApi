@@ -19,6 +19,7 @@ class HotelOffersResource extends BaseJsonResource
             'slug'=> $hotel->slug,
             'image_url' => $hotel->getImageUrl()?: asset('uploads/0000/1/2026/11/14/no_image.png'),
             'star_rate' => $hotel->star_rate,
+            'price' => $hotel->price,
 //            'has_wish_list' => $this->hasWishList !== null,
             'location' => LocationResource::make($this->resource->location),
         ];
