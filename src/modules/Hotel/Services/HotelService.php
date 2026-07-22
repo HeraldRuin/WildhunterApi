@@ -21,6 +21,7 @@ class HotelService
     public function getHotels(HotelFilterData $dto): array
     {
         $hotels = Hotel::published()
+            ->with(['location', 'reviews'])
             ->when($dto->order_by, function ($q) use ($dto) {
                 $q->orderBy($dto->order_by, $dto->order_direction ?? 'asc');
             })
