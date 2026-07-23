@@ -45,6 +45,7 @@ return [
     'successes' => [
         'subscription_success' => 'Вы успешно подписались на рассылку.',
         'subscription_thanks' => 'Спасибо за подписку.',
+        'subscription_already_subscribed' => 'Этот email уже подписан на рассылку.',
         'update_success' => 'Данные пользователя успешно сохранены',
     ]
 ];
