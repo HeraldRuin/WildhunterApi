@@ -43,8 +43,8 @@ class ResetPasswordRequest extends FormRequest
             'password.mixed'  => __('auth.validation.password_upper_lower'),
             'password.numbers' => __('auth.validation.password_number'),
 
-            'new_password.confirmed' => __('password.validation.new_password_confirmed'),
-            'new_password_confirmation.required' => __('password.validation.confirmation_password_required'),
+            'password.confirmed' => __('password.validation.new_password_confirmed'),
+            'password_confirmation.required' => __('password.validation.confirmation_password_required'),
         ];
     }
 }
