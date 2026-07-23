@@ -82,14 +82,14 @@ class UserService
                 ->where('email', $dto->email)
                 ->first();
 
-            $newSubscriber = new Subscriber();
-            $newSubscriber->email = $dto->email;
+            $subscriber = new Subscriber();
+            $subscriber->email = $dto->email;
 
             if ($user) {
-                $newSubscriber->first_name = $user?->first_name;
-                $newSubscriber->last_name = $user?->last_name;
+                $subscriber->first_name = $user?->first_name;
+                $subscriber->last_name = $user?->last_name;
             }
-            $newSubscriber->save();
+            $subscriber->save();
         }
 
         return [
