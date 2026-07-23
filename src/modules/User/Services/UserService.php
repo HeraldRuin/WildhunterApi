@@ -76,6 +76,8 @@ class UserService
             if ($subscriber->trashed()) {
                 $subscriber->restore();
                 $code = 'subscription_thanks';
+            } else {
+                $code = 'subscription_already_subscribed';
             }
         } else {
             $user = User::select('first_name', 'last_name')

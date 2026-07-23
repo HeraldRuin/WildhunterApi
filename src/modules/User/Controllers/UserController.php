@@ -45,7 +45,9 @@ class UserController
         $dto = SubscribeData::fromRequest($request);
         $result = $this->userService->subscribe($dto);
 
-         event(new UserSubscriberSubmit($result['subscriber']));
+        if ($result['code'] !== 'subscription_already_subscribed') {
+            event(new UserSubscriberSubmit($result['subscriber']));
+        }
 
         return new SuccessResponse(code: $result['code'], domain: 'user');
     }
