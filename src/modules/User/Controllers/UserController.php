@@ -2,6 +2,7 @@
 
 namespace Modules\User\Controllers;
 
+use App\Exceptions\NotFoundException;
 use App\Http\Responses\SuccessResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -25,6 +26,10 @@ class UserController
 
         return new SuccessResponse(data: UserResource::collection($result));
     }
+
+    /**
+     * @throws NotFoundException
+     */
     public function searchUser($id): JsonResponse
     {
         $result = $this->userService->searchById($id);

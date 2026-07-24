@@ -4,6 +4,7 @@ namespace Modules\User\Services;
 
 use App\Exceptions\ConflictException;
 use App\Exceptions\ForbiddenException;
+use App\Exceptions\NotFoundException;
 use App\Exceptions\ValidationException;
 use App\Models\User;
 use Modules\Hotel\Models\Hotel;
@@ -19,9 +20,22 @@ class UserService
     {
         return User::with(['role', 'weapons', 'weapons.type', 'weapons.caliber'])->get();
     }
-    public function searchById(string $id): ?User
+
+    /**
+     * @throws NotFoundException
+     */
+    public function searchById(string $id): User
     {
-        return User::with(['role', 'weapons', 'weapons.type', 'weapons.caliber'])->find($id);
+        $user = User::with(['role', 'weapons', 'weapons.type', 'weapons.caliber'])->find($id);
+
+        if (!$user) {
+            throw new NotFoundException(
+                errorCode: 'user_not_found',
+                domain: 'user'
+            );
+        }
+
+        return $user;
     }
     public function findByEmail(string $email): ?User
     {

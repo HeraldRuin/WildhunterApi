@@ -1,7 +1,7 @@
 <?php
 return [
     'errors' => [
-
+        'user_not_found' => 'Пользователь не найден',
     ],
     'rules' => [
 
