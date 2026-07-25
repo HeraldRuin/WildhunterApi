@@ -50,24 +50,48 @@ class FileHelper
         foreach (array_keys(self::$defaultSize) as $size) {
             Cache::forget(self::urlCacheKey($fileId, $size));
         }
+
+        Cache::forget(self::urlCacheKey($fileId, 'full'));
     }
 
     public static function url($fileId, $size = 'medium', $resize = true)
     {
         if ($fileId instanceof MediaFile) {
-            return $fileId->view_url ?: false;
+            $file = $fileId;
+            $fileId = $file->id;
+        } else {
+            if (empty($fileId)) {
+                return false;
+            }
+
+            $file = null;
         }
 
-        if (empty($fileId)) {
-            return false;
+        $shouldResize = $resize && isset(self::$defaultSize[$size]);
+
+        if (!$shouldResize) {
+            $file ??= MediaFile::find($fileId);
+
+            return $file?->view_url ?: false;
         }
 
         $cacheKey = self::urlCacheKey($fileId, $size);
 
-        $url = Cache::remember($cacheKey, now()->addDay(), function () use ($fileId) {
+        $url = Cache::remember($cacheKey, now()->addDay(), function () use ($fileId, $size) {
             $file = MediaFile::find($fileId);
 
-            return $file?->view_url ?? '';
+            if (!$file) {
+                return '';
+            }
+
+            if (in_array($file->driver, ['s3', 'gcs'], true)) {
+                return $file->view_url ?: '';
+            }
+
+            return route('media.image', [
+                'id' => $file->id,
+                'size' => $size,
+            ]);
         });
 
         return $url !== '' ? $url : false;

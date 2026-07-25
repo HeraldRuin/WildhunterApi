@@ -6,6 +6,7 @@ use App\Models\BaseModel;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Modules\Media\Helpers\FileHelper;
+use Modules\Media\Services\MediaImageService;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 
@@ -40,6 +41,8 @@ class MediaFile extends BaseModel
     {
         FileHelper::forgetUrlCache($this->getKey());
         Cache::forget($this->cacheKey() . ':' . $this->getKey());
+
+        app(MediaImageService::class)->forgetCache($this);
     }
 
     public function scopeInFolder($query, $folder_id){

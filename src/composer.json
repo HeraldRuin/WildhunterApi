@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.3",
         "darkaonline/l5-swagger": "^11.0",
+        "intervention/image-laravel": "^4.1",
         "kalnoy/nestedset": "^7.0",
         "laravel/framework": "^13.7",
         "laravel/sanctum": "^4.0",
@@ -28,15 +29,15 @@
             "Modules\\": "modules/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Tests\\": "tests/"
         },
         "files": [
             "app/Helpers/AppHelper.php"
         ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
     },
     "scripts": {
         "setup": [
