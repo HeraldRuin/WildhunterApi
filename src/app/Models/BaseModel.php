@@ -44,6 +44,7 @@ class BaseModel extends Model
         if ($featuredIncluded && $this->image_id) {
             $listItem[] = [
                 'large' => FileHelper::url($this->image_id, 'full'),
+                'medium' => FileHelper::url($this->image_id, 'medium'),
                 'thumb' => FileHelper::url($this->image_id, 'thumb'),
             ];
         }
@@ -56,11 +57,13 @@ class BaseModel extends Model
             }
 
             $large = FileHelper::url($item, 'full');
+            $medium = FileHelper::url($item, 'medium');
             $thumb = FileHelper::url($item, 'thumb');
 
             if (!empty($large)) {
                 $listItem[] = [
                     'large' => $large,
+                    'medium' => $medium,
                     'thumb' => $thumb,
                 ];
             }
