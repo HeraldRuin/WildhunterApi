@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Modules\User\Models\UserWishList;
 use Modules\Booking\Models\Bookable;
-use Modules\Media\Helpers\FileHelper;
+use Modules\Booking\Traits\HasDeposit;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -21,6 +21,7 @@ class Hotel extends Bookable
 {
     use SoftDeletes;
     use Notifiable;
+    use HasDeposit;
 //    use CapturesService;
 
     protected $translation_class = HotelTranslation::class;
@@ -59,11 +60,6 @@ class Hotel extends Bookable
         return setting_item('hotel_disable') == false;
     }
 
-    public function getImageUrl($size = "medium")
-    {
-        $url = FileHelper::url($this->image_id, $size);
-        return $url ? $url : '';
-    }
     public function scopePublished($query)
     {
         return $query->where('status', 'publish');

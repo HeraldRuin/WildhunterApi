@@ -5,7 +5,6 @@
     use App\Models\BaseModel;
     use Kalnoy\Nestedset\NodeTrait;
     use Modules\Hotel\Models\Hotel;
-    use Modules\Media\Helpers\FileHelper;
     use Illuminate\Database\Eloquent\SoftDeletes;
     use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -40,12 +39,6 @@
         public static function isEnable(): bool
         {
             return setting_item('location_disable') == false;
-        }
-
-        public function getImageUrl($size = "medium")
-        {
-            $url = FileHelper::url($this->image_id, $size);
-            return $url ? $url : '';
         }
 
         public function scopePublished($query)
