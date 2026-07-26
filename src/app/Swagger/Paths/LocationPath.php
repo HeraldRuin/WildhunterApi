@@ -71,4 +71,36 @@ class LocationPath
     )]
     public function getLocations(): void
     {}
+
+    #[OA\Get(
+        path: "/api/" . ApiConfig::VERSION . "/locations/{id}/hotels",
+        summary: "Выводит список отелей для указанной локации",
+        security: [['bearerAuth' => []]],
+        tags: ["Locations"],
+        parameters: [
+            new OA\Parameter(
+                name: "id",
+                description: "ID локации",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(
+                    type: "integer",
+                    example: 1,
+                    minimum: 1
+                )
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                ref: "#/components/responses/SuccessResponse",
+                response: 200
+            ),
+            new OA\Response(
+                ref: "#/components/responses/NotFoundResponse",
+                response: 404
+            )
+        ]
+    )]
+    public function getLocationHotels(): void
+    {}
 }
