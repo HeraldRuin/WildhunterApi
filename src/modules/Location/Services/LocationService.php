@@ -2,6 +2,7 @@
 
 namespace Modules\Location\Services;
 
+use App\Exceptions\NotFoundException;
 use Modules\Location\Models\Location;
 use Modules\Location\Dto\LocationFilterData;
 
@@ -27,6 +28,30 @@ class LocationService
 
         return [
             'locations' => $locations
+        ];
+    }
+
+    /**
+     * @throws NotFoundException
+     */
+    public function getLocationHotels(int $id): array
+    {
+        $location = Location::published()->find($id);
+
+        if (!$location) {
+            throw new NotFoundException(
+                errorCode: 'location_not_found',
+                domain: 'location'
+            );
+        }
+
+        $hotels = $location->hotels()
+            ->published()
+            ->with(['location', 'reviews'])
+            ->get();
+
+        return [
+            'hotels' => $hotels
         ];
     }
 }
