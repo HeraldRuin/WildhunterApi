@@ -8,10 +8,10 @@ use App\Exceptions\NotFoundException;
 use App\Http\Responses\SuccessResponse;
 use Modules\Location\Dto\LocationFilterData;
 use Modules\Location\Services\LocationService;
-use Modules\Hotel\Http\Resources\HotelResource;
 use Modules\Location\Http\Resources\LocationResource;
 use Modules\Location\Http\Request\LocationFilterRequest;
 use Modules\Location\Http\Resources\BestLocationResource;
+use Modules\Location\Http\Resources\LocationHotelResource;
 
 
 class LocationController extends Controller
@@ -43,6 +43,6 @@ class LocationController extends Controller
     {
         $result = $this->locationService->getLocationHotels($id);
 
-        return new SuccessResponse(data: HotelResource::collection($result['hotels']));
+        return new SuccessResponse(data: LocationHotelResource::collection($result['hotels']));
     }
 }
