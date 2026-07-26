@@ -47,7 +47,7 @@ class LocationService
 
         $hotels = $location->hotels()
             ->published()
-            ->with(['location', 'reviews'])
+            ->with(['reviews'])
             ->get();
 
         return [
