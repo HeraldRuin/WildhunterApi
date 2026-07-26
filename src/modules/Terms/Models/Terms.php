@@ -5,7 +5,6 @@ namespace Modules\Terms\Models;
 use App\Models\BaseModel;
 use Modules\Hotel\Models\Hotel;
 use Modules\Hotel\Models\HotelTerm;
-use Modules\Media\Helpers\FileHelper;
 use Modules\Attributes\Models\Attributes;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -26,12 +25,6 @@ class Terms extends BaseModel
     public function attribute(): HasOne
     {
         return $this->hasOne(Attributes::class, "id", "attr_id");
-    }
-
-    public function getImageUrl($size = "medium")
-    {
-        $url = FileHelper::url($this->image_id, $size);
-        return $url ? $url : '';
     }
 
     public function hotel(): BelongsToMany
