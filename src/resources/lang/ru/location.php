@@ -4,7 +4,7 @@ return [
         'model_name' => 'Локации',
     ],
     'errors' => [
-
+        'location_not_found' => 'Локация не найдена',
     ],
     'rules' => [
 
