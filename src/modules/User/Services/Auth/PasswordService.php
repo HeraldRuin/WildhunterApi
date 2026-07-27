@@ -20,6 +20,15 @@ class PasswordService
     }
 
 
+    public function getCurrentPassword(Authenticatable $user): array
+    {
+        $password = $user->current_password? Crypt::decryptString($user->current_password): null;
+
+        return [
+            'current_password' => $password,
+        ];
+    }
+
     /**
      * @throws ValidationException
      */
