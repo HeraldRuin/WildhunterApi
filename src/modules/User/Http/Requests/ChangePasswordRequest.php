@@ -40,6 +40,9 @@ class ChangePasswordRequest extends FormRequest
             'current_password.required' => __('password.validation.current_password_required'),
 
             'new_password.required' => __('password.validation.new_password_required'),
+            'new_password.min' => __('auth.validation.password_min'),
+            'new_password.mixed' => __('auth.validation.password_upper_lower'),
+            'new_password.numbers' => __('auth.validation.password_number'),
             'new_password.confirmed' => __('password.validation.new_password_confirmed'),
             'new_password.different' => __('password.validation.new_password_different'),
 
