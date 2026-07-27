@@ -148,6 +148,25 @@ class UserPath
     public function changePassword(): void
     {}
 
+    #[OA\Get(
+        path: "/api/" . ApiConfig::VERSION . "/user/current-password",
+        summary: "Получить текущий пароль пользователя",
+        security: [['bearerAuth' => []]],
+        tags: ["Users"],
+        responses: [
+            new OA\Response(
+                ref: "#/components/responses/SuccessResponse",
+                response: 200
+            ),
+            new OA\Response(
+                ref: "#/components/responses/AuthResponse",
+                response: 401
+            ),
+        ]
+    )]
+    public function getCurrentPassword(): void
+    {}
+
     #[OA\Post(
         path: "/api/" . ApiConfig::VERSION . "/user/newsletter/subscribe",
         summary: "Подписка на рассылку",
