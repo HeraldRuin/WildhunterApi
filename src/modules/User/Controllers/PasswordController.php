@@ -24,6 +24,13 @@ class PasswordController
     {
     }
 
+    public function getCurrentPassword(): JsonResponse
+    {
+        $result = $this->passwordService->getCurrentPassword(Auth::user());
+
+        return new SuccessResponse(data: $result);
+    }
+
     /**
      * @throws ValidationException
      */
