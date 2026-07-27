@@ -23,11 +23,11 @@ Route::post('/services/{hotel}/favorite', [UserWishListController::class, 'addFa
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users', [UserController::class, 'searchUsers']);
+    Route::get('/user/current-password', [PasswordController::class, 'getCurrentPassword']);
+    Route::post('/user/change-password', [PasswordController::class, 'updatePassword']);
     Route::get('/user/{user}', [UserController::class, 'searchUser']);
     Route::post('/user', [UserController::class, 'profileUpdate']);
 
-    //Изменение пароля
-    Route::post('/user/change-password', [PasswordController::class, 'updatePassword']);
     //Избранное
     Route::post('/services/favorites', [UserWishListController::class, 'getFavorites']);
     Route::post('/services/{hotel}/favorites', [UserWishListController::class, 'checkFavorite']);
