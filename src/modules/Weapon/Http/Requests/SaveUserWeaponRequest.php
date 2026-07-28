@@ -2,7 +2,6 @@
 
 namespace Modules\Weapon\Http\Requests;
 
-use Illuminate\Validation\Rules\Password;
 use Illuminate\Foundation\Http\FormRequest;
 
 class SaveUserWeaponRequest extends FormRequest
@@ -13,7 +12,7 @@ class SaveUserWeaponRequest extends FormRequest
             'hunter_license_number' => ['required', 'string', 'max:255'],
             'hunter_license_date' => ['required', 'date'],
             'weapon_type_id' => ['required', 'integer', 'exists:bc_weapons,id'],
-            'caliber' => ['required', 'string', 'max:50'],
+            'caliber_id' => ['required', 'integer', 'exists:bc_calibers,id'],
         ];
     }
 
@@ -29,8 +28,9 @@ class SaveUserWeaponRequest extends FormRequest
             'weapon_type_id.required' => __('weapon.validation.weapon_type_required'),
             'weapon_type_id.exists' => __('weapon.validation.weapon_type_not_found'),
 
-            'caliber.required' => __('weapon.validation.caliber_required'),
-            'caliber.string' => __('weapon.validation.caliber_string'),
+            'caliber_id.required' => __('weapon.validation.caliber_required'),
+            'caliber_id.integer' => __('weapon.validation.caliber_integer'),
+            'caliber_id.exists' => __('weapon.validation.caliber_not_found'),
         ];
     }
 }
