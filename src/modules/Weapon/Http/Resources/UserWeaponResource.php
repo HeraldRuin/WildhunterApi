@@ -16,6 +16,7 @@ class UserWeaponResource extends BaseJsonResource
             'weapon_type' => $this->resource->type?->title,
             'weapon_type_id' => $this->resource->weapon_type_id,
             'caliber' => $this->resource->caliber?->title,
+            'caliber_id' => $this->resource->caliber_id,
         ];
     }
 }
