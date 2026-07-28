@@ -20,7 +20,8 @@ return [
         'weapon_type_not_found' => 'Тип оружия не найден',
 
         'caliber_required' => 'Калибр обязателен',
-        'caliber_string' => 'Калибр должен быть строкой',
+        'caliber_integer' => 'Калибр должен быть числом',
+        'caliber_not_found' => 'Калибр не найден',
     ],
     'successes' => [
         'save_success' => 'Оружие сохранено.',
