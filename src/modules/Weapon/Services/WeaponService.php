@@ -20,6 +20,14 @@ class WeaponService
         return Caliber::all();
     }
 
+    public function getUserWeapons(int $userId): Collection
+    {
+        return UserWeapon::query()
+            ->with(['type', 'caliber', 'user'])
+            ->where('user_id', $userId)
+            ->get();
+    }
+
     public function storeUserWeapon($userId, SaveUserWeaponData $dto): array
     {
         UserWeapon::create([
