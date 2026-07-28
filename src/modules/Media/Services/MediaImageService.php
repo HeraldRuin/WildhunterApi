@@ -23,7 +23,9 @@ class MediaImageService
 
     public function cacheRelativePath(MediaFile $file, string $size): string
     {
-        return 'uploads/_cache/' . $size . '/' . ltrim($file->file_path, '/');
+        [$width, $height] = FileHelper::$defaultSize[$size];
+
+        return 'uploads/_cache/' . $size . '/' . $width . 'x' . $height . '/' . ltrim($file->file_path, '/');
     }
 
     public function ensureResized(MediaFile $file, string $size): string
@@ -56,7 +58,7 @@ class MediaImageService
 
         Image::decode($originalPath)
             ->scaleDown($width, $height)
-            ->save($cachePath, quality: 75);
+            ->save($cachePath, quality: 100);
 
         return $cachePath;
     }

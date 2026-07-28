@@ -9,8 +9,8 @@ class FileHelper
 {
     public static array $defaultSize = [
         'thumb' => [
-            150,
-            150
+            300,
+            300
         ],
         'medium' => [
             600,
