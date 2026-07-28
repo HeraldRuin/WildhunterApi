@@ -66,33 +66,43 @@ class WeaponPath
 
     #[OA\POST(
         path: "/api/" . ApiConfig::VERSION . "/user/weapons",
-        summary: "Сохранить оружие для пользователя",
+        description: "Можно передать только hunter_billet_number, только данные оружия, или оба набора полей.",
+        summary: "Сохранить оружие или охотничий билет пользователя",
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ["hunter_license_number", "hunter_license_date", "weapon_type_id", "caliber_id"],
                 properties: [
+                    new OA\Property(
+                        property: "hunter_billet_number",
+                        type: "string",
+                        example: "АБ1234567",
+                        nullable: true
+                    ),
                     new OA\Property(
                         property: "hunter_license_number",
                         type: "string",
-                        example: "7891011"
+                        example: "7891011",
+                        nullable: true
                     ),
                     new OA\Property(
                         property: "hunter_license_date",
                         type: "string",
                         format: "date",
-                        example: "2026-01-01"
+                        example: "2026-01-01",
+                        nullable: true
                     ),
                     new OA\Property(
                         property: "weapon_type_id",
                         type: "integer",
-                        example: 1
+                        example: 1,
+                        nullable: true
                     ),
                     new OA\Property(
                         property: "caliber_id",
                         type: "integer",
-                        example: 1
+                        example: 1,
+                        nullable: true
                     )
                 ]
             )
@@ -114,33 +124,43 @@ class WeaponPath
 
     #[OA\Put(
         path: "/api/" . ApiConfig::VERSION . "/user/weapons/{id}",
-        summary: "Обновить оружие пользователя",
+        description: "Можно передать только hunter_billet_number, только данные оружия",
+        summary: "Обновить оружие или охотничий билет пользователя",
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ["hunter_license_number", "hunter_license_date", "weapon_type_id", "caliber_id"],
                 properties: [
+                    new OA\Property(
+                        property: "hunter_billet_number",
+                        type: "string",
+                        example: "АБ1234567",
+                        nullable: true
+                    ),
                     new OA\Property(
                         property: "hunter_license_number",
                         type: "string",
-                        example: "7891011"
+                        example: "7891011",
+                        nullable: true
                     ),
                     new OA\Property(
                         property: "hunter_license_date",
                         type: "string",
                         format: "date",
-                        example: "2026-01-01"
+                        example: "2026-01-01",
+                        nullable: true
                     ),
                     new OA\Property(
                         property: "weapon_type_id",
                         type: "integer",
-                        example: 1
+                        example: 1,
+                        nullable: true
                     ),
                     new OA\Property(
                         property: "caliber_id",
                         type: "integer",
-                        example: 1
+                        example: 1,
+                        nullable: true
                     )
                 ]
             )
