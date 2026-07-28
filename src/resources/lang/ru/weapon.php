@@ -24,7 +24,7 @@ return [
         'caliber_not_found' => 'Калибр не найден',
     ],
     'successes' => [
-        'save_success' => 'Оружие сохранено.',
+        'save_success' => 'Лицензия на оружие сохранена',
         'delete_success' => 'Оружие удалено.',
     ]
 ];
