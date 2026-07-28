@@ -27,7 +27,7 @@ class WeaponService
             'hunter_license_number' => $dto->hunter_license_number,
             'hunter_license_date' => $dto->hunter_license_date,
             'weapon_type_id' => $dto->weapon_type_id,
-            'caliber' => $dto->caliber,
+            'caliber_id' => $dto->caliber_id,
         ]);
 
         return [
