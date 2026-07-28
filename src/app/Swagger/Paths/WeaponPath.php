@@ -45,6 +45,25 @@ class WeaponPath
     public function GetCalibers(): void
     {}
 
+    #[OA\Get(
+        path: "/api/" . ApiConfig::VERSION . "/user/weapons",
+        summary: "Получить оружие пользователя",
+        security: [['bearerAuth' => []]],
+        tags: ["Weapons"],
+        responses: [
+            new OA\Response(
+                ref: "#/components/responses/SuccessResponse",
+                response: 200
+            ),
+            new OA\Response(
+                ref: "#/components/responses/AuthResponse",
+                response: 401
+            ),
+        ]
+    )]
+    public function GetUserWeapons(): void
+    {}
+
     #[OA\POST(
         path: "/api/" . ApiConfig::VERSION . "/user/weapons",
         summary: "Сохранить оружие для пользователя",
