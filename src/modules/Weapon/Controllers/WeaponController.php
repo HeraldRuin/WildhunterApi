@@ -51,6 +51,17 @@ class WeaponController extends Controller
     /**
      * @throws NotFoundException
      */
+    public function update(SaveUserWeaponRequest $request, int $id): JsonResponse
+    {
+        $dto = SaveUserWeaponData::fromRequest($request);
+        $result = $this->weaponService->updateUserWeapon(Auth::id(), $id, $dto);
+
+        return new SuccessResponse(code: $result['code'], domain: 'weapon');
+    }
+
+    /**
+     * @throws NotFoundException
+     */
     public function destroy(int $id): JsonResponse
     {
         $result = $this->weaponService->deleteUserWeapon(Auth::id(), $id);

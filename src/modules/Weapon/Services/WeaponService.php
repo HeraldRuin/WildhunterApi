@@ -23,7 +23,7 @@ class WeaponService
     public function getUserWeapons(int $userId): Collection
     {
         return UserWeapon::query()
-            ->with(['type', 'caliber', 'user'])
+            ->with(['type', 'caliber'])
             ->where('user_id', $userId)
             ->get();
     }
@@ -40,6 +40,34 @@ class WeaponService
 
         return [
             'code' => 'save_success',
+        ];
+    }
+
+    /**
+     * @throws NotFoundException
+     */
+    public function updateUserWeapon(int $userId, int $weaponId, SaveUserWeaponData $dto): array
+    {
+        $weapon = UserWeapon::where('id', $weaponId)
+            ->where('user_id', $userId)
+            ->first();
+
+        if (!$weapon) {
+            throw new NotFoundException(
+                errorCode: 'weapon_not_found',
+                domain: 'weapon'
+            );
+        }
+
+        $weapon->update([
+            'hunter_license_number' => $dto->hunter_license_number,
+            'hunter_license_date' => $dto->hunter_license_date,
+            'weapon_type_id' => $dto->weapon_type_id,
+            'caliber_id' => $dto->caliber_id,
+        ]);
+
+        return [
+            'code' => 'update_success',
         ];
     }
 
