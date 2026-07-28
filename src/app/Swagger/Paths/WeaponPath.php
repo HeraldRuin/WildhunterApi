@@ -52,7 +52,7 @@ class WeaponPath
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ["hunter_license_number", "hunter_license_date", "weapon_type_id", "caliber"],
+                required: ["hunter_license_number", "hunter_license_date", "weapon_type_id", "caliber_id"],
                 properties: [
                     new OA\Property(
                         property: "hunter_license_number",
@@ -71,9 +71,9 @@ class WeaponPath
                         example: 1
                     ),
                     new OA\Property(
-                        property: "caliber",
-                        type: "string",
-                        example: "20"
+                        property: "caliber_id",
+                        type: "integer",
+                        example: 1
                     )
                 ]
             )
