@@ -25,6 +25,7 @@ return [
     ],
     'successes' => [
         'save_success' => 'Лицензия на оружие сохранена',
+        'update_success' => 'Лицензия на оружие обновлена',
         'delete_success' => 'Оружие удалено.',
     ]
 ];
