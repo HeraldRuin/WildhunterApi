@@ -112,6 +112,66 @@ class WeaponPath
     public function SaveWeapons(): void
     {}
 
+    #[OA\Put(
+        path: "/api/" . ApiConfig::VERSION . "/user/weapons/{id}",
+        summary: "Обновить оружие пользователя",
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["hunter_license_number", "hunter_license_date", "weapon_type_id", "caliber_id"],
+                properties: [
+                    new OA\Property(
+                        property: "hunter_license_number",
+                        type: "string",
+                        example: "7891011"
+                    ),
+                    new OA\Property(
+                        property: "hunter_license_date",
+                        type: "string",
+                        format: "date",
+                        example: "2026-01-01"
+                    ),
+                    new OA\Property(
+                        property: "weapon_type_id",
+                        type: "integer",
+                        example: 1
+                    ),
+                    new OA\Property(
+                        property: "caliber_id",
+                        type: "integer",
+                        example: 1
+                    )
+                ]
+            )
+        ),
+        tags: ["Weapons"],
+        parameters: [
+            new OA\Parameter(
+                name: "id",
+                description: "ID записи оружия пользователя",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(
+                    type: "integer",
+                    example: 1
+                )
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                ref: "#/components/responses/SuccessResponse",
+                response: 200
+            ),
+            new OA\Response(
+                ref: "#/components/responses/AuthResponse",
+                response: 401
+            ),
+        ]
+    )]
+    public function UpdateUserWeapon(): void
+    {}
+
     #[OA\Delete(
         path: "/api/" . ApiConfig::VERSION . "/user/weapons/{id}",
         summary: "Удалить оружие пользователя",
