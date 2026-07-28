@@ -25,6 +25,8 @@ class ProfileUpdateRequest extends FormRequest
             'hunter_billet_number' => ['nullable', 'string', 'max:255'],
 
             'bio' => ['nullable', 'string'],
+
+            'avatar' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp,gif', 'max:5120'],
         ];
     }
 
@@ -59,6 +61,10 @@ class ProfileUpdateRequest extends FormRequest
             'hunter_billet_number.max' => __('user.validation.profile.hunter_billet_number_max'),
 
             'bio.string' => __('user.validation.profile.bio_string'),
+
+            'avatar.image' => __('user.validation.profile.avatar_image'),
+            'avatar.mimes' => __('user.validation.profile.avatar_mimes'),
+            'avatar.max' => __('user.validation.profile.avatar_max'),
         ];
     }
 }

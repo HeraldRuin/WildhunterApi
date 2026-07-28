@@ -3,6 +3,7 @@
 namespace Modules\User\Dto;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 
 class ProfileUpdateData
 {
@@ -17,7 +18,7 @@ class ProfileUpdateData
         public ?string $address,
         public ?string $hunter_billet_number,
         public ?string $bio,
-        public ?string $avatar,
+        public ?UploadedFile $avatar,
     ) {}
 
     public static function fromRequest(Request $request): self

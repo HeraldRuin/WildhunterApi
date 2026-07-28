@@ -8,6 +8,7 @@ use App\Exceptions\NotFoundException;
 use App\Exceptions\ValidationException;
 use App\Models\User;
 use Modules\Hotel\Models\Hotel;
+use Modules\Media\Services\MediaUploadService;
 use Modules\User\Dto\SubscribeData;
 use Modules\User\Models\Subscriber;
 use Modules\User\Dto\ProfileUpdateData;
@@ -16,6 +17,10 @@ use Modules\User\Models\UserWishList;
 
 class UserService
 {
+    public function __construct(
+        protected MediaUploadService $mediaUploadService,
+    ) {}
+
     public function searchAl(): Collection
     {
         return User::with(['role', 'weapons', 'weapons.type', 'weapons.caliber'])->get();
@@ -70,6 +75,12 @@ class UserService
 
         $user->bio = $dto->bio ? strip_tags($dto->bio) : null;
         $user->updateFullName();
+
+        if ($dto->avatar) {
+            $media = $this->mediaUploadService->upload($dto->avatar, $user->id);
+            $user->avatar_id = $media->id;
+        }
+
         $user->save();
 
         return [
