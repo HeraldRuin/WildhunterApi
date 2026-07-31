@@ -5,6 +5,7 @@ namespace Modules\Weapon\Controllers;
 use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use App\Http\Responses\SuccessResponse;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Modules\Weapon\Dto\SaveUserWeaponData;
@@ -37,9 +38,13 @@ class WeaponController extends Controller
     {
         $user = Auth::user();
         $weapons = $this->weaponService->getUserWeapons((int) $user->id);
+        // После POST билет уже в БД, но Auth::user() в памяти может быть устаревшим
+        $hunterBilletNumber = User::query()
+            ->whereKey($user->id)
+            ->value('hunter_billet_number');
 
         return new SuccessResponse(data: new UserWeaponsListResource(
-            $user->hunter_billet_number,
+            $hunterBilletNumber,
             $weapons,
         ));
     }
