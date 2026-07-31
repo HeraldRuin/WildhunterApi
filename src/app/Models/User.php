@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use Modules\Media\Helpers\FileHelper;
+use Modules\User\Support\UserAvatarUrl;
 use Modules\Role\Models\Role;
 use Modules\User\Models\UserWeapon;
 use Modules\User\Traits\HasRoles;
@@ -63,7 +63,7 @@ class User extends Authenticatable
     protected function avatarUrl(): Attribute
     {
         return Attribute::make(
-            get: fn () => FileHelper::url($this->avatar_id) ?: asset('uploads/0000/1/2026/11/14/avatar.png'),
+            get: fn () => UserAvatarUrl::resolve($this->avatar_id),
         );
     }
 

@@ -3,6 +3,7 @@
 namespace Modules\User\Http\Resources;
 
 use App\Http\Resources\BaseJsonResource;
+use Modules\User\Support\UserAvatarUrl;
 
 class UserShortResource extends BaseJsonResource
 {
@@ -15,7 +16,7 @@ class UserShortResource extends BaseJsonResource
             'first_name' => $this->resource->first_name,
             'last_name' => $this->resource->last_name,
             'nik' => $this->resource->user_name,
-            'avatar_url' => $this->resource->avatar_url,
+            'avatar_url' => UserAvatarUrl::resolve($this->resource->avatar_id),
             'bio' => $this->resource->bio,
         ];
     }

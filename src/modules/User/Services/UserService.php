@@ -8,6 +8,7 @@ use App\Exceptions\NotFoundException;
 use App\Exceptions\ValidationException;
 use App\Models\User;
 use Modules\Hotel\Models\Hotel;
+use Modules\Media\Helpers\FileHelper;
 use Modules\Media\Models\MediaFile;
 use Modules\Media\Services\MediaUploadService;
 use Modules\User\Dto\SubscribeData;
@@ -78,6 +79,8 @@ class UserService
         $user->bio = $dto->bio ? strip_tags($dto->bio) : null;
         $user->updateFullName();
 
+        $previousAvatarId = $user->avatar_id ? (int) $user->avatar_id : null;
+
         if ($dto->avatar) {
             $media = $this->mediaUploadService->uploadAvatar($dto->avatar, $user->id);
             $user->avatar_id = $media->id;
@@ -89,6 +92,15 @@ class UserService
         }
 
         $user->save();
+        $user->refresh();
+
+        if ($previousAvatarId && $previousAvatarId !== (int) $user->avatar_id) {
+            FileHelper::forgetUrlCache($previousAvatarId);
+        }
+
+        if ($user->avatar_id) {
+            FileHelper::forgetUrlCache((int) $user->avatar_id);
+        }
 
         return [
             'code' => 'update_success',

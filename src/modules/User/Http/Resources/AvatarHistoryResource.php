@@ -3,7 +3,7 @@
 namespace Modules\User\Http\Resources;
 
 use App\Http\Resources\BaseJsonResource;
-use Modules\Media\Helpers\FileHelper;
+use Modules\User\Support\UserAvatarUrl;
 
 class AvatarHistoryResource extends BaseJsonResource
 {
@@ -11,7 +11,7 @@ class AvatarHistoryResource extends BaseJsonResource
     {
         return [
             'id' => $this->resource->id,
-            'url' => FileHelper::url($this->resource->id, 'full', false) ?: $this->resource->view_url,
+            'url' => UserAvatarUrl::fromMediaFile($this->resource),
             'created_at' => $this->resource->created_at?->toIso8601String(),
         ];
     }

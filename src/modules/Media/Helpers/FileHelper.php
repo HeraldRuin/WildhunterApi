@@ -54,6 +54,19 @@ class FileHelper
         Cache::forget(self::urlCacheKey($fileId, 'full'));
     }
 
+    /**
+     * Прямая ссылка на файл в uploads/ (без /media/{id}/resize).
+     * Для аватаров и других файлов, где нужен оригинал по file_path.
+     */
+    public static function directUploadUrl(int|string|null $fileId): string|false
+    {
+        if ($fileId === null || $fileId === '') {
+            return false;
+        }
+
+        return self::url($fileId, 'full', false);
+    }
+
     public static function url($fileId, $size = 'medium', $resize = true)
     {
         if ($fileId instanceof MediaFile) {
