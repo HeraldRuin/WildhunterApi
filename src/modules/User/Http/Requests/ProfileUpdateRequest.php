@@ -2,8 +2,11 @@
 
 namespace Modules\User\Http\Requests;
 
-use Illuminate\Validation\Rules\Password;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
+use Modules\Media\Services\MediaUploadService;
+use Modules\User\Models\UserAvatarHistory;
 
 class ProfileUpdateRequest extends FormRequest
 {
@@ -27,6 +30,27 @@ class ProfileUpdateRequest extends FormRequest
             'bio' => ['nullable', 'string'],
 
             'avatar' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp,gif', 'max:5120'],
+            'avatar_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('media_files', 'id')->where(function ($query) {
+                    $userId = Auth::id();
+                    $historyIds = UserAvatarHistory::query()
+                        ->where('user_id', $userId)
+                        ->pluck('media_id');
+
+                    $query->where('author_id', $userId)
+                        ->where('file_type', 'like', 'image/%')
+                        ->whereNull('deleted_at')
+                        ->where(function ($inner) use ($historyIds) {
+                            $inner->where('folder_id', MediaUploadService::FOLDER_AVATAR);
+
+                            if ($historyIds->isNotEmpty()) {
+                                $inner->orWhereIn('id', $historyIds);
+                            }
+                        });
+                }),
+            ],
         ];
     }
 

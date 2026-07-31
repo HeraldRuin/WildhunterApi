@@ -10,6 +10,7 @@ use Modules\User\Services\UserService;
 use App\Http\Responses\SuccessResponse;
 use Modules\User\Dto\ProfileUpdateData;
 use Modules\User\Events\UserSubscriberSubmit;
+use Modules\User\Http\Resources\AvatarHistoryResource;
 use Modules\User\Http\Resources\UserResource;
 use Modules\User\Http\Requests\SubscribeRequest;
 use Modules\User\Http\Requests\ProfileUpdateRequest;
@@ -34,6 +35,13 @@ class UserController
         $result = $this->userService->searchById($id);
 
         return new SuccessResponse(data: new UserResource($result));
+    }
+
+    public function avatarHistory(): JsonResponse
+    {
+        $result = $this->userService->getAvatarHistory(Auth::user());
+
+        return new SuccessResponse(data: AvatarHistoryResource::collection($result));
     }
 
     public function profileUpdate(ProfileUpdateRequest $request): JsonResponse

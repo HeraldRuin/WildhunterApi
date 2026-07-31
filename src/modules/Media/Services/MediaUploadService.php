@@ -10,13 +10,28 @@ use RuntimeException;
 
 class MediaUploadService
 {
-    public function upload(UploadedFile $file, ?int $userId = null, int $folderId = 0): MediaFile
+    public const FOLDER_AVATAR = -1;
+
+    public function uploadAvatar(UploadedFile $file, int $userId): MediaFile
     {
+        return $this->upload($file, $userId, self::FOLDER_AVATAR, 'avatars');
+    }
+
+    public function upload(
+        UploadedFile $file,
+        ?int $userId = null,
+        int $folderId = 0,
+        ?string $scope = null,
+    ): MediaFile {
         $driver = 'uploads';
         $folder = '';
 
         if ($userId) {
             $folder .= sprintf('%04d', (int) ($userId / 1000)) . '/' . $userId . '/';
+        }
+
+        if ($scope) {
+            $folder .= trim($scope, '/') . '/';
         }
 
         $folder .= date('Y/m/d');
@@ -34,6 +49,17 @@ class MediaUploadService
             $relativePath = $folder . '/' . $fileName . '.' . $extension;
             $i++;
         } while (Storage::disk($driver)->exists($relativePath));
+
+        if (!$this->ensureUploadDirectory($driver, $folder)) {
+            $absolutePath = Storage::disk($driver)->path($folder);
+            $phpUser = function_exists('posix_geteuid')
+                ? (string) (posix_getpwuid(posix_geteuid())['name'] ?? posix_geteuid())
+                : 'unknown';
+
+            throw new RuntimeException(
+                "Unable to create upload directory at {$absolutePath} (php user: {$phpUser})",
+            );
+        }
 
         $storedPath = $file->storePubliclyAs(
             $folder,
@@ -76,5 +102,30 @@ class MediaUploadService
             Storage::disk($driver)->delete($storedPath);
             throw $exception;
         }
+    }
+
+    private function ensureUploadDirectory(string $driver, string $folder): bool
+    {
+        if ($folder === '') {
+            return false;
+        }
+
+        $disk = Storage::disk($driver);
+
+        if ($disk->exists($folder)) {
+            return true;
+        }
+
+        if ($disk->makeDirectory($folder)) {
+            return true;
+        }
+
+        $absolutePath = $disk->path($folder);
+
+        if (is_dir($absolutePath)) {
+            return true;
+        }
+
+        return @mkdir($absolutePath, 0775, true) || is_dir($absolutePath);
     }
 }

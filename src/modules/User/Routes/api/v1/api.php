@@ -32,6 +32,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/user/weapons/{id}', [WeaponController::class, 'update']);
     Route::delete('/user/weapons/{id}', [WeaponController::class, 'destroy']);
 
+    Route::get('/user/avatars', [UserController::class, 'avatarHistory']);
     Route::get('/user/{user}', [UserController::class, 'searchUser'])->whereNumber('user');
     Route::post('/user', [UserController::class, 'profileUpdate']);
 

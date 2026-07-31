@@ -8,12 +8,14 @@ use App\Exceptions\NotFoundException;
 use App\Exceptions\ValidationException;
 use App\Models\User;
 use Modules\Hotel\Models\Hotel;
+use Modules\Media\Models\MediaFile;
 use Modules\Media\Services\MediaUploadService;
 use Modules\User\Dto\SubscribeData;
 use Modules\User\Models\Subscriber;
 use Modules\User\Dto\ProfileUpdateData;
 use Illuminate\Database\Eloquent\Collection;
 use Modules\User\Models\UserWishList;
+use Modules\User\Models\UserAvatarHistory;
 
 class UserService
 {
@@ -77,8 +79,13 @@ class UserService
         $user->updateFullName();
 
         if ($dto->avatar) {
-            $media = $this->mediaUploadService->upload($dto->avatar, $user->id);
+            $media = $this->mediaUploadService->uploadAvatar($dto->avatar, $user->id);
             $user->avatar_id = $media->id;
+            $this->rememberAvatarHistory($user->id, $media->id);
+        } elseif ($dto->avatar_id) {
+            $this->assertAvatarSelectable($user, $dto->avatar_id);
+            $user->avatar_id = $dto->avatar_id;
+            $this->rememberAvatarHistory($user->id, $dto->avatar_id);
         }
 
         $user->save();
@@ -87,6 +94,59 @@ class UserService
             'code' => 'update_success',
             'user' => $user,
         ];
+    }
+
+    public function getAvatarHistory(User $user): Collection
+    {
+        if ($user->avatar_id) {
+            $this->rememberAvatarHistory($user->id, (int) $user->avatar_id);
+        }
+
+        return MediaFile::query()
+            ->join('user_avatar_history as history', 'history.media_id', '=', 'media_files.id')
+            ->where('history.user_id', $user->id)
+            ->where('media_files.file_type', 'like', 'image/%')
+            ->orderByDesc('history.id')
+            ->limit(20)
+            ->select('media_files.*')
+            ->get();
+    }
+
+    private function rememberAvatarHistory(int $userId, int $mediaId): void
+    {
+        UserAvatarHistory::query()->firstOrCreate([
+            'user_id' => $userId,
+            'media_id' => $mediaId,
+        ]);
+    }
+
+    /**
+     * @throws ForbiddenException
+     */
+    private function assertAvatarSelectable(User $user, int $mediaId): void
+    {
+        $isInHistory = UserAvatarHistory::query()
+            ->where('user_id', $user->id)
+            ->where('media_id', $mediaId)
+            ->exists();
+
+        if ($isInHistory) {
+            return;
+        }
+
+        $isAvatarUpload = MediaFile::query()
+            ->where('id', $mediaId)
+            ->where('author_id', $user->id)
+            ->where('folder_id', MediaUploadService::FOLDER_AVATAR)
+            ->where('file_type', 'like', 'image/%')
+            ->exists();
+
+        if (!$isAvatarUpload) {
+            throw new ForbiddenException(
+                errorCode: 'avatar_not_allowed',
+                domain: 'user',
+            );
+        }
     }
 
     public function subscribe(SubscribeData $dto): array

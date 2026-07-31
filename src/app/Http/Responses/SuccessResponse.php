@@ -5,6 +5,7 @@ namespace App\Http\Responses;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 final class SuccessResponse extends JsonResponse
 {
@@ -27,6 +28,10 @@ final class SuccessResponse extends JsonResponse
     {
         if ($data instanceof Collection) {
             return $data->values()->toArray();
+        }
+
+        if ($data instanceof JsonResource) {
+            return $data->resolve(request());
         }
 
         if ($data instanceof Model) {
