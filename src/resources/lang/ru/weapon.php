@@ -14,7 +14,7 @@ return [
         'hunter_billet_number_string' => 'Номер охотничьего билета должен быть строкой',
         'hunter_billet_number_max' => 'Номер охотничьего билета не должен превышать 255 символов',
 
-        'hunter_license_number_required' => 'Номер лицензии обязателен',
+        'hunter_license_number_required' => 'Лицензия обязательна',
         'hunter_license_number_string' => 'Номер лицензии должен быть строкой',
 
         'hunter_license_date_required' => 'Дата лицензии обязательна',
