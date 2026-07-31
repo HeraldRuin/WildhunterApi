@@ -10,7 +10,7 @@ return [
 
     ],
     'validation' => [
-        'hunter_billet_number_required' => 'Номер охотничьего билета обязателен, если не переданы данные оружия',
+        'hunter_billet_number_required' => 'Номер охотничьего билета обязателен',
         'hunter_billet_number_string' => 'Номер охотничьего билета должен быть строкой',
         'hunter_billet_number_max' => 'Номер охотничьего билета не должен превышать 255 символов',
 
