@@ -2,7 +2,6 @@
 
 namespace Modules\Review\Http\Requests;
 
-use Illuminate\Validation\Rules\Password;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ServiceReviewRequest extends FormRequest
