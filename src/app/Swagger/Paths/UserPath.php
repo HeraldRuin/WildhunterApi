@@ -54,6 +54,25 @@ class UserPath
     public function GetUser(): void
     {}
 
+    #[OA\Get(
+        path: "/api/" . ApiConfig::VERSION . "/user/avatars",
+        summary: "Получить историю аватаров текущего пользователя",
+        security: [['bearerAuth' => []]],
+        tags: ["Users"],
+        responses: [
+            new OA\Response(
+                ref: "#/components/responses/SuccessResponse",
+                response: 200
+            ),
+            new OA\Response(
+                ref: "#/components/responses/AuthResponse",
+                response: 401
+            ),
+        ]
+    )]
+    public function getAvatarHistory(): void
+    {}
+
     #[OA\Post(
         path: "/api/" . ApiConfig::VERSION . "/user",
         summary: "Обновить данные пользователя",
@@ -75,7 +94,20 @@ class UserPath
                         new OA\Property(property: "address", type: "string", example: ""),
                         new OA\Property(property: "hunter_billet_number", type: "string", example: ""),
                         new OA\Property(property: "bio", type: "string", example: ""),
-                        new OA\Property(property: "avatar", type: "string", format: "binary"),
+                        new OA\Property(
+                            property: "avatar",
+                            description: "Новый файл аватара (jpeg, jpg, png, webp, gif, до 5 МБ)",
+                            type: "string",
+                            format: "binary"
+                        ),
+                        new OA\Property(
+                            property: "avatar_id",
+                            description: "ID ранее загруженного аватара из GET /user/avatars. "
+                                . "Передайте avatar_id или avatar, но не оба поля одновременно.",
+                            type: "integer",
+                            example: 909,
+                            nullable: true
+                        ),
                     ],
                     type: "object"
                 )
