@@ -19,6 +19,7 @@ class ProfileUpdateData
         public ?string $hunter_billet_number,
         public ?string $bio,
         public ?UploadedFile $avatar,
+        public ?int $avatar_id,
     ) {}
 
     public static function fromRequest(Request $request): self
@@ -41,6 +42,7 @@ class ProfileUpdateData
             bio: $data['bio'] ?? null,
 
             avatar: $data['avatar'] ?? null,
+            avatar_id: isset($data['avatar_id']) ? (int) $data['avatar_id'] : null,
         );
     }
 }
