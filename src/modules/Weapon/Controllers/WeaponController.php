@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Modules\Weapon\Dto\SaveUserWeaponData;
 use Modules\Weapon\Http\Requests\SaveUserWeaponRequest;
 use Modules\Weapon\Http\Resources\CaliberResource;
-use Modules\Weapon\Http\Resources\UserWeaponResource;
+use Modules\Weapon\Http\Resources\UserWeaponsListResource;
 use Modules\Weapon\Services\WeaponService;
 use Modules\Weapon\Http\Resources\WeaponResource;
 
@@ -35,9 +35,13 @@ class WeaponController extends Controller
 
     public function index(): JsonResponse
     {
-        $result = $this->weaponService->getUserWeapons(Auth::id());
+        $user = Auth::user();
+        $weapons = $this->weaponService->getUserWeapons((int) $user->id);
 
-        return new SuccessResponse(data: UserWeaponResource::collection($result));
+        return new SuccessResponse(data: new UserWeaponsListResource(
+            $user->hunter_billet_number,
+            $weapons,
+        ));
     }
 
     public function store(SaveUserWeaponRequest $request): JsonResponse
