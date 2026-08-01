@@ -119,7 +119,7 @@ class UserService
             ->where('history.user_id', $user->id)
             ->where('media_files.file_type', 'like', 'image/%')
             ->orderByDesc('history.id')
-            ->limit(20)
+            ->limit(8)
             ->select('media_files.*')
             ->get();
     }

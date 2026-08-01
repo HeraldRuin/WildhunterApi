@@ -2,6 +2,7 @@
 
 namespace Modules\User\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Modules\User\Dto\SubscribeData;
 use Illuminate\Support\Facades\Auth;
@@ -39,7 +40,10 @@ class UserController
 
     public function avatarHistory(): JsonResponse
     {
-        $result = $this->userService->getAvatarHistory(Auth::user());
+        $user = Auth::user();
+        assert($user instanceof User);
+
+        $result = $this->userService->getAvatarHistory($user);
 
         return new SuccessResponse(data: AvatarHistoryResource::collection($result));
     }
