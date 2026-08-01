@@ -11,7 +11,7 @@ class LocationService
     public function getBestLocations(LocationFilterData $dto): array
     {
         $locations = Location::published()
-            ->withCount('hotels')
+            ->withCount(['hotels' => fn ($q) => $q->published()])
             ->when($dto->order_by, function ($q) use ($dto) {
                 $q->orderBy($dto->order_by, $dto->order_direction ?? 'asc');
             })

@@ -13,7 +13,7 @@ class BestLocationResource extends BaseJsonResource
             'name'=> $this->resource->name,
             'slug'=> $this->resource->slug,
             'image_url' => $this->resource->getImageUrl('medium'),
-            'hotel_count' => $this->resource->hotels->count(),
+            'hotel_count' => $this->resource->hotels_count,
         ];
     }
 }
