@@ -13,6 +13,8 @@ class HotelSearchResource extends BaseJsonResource
             'id' => $this->resource->id,
             'title'=> $this->resource->title,
             'slug'=> $this->resource->slug,
+            'map_lat'=> $this->resource->map_lat,
+            'map_lng'=> $this->resource->map_lng,
             'image_url' => $this->resource->getImageUrl()?: asset('uploads/0000/1/2026/11/14/no_image.png'),
             'price' => $this->resource->price,
             'review_count' => $this->resource->reviews->count(),
