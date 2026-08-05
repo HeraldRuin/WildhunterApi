@@ -101,10 +101,10 @@ class FileHelper
                 return $file->view_url ?: '';
             }
 
-            return route('media.image', [
+            return rtrim((string) config('app.url'), '/') . route('media.image', [
                 'id' => $file->id,
                 'size' => $size,
-            ]);
+            ], absolute: false);
         });
 
         return $url !== '' ? $url : false;
