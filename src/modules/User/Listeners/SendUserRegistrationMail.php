@@ -9,8 +9,5 @@ class SendUserRegistrationMail
     public function handle(Registered $event): void
     {
         $user = $event->user;
-
-
-
     }
 }
