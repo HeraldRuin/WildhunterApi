@@ -15,6 +15,14 @@ return [
         'booking_invitation_not_found' => 'Для этой брони не найден приглашенный',
         'not_all_hunters_confirmed' => 'Не все приглашённые участники подтвердили приглашение. Дождитесь ответа всех участников',
         'booking_hunter_gathering_not_started' => 'Сбор охотников не начат',
+        'invalid_dates' => 'Выбранные даты недоступны',
+        'no_rooms_available' => 'На выбранные даты нет доступных номеров',
+        'room_not_available' => 'Выбранный номер недоступен. Повторите поиск',
+        'not_enough_adult_capacity' => 'Выбранных номеров недостаточно для указанного количества взрослых',
+        'animal_price_not_found' => 'На выбранную дату нет ценового периода для животного',
+        'booking_not_created' => 'Не удалось создать бронирование',
+        'booking_not_found' => 'Ссылка на бронирование недействительна или устарела',
+        'min_day_stays' => 'Номер :name требует минимум :number ночей',
     ],
     'validation' => [
         'hotel_id_required' => 'Укажите отель',
@@ -65,5 +73,6 @@ return [
         'booking_confirmed' => 'Бронь успешно подтверждена',
         'hunter_gathering_cancelled' => 'Сбор охотников для этой брони отменён',
         'booking_invitation_sent' => 'Приглашение отправлено',
+        'booking_created' => 'Бронирование создано',
     ]
 ];
