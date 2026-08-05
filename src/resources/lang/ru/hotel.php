@@ -5,6 +5,9 @@ return [
     ],
     'errors' => [
         'hotel_not_found' => 'Отель не найден',
+        'max_booking_days' => 'Максимальный срок бронирования — 30 дней',
+        'min_day_stays' => 'Необходимо забронировать минимум на :number дней',
+        'min_day_before_booking' => 'Бронирование возможно минимум за :number дней',
     ],
     'rules' => [
 
@@ -21,6 +24,9 @@ return [
         'location_id_must_be_integer' => 'Поле "локация" должно быть числом',
         'animal_id_must_be_integer' => 'Поле "животные" должно быть числом',
 
+        'hotel_id_required' => 'Укажите отель',
+        'hotel_id_must_be_integer' => 'Поле "отель" должно быть числом',
+
         'check_in_required' => 'Укажите дату заезда',
         'check_in_must_be_date' => 'Дата заезда должна быть корректной датой',
 
@@ -28,8 +34,13 @@ return [
         'check_out_must_be_date' => 'Дата выезда должна быть корректной датой',
         'check_out_must_be_after_check_in' => 'Дата выезда должна быть позже даты заезда',
 
+        'adults_required' => 'Укажите количество взрослых',
         'adults_must_be_integer' => 'Количество взрослых должно быть числом',
         'adults_min_value' => 'Минимальное количество взрослых — 1',
+
+        'hunter_data_must_be_date' => 'Дата охоты должна быть корректной датой',
+        'hunters_must_be_integer' => 'Количество охотников должно быть числом',
+        'hunters_min_value' => 'Минимальное количество охотников — 1',
 
         'children_must_be_integer' => 'Количество детей должно быть числом',
         'children_min_value' => 'Минимальное количество детей — 0',
