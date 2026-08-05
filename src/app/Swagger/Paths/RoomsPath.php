@@ -77,19 +77,6 @@ class RoomsPath
                         example: 2,
                         minimum: 1
                     ),
-                    new OA\Property(
-                        property: "hunter_data",
-                        description: "Дата охоты",
-                        type: "string",
-                        format: "date",
-                        example: "2026-06-24"
-                    ),
-                    new OA\Property(
-                        property: "hunters",
-                        description: "Количество взрослых охотников",
-                        type: "integer",
-                        example: 1
-                    ),
                 ]
             )
         ),
