@@ -5,6 +5,8 @@ namespace Modules\Hotel\Controllers;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Exceptions\NotFoundException;
+use App\Exceptions\ValidationException;
+use Modules\Hotel\Dto\CheckAvailabilityData;
 use Modules\Hotel\Dto\HotelFilterData;
 use Modules\Hotel\Dto\HotelSearchData;
 use App\Http\Responses\SuccessResponse;
@@ -12,9 +14,11 @@ use Modules\Hotel\Models\Hotel;
 use Modules\Hotel\Services\HotelService;
 use App\Http\Resources\PaginateResource;
 use Modules\Hotel\Http\Resources\HotelResource;
+use Modules\Hotel\Http\Request\CheckAvailabilityRequest;
 use Modules\Hotel\Http\Request\HotelFilterRequest;
 use Modules\Hotel\Http\Request\HotelSearchRequest;
 use Modules\Hotel\Http\Resources\HotelOffersResource;
+use Modules\Hotel\Http\Resources\HotelRoomResource;
 use Modules\Hotel\Http\Resources\HotelSearchResource;
 
 class HotelController extends Controller
@@ -58,5 +62,21 @@ class HotelController extends Controller
     public function priceRange(): JsonResponse
     {
         return new SuccessResponse(data: Hotel::getMinMaxPrice());
+    }
+
+    /**
+     * @throws NotFoundException
+     * @throws ValidationException
+     */
+    public function checkAvailability(CheckAvailabilityRequest $request): JsonResponse
+    {
+        $dto = CheckAvailabilityData::fromRequest($request);
+        $result = $this->hotelService->checkAvailability($dto);
+
+        return new SuccessResponse(
+            data: [
+                'rooms' => HotelRoomResource::collection($result['data'])->resolve(),
+            ]
+        );
     }
 }
