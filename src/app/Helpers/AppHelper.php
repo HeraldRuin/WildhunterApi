@@ -124,3 +124,11 @@ function setting_item_with_lang($item, $locale = '', $default = '', $withOrigin 
     );
 }
 
+function app_get_locale($locale = false, $before = false, $after = false): string
+{
+    if (setting_item('site_enable_multi_lang') and app()->getLocale() != setting_item('site_locale')) {
+        return $locale ? $before . $locale . $after : $before . app()->getLocale() . $after;
+    }
+
+    return '';
+}
