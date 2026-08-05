@@ -11,8 +11,6 @@ class CheckAvailabilityData
         public string $checkIn,
         public string $checkOut,
         public int $adults,
-        public ?string $hunterData,
-        public ?int $hunters,
     ) {}
 
     public static function fromRequest(CheckAvailabilityRequest $request): self
@@ -24,8 +22,6 @@ class CheckAvailabilityData
             checkIn: $data['check_in'],
             checkOut: $data['check_out'],
             adults: (int) $data['adults'],
-            hunterData: $data['hunter_data'] ?? null,
-            hunters: isset($data['hunters']) ? (int) $data['hunters'] : null,
         );
     }
 
@@ -35,8 +31,6 @@ class CheckAvailabilityData
             'check_in' => $this->checkIn,
             'check_out' => $this->checkOut,
             'adults' => $this->adults,
-            'hunter_data' => $this->hunterData,
-            'hunters' => $this->hunters,
         ];
     }
 }
