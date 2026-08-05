@@ -35,15 +35,15 @@ class Role extends Model
      * @param $permission
      * @return int
      */
-//    public function hasPermission($permission){
-//        $value = Cache::rememberForever('role_'.$this->id.'_' . $permission, function () use ($permission) {
-//            return RolePermission::query()->where([
-//                'role_id'=>$this->id,
-//                'permission'=>$permission
-//            ])->count(['id']);
-//        });
-//        return $value;
-//    }
+    public function hasPermission($permission): int
+    {
+        return Cache::rememberForever('role_'.$this->id.'_' . $permission, function () use ($permission) {
+            return RolePermission::query()->where([
+                'role_id'=>$this->id,
+                'permission'=>$permission
+            ])->count(['id']);
+        });
+    }
 
     /**
      * Give permissions to Role
