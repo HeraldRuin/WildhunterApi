@@ -13,8 +13,6 @@ class CheckAvailabilityRequest extends FormRequest
             'check_in' => ['required', 'date', 'date_format:Y-m-d'],
             'check_out' => ['required', 'date', 'date_format:Y-m-d', 'after:check_in'],
             'adults' => ['required', 'integer', 'min:1'],
-            'hunter_data' => ['nullable', 'date', 'date_format:Y-m-d'],
-            'hunters' => ['nullable', 'integer', 'min:1'],
         ];
     }
 
@@ -37,12 +35,6 @@ class CheckAvailabilityRequest extends FormRequest
             'adults.required' => __('hotel.validation.adults_required'),
             'adults.integer' => __('hotel.validation.adults_must_be_integer'),
             'adults.min' => __('hotel.validation.adults_min_value'),
-
-            'hunter_data.date' => __('hotel.validation.hunter_data_must_be_date'),
-            'hunter_data.date_format' => __('hotel.validation.hunter_data_must_be_date'),
-
-            'hunters.integer' => __('hotel.validation.hunters_must_be_integer'),
-            'hunters.min' => __('hotel.validation.hunters_min_value'),
         ];
     }
 }
