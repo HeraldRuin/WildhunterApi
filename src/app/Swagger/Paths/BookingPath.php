@@ -8,10 +8,33 @@ use OpenApi\Attributes as OA;
 class BookingPath
 {
     #[OA\Get(
-        path: "/api/" . ApiConfig::VERSION . "/users/{id}/bookings",
-        summary: "Получить все бронирования пользователя",
+        path: "/api/" . ApiConfig::VERSION . "/bookings/history",
+        summary: "История бронирований (охотник / администратор базы)",
         security: [['bearerAuth' => []]],
         tags: ["Bookings"],
+        parameters: [
+            new OA\Parameter(
+                name: "status",
+                description: "Фильтр статуса. Для вкладки приглашений охотника: invitation",
+                in: "query",
+                required: false,
+                schema: new OA\Schema(type: "string", example: "invitation")
+            ),
+            new OA\Parameter(
+                name: "booking_id",
+                description: "Фильтр по ID брони",
+                in: "query",
+                required: false,
+                schema: new OA\Schema(type: "integer", example: 222)
+            ),
+            new OA\Parameter(
+                name: "page",
+                description: "Страница пагинации",
+                in: "query",
+                required: false,
+                schema: new OA\Schema(type: "integer", example: 1)
+            ),
+        ],
         responses: [
             new OA\Response(
                 ref: "#/components/responses/SuccessResponse",
@@ -23,7 +46,7 @@ class BookingPath
             ),
         ]
     )]
-    public function GetWeapons(): void
+    public function GetBookingHistory(): void
     {}
 
     #[OA\Post(
