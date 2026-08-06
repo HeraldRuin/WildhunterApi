@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Modules\Hotel\Models\Hotel;
 use Modules\User\Support\UserAvatarUrl;
 use Modules\Role\Models\Role;
 use Modules\User\Models\UserWeapon;
@@ -75,5 +76,10 @@ class User extends Authenticatable
     public function weapons(): HasMany
     {
         return $this->hasMany(UserWeapon::class, 'user_id');
+    }
+
+    public function hotels(): HasMany
+    {
+        return $this->hasMany(Hotel::class, 'admin_base');
     }
 }
