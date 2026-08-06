@@ -108,12 +108,12 @@ class AnimalService
         $minHuntersCount = (int) ($hotelAnimal->hunters_count ?? 0);
         if ($minHuntersCount > 0 && $dto->hunters < $minHuntersCount) {
             throw new ValidationException(
-                message: __('animal.errors.min_hunters', [
+                errorCode: 'min_hunters',
+                domain: 'animal',
+                context: [
                     'min' => $minHuntersCount,
                     'selected' => $dto->hunters,
-                ]),
-                errorCode: 'min_hunters',
-                domain: 'animal'
+                ]
             );
         }
 
