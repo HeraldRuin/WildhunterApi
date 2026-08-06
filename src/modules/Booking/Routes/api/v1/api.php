@@ -10,4 +10,5 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/bookings/{code}/checkout', [BookingController::class, 'checkout']);
     Route::post('/bookings/{code}/checkout', [BookingController::class, 'doCheckout']);
+    Route::put('/bookings/{code}/customer-notes', [BookingController::class, 'updateCustomerNotes']);
 });
