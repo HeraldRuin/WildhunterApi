@@ -6,6 +6,7 @@ use Modules\Booking\Models\Booking;
 use App\Exceptions\NotFoundException;
 use App\Exceptions\ForbiddenException;
 use App\Exceptions\ValidationException;
+use Modules\Booking\Dto\UpdateCustomerNotesData;
 
 class BookingCheckoutService
 {
@@ -47,9 +48,9 @@ class BookingCheckoutService
      * @throws NotFoundException
      * @throws ForbiddenException
      */
-    public function updateCustomerNotes(string $code, int $userId, ?string $customerNotes): Booking
+    public function updateCustomerNotes(UpdateCustomerNotesData $dto, int $userId): Booking
     {
-        $booking = Booking::query()->where('code', $code)->first();
+        $booking = Booking::query()->where('code', $dto->code)->first();
 
         if (!$booking) {
             throw new NotFoundException(
@@ -65,7 +66,7 @@ class BookingCheckoutService
             );
         }
 
-        $booking->customer_notes = $customerNotes;
+        $booking->customer_notes = $dto->customerNotes;
         $booking->save();
 
         return $booking;
