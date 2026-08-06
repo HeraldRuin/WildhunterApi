@@ -174,36 +174,30 @@ class BookingPath
     {}
 
     #[OA\Put(
-        path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/customer-notes",
+        path: "/api/" . ApiConfig::VERSION . "/bookings/customer-notes",
         summary: "Сохранить особые требования к бронированию",
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
+                required: ["code", "customer_notes"],
                 properties: [
+                    new OA\Property(
+                        property: "code",
+                        description: "Код бронирования",
+                        type: "string",
+                        example: "faa1c65d4b0de02146a27cea429340fb"
+                    ),
                     new OA\Property(
                         property: "customer_notes",
                         description: "Особые требования / комментарий к бронированию",
                         type: "string",
-                        example: "Нужен поздний заезд",
-                        nullable: true
+                        example: "Нужен поздний заезд"
                     ),
                 ]
             )
         ),
         tags: ["Bookings"],
-        parameters: [
-            new OA\Parameter(
-                name: "code",
-                description: "Код бронирования",
-                in: "path",
-                required: true,
-                schema: new OA\Schema(
-                    type: "string",
-                    example: "faa1c65d4b0de02146a27cea429340fb"
-                )
-            ),
-        ],
         responses: [
             new OA\Response(
                 ref: "#/components/responses/SuccessResponse",
