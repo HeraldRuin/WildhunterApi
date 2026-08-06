@@ -2,11 +2,13 @@
 
 namespace Modules\Hotel\Services;
 
+use App\Exceptions\NotFoundException;
 use App\Exceptions\ValidationException;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\DB;
 use Modules\Hotel\Models\Hotel;
+use Modules\Hotel\Dto\CheckAvailabilityData;
 use Modules\Hotel\Dto\HotelFilterData;
 use Modules\Hotel\Dto\HotelSearchData;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -14,8 +16,10 @@ use Modules\Hotel\Models\HotelRoomDate;
 
 class HotelService
 {
-    public function __construct(private HotelSearchService $searchService)
-    {
+    public function __construct(
+        private HotelSearchService $searchService,
+        private RoomService $roomService,
+    ) {
     }
 
     public function getHotels(HotelFilterData $dto): array
@@ -35,22 +39,87 @@ class HotelService
     }
 
     /**
-     * @throws ValidationException
+     * @throws NotFoundException
      */
     public function getHotel($location, $slug): array
     {
         $hotel = Hotel::published()->where('slug', $slug)->first();
 
         if (!$hotel) {
-            throw new ValidationException(
+            throw new NotFoundException(
                 errorCode: 'hotel_not_found',
                 domain: 'hotel'
             );
         }
 
+        $hotel->load([
+            'animals' => function ($query) {
+                $query->where('bc_animals.status', 'publish')
+                    ->wherePivot('status', 'available');
+            },
+        ]);
+
+        $filters = request()->only(['check_in', 'check_out', 'adults']);
+        $hotel->setAttribute('available_rooms', $this->roomService->getAvailableRooms($hotel, $filters));
+        $hotel->unsetRelation('rooms');
+
         return [
             'code' => '',
             'data' => $hotel
+        ];
+    }
+
+    /**
+     * @throws NotFoundException
+     * @throws ValidationException
+     */
+    public function checkAvailability(CheckAvailabilityData $dto): array
+    {
+        $hotel = Hotel::published()->with('rooms')->find($dto->hotelId);
+
+        if (!$hotel) {
+            throw new NotFoundException(
+                errorCode: 'hotel_not_found',
+                domain: 'hotel'
+            );
+        }
+
+        $startDate = Carbon::parse($dto->checkIn)->startOfDay();
+        $endDate = Carbon::parse($dto->checkOut)->startOfDay();
+        $numberDays = $startDate->diffInDays($endDate);
+
+        if ($numberDays > 30) {
+            throw new ValidationException(
+                message: __('hotel.errors.max_booking_days'),
+                errorCode: 'max_booking_days',
+                domain: 'hotel'
+            );
+        }
+
+        if (!empty($hotel->min_day_stays) && $numberDays < $hotel->min_day_stays) {
+            throw new ValidationException(
+                message: __('hotel.errors.min_day_stays', ['number' => $hotel->min_day_stays]),
+                errorCode: 'min_day_stays',
+                domain: 'hotel'
+            );
+        }
+
+        if (!empty($hotel->min_day_before_booking)) {
+            $minDayBefore = Carbon::today()->addDays((int) $hotel->min_day_before_booking);
+            if ($startDate->lt($minDayBefore)) {
+                throw new ValidationException(
+                    message: __('hotel.errors.min_day_before_booking', [
+                        'number' => $hotel->min_day_before_booking,
+                    ]),
+                    errorCode: 'min_day_before_booking',
+                    domain: 'hotel'
+                );
+            }
+        }
+
+        return [
+            'code' => '',
+            'data' => $this->roomService->getAvailableRooms($hotel, $dto->toFilters()),
         ];
     }
 
@@ -97,7 +166,6 @@ class HotelService
 
         $hotels = [
             'rows' => $list,
-//            'markers'            => $markers,
         ];
 
         return [
