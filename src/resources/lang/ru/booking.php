@@ -101,6 +101,10 @@ return [
         'room_number_must_be_integer' => 'Количество номеров должно быть числом',
         'room_number_min_value' => 'Минимальное количество номеров — 1',
 
+        'code_required' => 'Укажите код бронирования',
+        'code_must_be_string' => 'Код бронирования должен быть строкой',
+
+        'customer_notes_required' => 'Укажите особые требования',
         'customer_notes_must_be_string' => 'Особые требования должны быть строкой',
         'customer_notes_max' => 'Особые требования не должны превышать 5000 символов',
     ],
