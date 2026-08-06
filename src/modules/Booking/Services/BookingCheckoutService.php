@@ -66,8 +66,11 @@ class BookingCheckoutService
             );
         }
 
+        Booking::query()->whereKey($booking->id)->update([
+            'customer_notes' => $dto->customerNotes,
+        ]);
+
         $booking->customer_notes = $dto->customerNotes;
-        $booking->save();
 
         return $booking;
     }
