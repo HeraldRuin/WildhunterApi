@@ -47,6 +47,14 @@ function is_baseAdmin()
     return false;
 }
 
+function booking_status_to_text($status): string
+{
+    $key = 'booking.statuses.' . $status;
+    $translated = __($key);
+
+    return $translated === $key ? ucfirst((string) ($status ?? '')) : $translated;
+}
+
 function get_bookable_services()
 {
 
