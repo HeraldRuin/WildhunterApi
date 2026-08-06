@@ -16,7 +16,7 @@ class BookingCreateRequest extends FormRequest
             'check_out' => ['required', 'date', 'after:check_in'],
             'adults' => ['nullable', 'integer', 'min:1'],
             'hunters' => ['nullable', 'integer', 'min:1'],
-            'rooms' => ['required', 'array', 'min:1'],
+            'rooms' => ['nullable', 'array'],
             'rooms.*.room_id' => [
                 'required',
                 'integer',
@@ -27,6 +27,21 @@ class BookingCreateRequest extends FormRequest
             ],
             'rooms.*.number' => ['required', 'integer', 'min:1'],
         ];
+    }
+
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            $rooms = $this->input('rooms', []);
+            $animalId = $this->input('animal_id');
+
+            if (empty($rooms) && empty($animalId)) {
+                $validator->errors()->add(
+                    'rooms',
+                    __('booking.validation.rooms_or_animal_required')
+                );
+            }
+        });
     }
 
     public function messages(): array
