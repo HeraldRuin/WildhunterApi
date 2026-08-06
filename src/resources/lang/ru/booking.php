@@ -93,6 +93,7 @@ return [
         'rooms_required' => 'Выберите хотя бы один номер',
         'rooms_must_be_array' => 'Список номеров должен быть массивом',
         'rooms_min_value' => 'Выберите хотя бы один номер',
+        'rooms_or_animal_required' => 'Выберите номер или животное для охоты',
 
         'room_id_required' => 'Укажите ID номера',
         'room_id_must_be_integer' => 'ID номера должен быть числом',
