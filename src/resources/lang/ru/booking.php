@@ -24,6 +24,42 @@ return [
         'booking_not_found' => 'Ссылка на бронирование недействительна или устарела',
         'min_day_stays' => 'Номер :name требует минимум :number ночей',
     ],
+    'types' => [
+        'hotel' => 'Проживание',
+        'animal' => 'Охота',
+        'hotel_animal' => 'Проживание, охота',
+    ],
+    'actions' => [
+        'confirm' => 'Подтвердить бронь',
+        'cancel' => 'Отменить бронь',
+        'start_collection' => 'Собрать охотников',
+        'open_collection' => 'Сбор',
+        'prepayment' => 'Предоплата',
+        'select_place' => 'Выбрать место',
+        'add_services' => 'Добавить услуги',
+        'calculating' => 'Калькуляция',
+        'mark_paid' => 'Оплачено',
+        'complete' => 'Завершить',
+        'open_invitation' => 'Открыть приглашение',
+    ],
+    'statuses' => [
+        'draft' => 'Черновик',
+        'unpaid' => 'Не оплачено',
+        'paid' => 'Оплачено',
+        'processing' => 'Ожидается подтверждение базой',
+        'completed' => 'Завершено',
+        'confirmed' => 'Подтверждено',
+        'cancelled' => 'Отменено',
+        'partial_payment' => 'Частичная оплата',
+        'collection' => 'Сбор охотников',
+        'finished_collection' => 'Сбор завершен',
+        'invitation' => 'Приглашения',
+        'prepayment' => 'Предоплата',
+        'prepayment_collection' => 'Сбор предоплаты',
+        'finish_prepayment' => 'Предоплата собрана',
+        'bed_collection' => 'Выбор койко-мест',
+        'finish_bed_collection' => 'Койко-места выбраны',
+    ],
     'validation' => [
         'hotel_id_required' => 'Укажите отель',
         'hotel_id_must_be_integer' => 'ID отеля должен быть числом',
@@ -31,6 +67,13 @@ return [
 
         'animal_id_must_be_integer' => 'ID животного должен быть числом',
         'animal_id_not_found' => 'Животное не найдено',
+
+        'status_must_be_string' => 'Статус должен быть строкой',
+        'status_invalid' => 'Недопустимый статус бронирования',
+        'booking_id_must_be_integer' => 'ID брони должен быть числом',
+        'booking_id_min_value' => 'ID брони должен быть больше 0',
+        'page_must_be_integer' => 'Номер страницы должен быть числом',
+        'page_min_value' => 'Номер страницы должен быть больше 0',
 
         'check_in_required' => 'Укажите дату заезда',
         'check_in_must_be_date' => 'Дата заезда должна быть корректной датой',
@@ -57,6 +100,9 @@ return [
         'room_number_required' => 'Укажите количество номеров',
         'room_number_must_be_integer' => 'Количество номеров должно быть числом',
         'room_number_min_value' => 'Минимальное количество номеров — 1',
+
+        'customer_notes_must_be_string' => 'Особые требования должны быть строкой',
+        'customer_notes_max' => 'Особые требования не должны превышать 5000 символов',
     ],
     'successes' => [
         'place_selected' => 'Выбранное место занято за вами',
@@ -74,5 +120,6 @@ return [
         'hunter_gathering_cancelled' => 'Сбор охотников для этой брони отменён',
         'booking_invitation_sent' => 'Приглашение отправлено',
         'booking_created' => 'Бронирование создано',
+        'customer_notes_updated' => 'Особые требования сохранены',
     ]
 ];
