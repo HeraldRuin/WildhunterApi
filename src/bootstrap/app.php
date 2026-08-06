@@ -55,7 +55,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
                 return response()->json([
                     'success' => false,
-                    'message' => __($message),
+                    'message' => __($message, $e->getContext()),
                     'error_code' => $e->getErrorCode(),
                     'errors' => [],
                     'trace_id' => $request->attributes->get('trace_id')
