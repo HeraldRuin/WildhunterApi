@@ -35,7 +35,7 @@ class CreateBookingData
                     roomId: (int) $room['room_id'],
                     number: (int) $room['number'],
                 ),
-                $data['rooms']
+                $data['rooms'] ?? []
             ),
         );
     }
