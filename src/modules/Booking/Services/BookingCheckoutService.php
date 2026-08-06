@@ -42,4 +42,32 @@ class BookingCheckoutService
 
         return $booking;
     }
+
+    /**
+     * @throws NotFoundException
+     * @throws ForbiddenException
+     */
+    public function updateCustomerNotes(string $code, int $userId, ?string $customerNotes): Booking
+    {
+        $booking = Booking::query()->where('code', $code)->first();
+
+        if (!$booking) {
+            throw new NotFoundException(
+                errorCode: 'booking_not_found',
+                domain: 'booking'
+            );
+        }
+
+        if ((int) $booking->customer_id !== $userId) {
+            throw new ForbiddenException(
+                errorCode: 'booking_access_denied',
+                domain: 'booking'
+            );
+        }
+
+        $booking->customer_notes = $customerNotes;
+        $booking->save();
+
+        return $booking;
+    }
 }
