@@ -4,6 +4,7 @@ namespace Modules\Hotel\Http\Resources;
 
 use Modules\Hotel\Models\Hotel;
 use App\Http\Resources\BaseJsonResource;
+use Modules\Animals\Http\Resources\AnimalResource;
 use Modules\Location\Http\Resources\LocationResource;
 
 class HotelResource extends BaseJsonResource
@@ -24,6 +25,7 @@ class HotelResource extends BaseJsonResource
             'review_count' => $hotel->reviews->count(),
             'star_rate' => $hotel->star_rate,
             'rooms' => HotelRoomResource::collection($hotel->available_rooms ?? []),
+            'animals' => AnimalResource::collection($hotel->animals ?? []),
             'location' => LocationResource::make($this->resource->location),
         ];
     }
