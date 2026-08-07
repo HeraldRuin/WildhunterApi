@@ -38,7 +38,10 @@ class User extends Authenticatable
         'address',
         'birthday',
         'hunter_billet_number',
-        'password'
+        'password',
+        'current_password',
+        'status',
+        'locale',
     ];
     protected function casts(): array
     {
