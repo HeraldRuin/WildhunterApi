@@ -36,4 +36,11 @@ class ModuleProvider extends ModuleServiceProvider
     {
         $this->app->register(RouterServiceProvider::class);
     }
+
+    public static function getBookableServices(): array
+    {
+        return [
+            'hotel' => Hotel::class,
+        ];
+    }
 }
