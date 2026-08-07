@@ -50,23 +50,26 @@ class BookingPath
     {}
 
     #[OA\Post(
-        path: "/api/" . ApiConfig::VERSION . "/bookings/{id}/confirm",
+        path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/confirm",
         summary: "Подтвердить бронь (администратор базы)",
         security: [['bearerAuth' => []]],
         tags: ["Bookings"],
         parameters: [
             new OA\Parameter(
-                name: "id",
-                description: "ID бронирования",
+                name: "code",
+                description: "Код бронирования",
                 in: "path",
                 required: true,
-                schema: new OA\Schema(type: "integer", example: 222)
+                schema: new OA\Schema(
+                    type: "string",
+                    example: "faa1c65d4b0de02146a27cea429340fb"
+                )
             ),
         ],
         responses: [
             new OA\Response(
                 ref: "#/components/responses/SuccessResponse",
-                response: 201
+                response: 200
             ),
             new OA\Response(
                 ref: "#/components/responses/AuthResponse",
