@@ -11,6 +11,12 @@ class BookingHunterInvitation extends BaseModel
 {
     use SoftDeletes;
 
+    public const string STATUS_ACCEPTED = 'accepted';
+    public const string STATUS_DECLINED = 'declined';
+    public const string PREPAYMENT_PAID = 'paid';
+    public const string PREPAYMENT_PENDING = 'pending';
+    public const string PREPAYMENT_UNPAID = 'unpaid';
+
     protected $table = 'bc_booking_hunter_invitations';
 
     protected $fillable = [
