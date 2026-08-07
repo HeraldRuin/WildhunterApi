@@ -85,6 +85,41 @@ class BookingPath
     {}
 
     #[OA\Post(
+        path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/cancel",
+        summary: "Отменить бронь",
+        security: [['bearerAuth' => []]],
+        tags: ["Bookings"],
+        parameters: [
+            new OA\Parameter(
+                name: "code",
+                description: "Код бронирования",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(
+                    type: "string",
+                    example: "faa1c65d4b0de02146a27cea429340fb"
+                )
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                ref: "#/components/responses/SuccessResponse",
+                response: 200
+            ),
+            new OA\Response(
+                ref: "#/components/responses/AuthResponse",
+                response: 401
+            ),
+            new OA\Response(
+                ref: "#/components/responses/NotFoundResponse",
+                response: 404
+            ),
+        ]
+    )]
+    public function CancelBooking(): void
+    {}
+
+    #[OA\Post(
         path: "/api/" . ApiConfig::VERSION . "/bookings",
         summary: "Создать бронирование",
         security: [['bearerAuth' => []]],
