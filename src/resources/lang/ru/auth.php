@@ -40,6 +40,6 @@ return [
         'term_accepted'  => 'Необходимо принять условия',
     ],
     'successes' => [
-
+        'register_successfully' => 'Вы успешно зарегистрированы',
     ]
 ];

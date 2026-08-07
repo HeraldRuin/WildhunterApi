@@ -60,7 +60,12 @@ class AuthController
 
             event(new Registered($result['user']));
 
-            return new AuthSuccessResponse($result['token'], $result['user']);
+            return new AuthSuccessResponse(
+                $result['token'],
+                $result['user'],
+                code: 'register_successfully',
+                domain: 'auth'
+            );
         }
 
 //    public function refreshToken(RefreshTokenRequest $request)
