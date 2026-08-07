@@ -25,21 +25,21 @@ function setting_item($item, $default = '', $isArray = false)
     return $res;
 }
 
-function is_admin()
+function is_admin(): bool
 {
     if (!auth()->check()) return false;
     if(!auth()->user()->hasRole(\Modules\Role\Models\Role::SUPERADMIN)) return false;
     if (auth()->user()->hasPermission('dashboard_access')) return true;
     return false;
 }
-function is_vendor()
+function is_vendor(): bool
 {
     if (!auth()->check()) return false;
     if(!auth()->user()->hasRole(\Modules\Role\Models\Role::CUSTOMER)) return false;
     if (auth()->user()->hasPermission('dashboard_access')) return true;
     return false;
 }
-function is_baseAdmin()
+function is_baseAdmin(): bool
 {
     if (!auth()->check()) return false;
     if(!auth()->user()->hasRole(\Modules\Role\Models\Role::ADMIN)) return false;
@@ -72,18 +72,6 @@ function get_bookable_services()
         }
     }
 
-
-    // Plugin Menu
-//    $plugins_modules = \Plugins\ServiceProvider::getModules();
-//    if (!empty($plugins_modules)) {
-//        foreach ($plugins_modules as $module) {
-//            $moduleClass = "\\Plugins\\" . ucfirst($module) . "\\ModuleProvider";
-//            if (class_exists($moduleClass)) {
-//                $services = call_user_func([$moduleClass, 'getBookableServices']);
-//                $all = array_merge($all, $services);
-//            }
-//        }
-//    }
     foreach ($all as $id => $class) {
         $all[$id] = get_class(app()->make($class));
     }
@@ -139,4 +127,15 @@ function app_get_locale($locale = false, $before = false, $after = false): strin
     }
 
     return '';
+}
+
+function plural_sutki(int $count): string
+{
+    $count = abs($count);
+
+    if ($count === 1) {
+        return '1 сутки';
+    }
+
+    return $count . ' суток';
 }
