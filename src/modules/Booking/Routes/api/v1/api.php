@@ -8,6 +8,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/bookings/history', [BookingController::class, 'bookingHistory']);
     Route::post('/bookings/{code}/confirm', [BookingController::class, 'confirm']);
+    Route::post('/bookings/{code}/cancel', [BookingController::class, 'cancel']);
 
     Route::get('/bookings/{code}/checkout', [BookingController::class, 'checkout']);
     Route::post('/bookings/{code}/checkout', [BookingController::class, 'doCheckout']);
