@@ -47,7 +47,7 @@ class BookingStartCollectionService
             if ($booking->status !== Booking::CONFIRMED) {
                 throw new ConflictException(
                     errorCode: 'booking_collection_not_startable',
-                    domain: 'booking',
+                    domain: 'collection',
                 );
             }
 

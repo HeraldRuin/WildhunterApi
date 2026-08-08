@@ -134,7 +134,7 @@ class BookingController extends Controller
 
         return new SuccessResponse(
             code: 'gathering_has_started',
-            domain: 'booking',
+            domain: 'collection',
             data: [
                 'id' => $booking->id,
                 'code' => $booking->code,
