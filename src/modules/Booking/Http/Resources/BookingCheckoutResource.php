@@ -19,6 +19,14 @@ class BookingCheckoutResource extends BaseJsonResource
         $booking->loadMissing(['hotel', 'animal']);
 
         $roomBookings = HotelRoomBooking::getByBookingId($booking->id)->load('room');
+        $hasHotel = in_array($booking->type, [
+            Booking::BookingTypeHotel,
+            Booking::BookingTypeHotelAnimal,
+        ], true);
+        $hasAnimal = in_array($booking->type, [
+            Booking::BookingTypeAnimal,
+            Booking::BookingTypeHotelAnimal,
+        ], true);
 
         return [
             'booking_number' => $booking->booking_number,
@@ -31,8 +39,8 @@ class BookingCheckoutResource extends BaseJsonResource
             'start_date_animal' => $booking->start_date_animal,
 
             'location' => LocationResource::make($booking->hotel->location),
-            'hotel' => $booking->hotel ? HotelShortResource::make($booking->hotel) : null,
-            'animal' => $booking->animal ? AnimalResource::make($booking->animal) : null,
+            'hotel' => $hasHotel && $booking->hotel ? HotelShortResource::make($booking->hotel) : null,
+            'animal' => $hasAnimal && $booking->animal ? AnimalResource::make($booking->animal) : null,
 
             'total' => (float) $booking->total,
             'amount_hunting' => (float) $booking->amount_hunting,
