@@ -33,13 +33,13 @@ class BookingCheckoutService
             );
         }
 
-        if (!in_array($booking->status, [Booking::DRAFT, Booking::UNPAID], true)) {
-            throw new ValidationException(
-                message: __('booking.errors.booking_not_confirmable'),
-                errorCode: 'booking_not_confirmable',
-                domain: 'booking'
-            );
-        }
+//        if (!in_array($booking->status, [Booking::DRAFT, Booking::UNPAID], true)) {
+//            throw new ValidationException(
+//                message: __('booking.errors.booking_not_confirmable'),
+//                errorCode: 'booking_not_confirmable',
+//                domain: 'booking'
+//            );
+//        }
 
         return $booking;
     }
