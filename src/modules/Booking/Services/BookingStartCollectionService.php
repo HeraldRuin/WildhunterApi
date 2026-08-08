@@ -21,28 +21,8 @@ class BookingStartCollectionService
     public function start(string $code, User $user): array
     {
         return DB::transaction(function () use ($code, $user): array {
-            $booking = Booking::query()
-                ->where('code', $code)
-                ->lockForUpdate()
-                ->first();
-
-            if (!$booking) {
-                throw new NotFoundException(
-                    errorCode: 'booking_not_found',
-                    domain: 'booking',
-                );
-            }
-
-            $isMasterHunter = $booking->masterHunter()
-                ->where('invited_by', $user->id)
-                ->exists();
-
-            if (!$isMasterHunter) {
-                throw new ForbiddenException(
-                    errorCode: 'booking_access_denied',
-                    domain: 'booking',
-                );
-            }
+            $booking = $this->findForUpdate($code);
+            $this->ensureMasterHunter($booking, $user);
 
             if ($booking->status !== Booking::CONFIRMED) {
                 throw new ConflictException(
@@ -51,63 +31,147 @@ class BookingStartCollectionService
                 );
             }
 
-            $hours = $this->getCollectionTimerHours($booking);
-            $now = Carbon::now();
-            $startAt = $now->toIso8601String();
-            $endAt = $now->copy()->addHours($hours)->toIso8601String();
-
-            Booking::query()
-                ->whereKey($booking->id)
-                ->update(['status' => Booking::START_COLLECTION]);
-
-            DB::table('bc_booking_meta')
-                ->where('booking_id', $booking->id)
-                ->whereIn('name', [
-                    'collection_start_at',
-                    'collection_timer_hours',
-                    'collection_end_at',
-                    'paid_start_at',
-                    'paid_timer_hours',
-                    'paid_end_at',
-                    'beds_start_at',
-                    'beds_timer_hours',
-                    'beds_end_at',
-                ])
-                ->delete();
-
-            DB::table('bc_booking_meta')->insert([
-                [
-                    'booking_id' => $booking->id,
-                    'name' => 'collection_start_at',
-                    'val' => $startAt,
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ],
-                [
-                    'booking_id' => $booking->id,
-                    'name' => 'collection_timer_hours',
-                    'val' => (string) $hours,
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ],
-                [
-                    'booking_id' => $booking->id,
-                    'name' => 'collection_end_at',
-                    'val' => $endAt,
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ],
-            ]);
-
-            $booking->status = Booking::START_COLLECTION;
-
-            return [
-                'booking' => $booking,
-                'start_at' => $startAt,
-                'end_at' => $endAt,
-                'hours' => $hours,
-            ];
+            return $this->restartCollectionTimer($booking);
         });
+    }
+
+    /**
+     * @return array{booking: Booking, start_at: string, end_at: string, hours: int}
+     */
+    public function extend(string $code, User $user): array
+    {
+        return DB::transaction(function () use ($code, $user): array {
+            $booking = $this->findForUpdate($code);
+            $this->ensureMasterHunter($booking, $user);
+
+            if ($booking->status !== Booking::START_COLLECTION) {
+                throw new ConflictException(
+                    errorCode: 'booking_collection_not_extendable',
+                    domain: 'collection',
+                );
+            }
+
+            $endAt = DB::table('bc_booking_meta')
+                ->where('booking_id', $booking->id)
+                ->where('name', 'collection_end_at')
+                ->value('val');
+
+            if (!$endAt) {
+                throw new ConflictException(
+                    errorCode: 'collection_timer_not_found',
+                    domain: 'collection',
+                );
+            }
+
+            if (Carbon::parse($endAt)->isFuture()) {
+                throw new ConflictException(
+                    errorCode: 'collection_timer_not_expired',
+                    domain: 'collection',
+                );
+            }
+
+            return $this->restartCollectionTimer($booking);
+        });
+    }
+
+    /**
+     * @throws NotFoundException
+     */
+    private function findForUpdate(string $code): Booking
+    {
+        $booking = Booking::query()
+            ->where('code', $code)
+            ->lockForUpdate()
+            ->first();
+
+        if (!$booking) {
+            throw new NotFoundException(
+                errorCode: 'booking_not_found',
+                domain: 'booking',
+            );
+        }
+
+        return $booking;
+    }
+
+    /**
+     * @throws ForbiddenException
+     */
+    private function ensureMasterHunter(Booking $booking, User $user): void
+    {
+        $isMasterHunter = $booking->masterHunter()
+            ->where('invited_by', $user->id)
+            ->exists();
+
+        if (!$isMasterHunter) {
+            throw new ForbiddenException(
+                errorCode: 'booking_access_denied',
+                domain: 'booking',
+            );
+        }
+    }
+
+    /**
+     * @return array{booking: Booking, start_at: string, end_at: string, hours: int}
+     */
+    private function restartCollectionTimer(Booking $booking): array
+    {
+        $hours = $this->getCollectionTimerHours($booking);
+        $now = Carbon::now();
+        $startAt = $now->toIso8601String();
+        $endAt = $now->copy()->addHours($hours)->toIso8601String();
+
+        Booking::query()
+            ->whereKey($booking->id)
+            ->update(['status' => Booking::START_COLLECTION]);
+
+        DB::table('bc_booking_meta')
+            ->where('booking_id', $booking->id)
+            ->whereIn('name', [
+                'collection_start_at',
+                'collection_timer_hours',
+                'collection_end_at',
+                'paid_start_at',
+                'paid_timer_hours',
+                'paid_end_at',
+                'beds_start_at',
+                'beds_timer_hours',
+                'beds_end_at',
+            ])
+            ->delete();
+
+        DB::table('bc_booking_meta')->insert([
+            [
+                'booking_id' => $booking->id,
+                'name' => 'collection_start_at',
+                'val' => $startAt,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'booking_id' => $booking->id,
+                'name' => 'collection_timer_hours',
+                'val' => (string) $hours,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'booking_id' => $booking->id,
+                'name' => 'collection_end_at',
+                'val' => $endAt,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+        ]);
+
+        $booking->status = Booking::START_COLLECTION;
+
+        return [
+            'booking' => $booking,
+            'start_at' => $startAt,
+            'end_at' => $endAt,
+            'hours' => $hours,
+        ];
     }
 
     private function getCollectionTimerHours(Booking $booking): int
