@@ -18,6 +18,7 @@ use Modules\Booking\Http\Requests\BookingHistoryRequest;
 use Modules\Booking\Http\Requests\UpdateCustomerNotesRequest;
 use Modules\Booking\Http\Resources\BookingCheckoutResource;
 use Modules\Booking\Http\Resources\BookingHistoryResource;
+use Modules\Booking\Http\Resources\CollectionTimerResource;
 use Modules\Booking\Services\BookingCancelService;
 use Modules\Booking\Services\BookingCheckoutService;
 use Modules\Booking\Services\BookingConfirmService;
@@ -130,19 +131,25 @@ class BookingController extends Controller
     public function startCollection(string $code): JsonResponse
     {
         $result = $this->bookingStartCollectionService->start($code, Auth::user());
-        $booking = $result['booking'];
 
         return new SuccessResponse(
             code: 'gathering_has_started',
             domain: 'collection',
-            data: [
-                'id' => $booking->id,
-                'code' => $booking->code,
-                'status' => $booking->status,
-                'collection_start_at' => $result['start_at'],
-                'collection_end_at' => $result['end_at'],
-                'collection_timer_hours' => $result['hours'],
-            ],
+            data: new CollectionTimerResource($result),
+        );
+    }
+
+    /**
+     * Продление истёкшего сбора охотников мастер-охотником.
+     */
+    public function extendCollection(string $code): JsonResponse
+    {
+        $result = $this->bookingStartCollectionService->extend($code, Auth::user());
+
+        return new SuccessResponse(
+            code: 'gathering_has_extended',
+            domain: 'collection',
+            data: new CollectionTimerResource($result),
         );
     }
 
