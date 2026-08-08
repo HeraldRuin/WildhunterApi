@@ -120,7 +120,6 @@ return [
         'invitation_declined' => 'Приглашение отклонено',
         'invitation_accepted' => 'Приглашение принято',
         'customer_changed' => 'Заказчик изменён',
-        'gathering_has_started' => 'Сбор охотников начат',
         'gathering_has_completed' => 'Сбор охотников завершён',
         'booking_confirmed' => 'Бронь успешно подтверждена',
         'hunter_gathering_cancelled' => 'Сбор охотников для этой брони отменён',
