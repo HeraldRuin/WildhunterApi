@@ -37,8 +37,310 @@ class BookingPath
         ],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "История бронирований",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            required: ["role", "hotel", "statuses", "dropdown_statuses", "bookings"],
+                            properties: [
+                                new OA\Property(
+                                    property: "role",
+                                    type: "string",
+                                    enum: ["baseadmin", "hunter"]
+                                ),
+                                new OA\Property(
+                                    property: "hotel",
+                                    required: ["id", "title", "slug", "location"],
+                                    properties: [
+                                        new OA\Property(property: "id", type: "integer"),
+                                        new OA\Property(property: "title", type: "string", nullable: true),
+                                        new OA\Property(property: "slug", type: "string", nullable: true),
+                                        new OA\Property(
+                                            property: "location",
+                                            required: ["slug"],
+                                            properties: [
+                                                new OA\Property(property: "slug", type: "string", nullable: true),
+                                            ],
+                                            type: "object",
+                                            nullable: true
+                                        ),
+                                    ],
+                                    type: "object",
+                                    nullable: true
+                                ),
+                                new OA\Property(
+                                    property: "statuses",
+                                    type: "array",
+                                    items: new OA\Items(type: "string")
+                                ),
+                                new OA\Property(
+                                    property: "dropdown_statuses",
+                                    type: "array",
+                                    items: new OA\Items(type: "string")
+                                ),
+                                new OA\Property(
+                                    property: "bookings",
+                                    required: ["items", "pagination"],
+                                    properties: [
+                                        new OA\Property(
+                                            property: "items",
+                                            type: "array",
+                                            items: new OA\Items(
+                                                required: [
+                                                    "id", "booking_number", "code", "created_at", "type",
+                                                    "type_text", "status", "status_for_user", "status_label",
+                                                    "display_status", "is_paid", "is_master_hunter",
+                                                    "is_invited", "invitation_accepted", "hotel", "creator",
+                                                    "details", "collection", "payment", "available_actions",
+                                                ],
+                                                properties: [
+                                                    new OA\Property(property: "id", type: "integer"),
+                                                    new OA\Property(property: "booking_number", type: "string"),
+                                                    new OA\Property(property: "code", type: "string"),
+                                                    new OA\Property(property: "created_at", type: "string", format: "date-time"),
+                                                    new OA\Property(
+                                                        property: "type",
+                                                        type: "string",
+                                                        enum: ["hotel", "animal", "hotel_animal"]
+                                                    ),
+                                                    new OA\Property(property: "type_text", type: "string"),
+                                                    new OA\Property(property: "status", type: "string"),
+                                                    new OA\Property(property: "status_for_user", type: "string"),
+                                                    new OA\Property(property: "status_label", type: "string"),
+                                                    new OA\Property(property: "display_status", type: "string"),
+                                                    new OA\Property(property: "is_paid", type: "boolean"),
+                                                    new OA\Property(property: "is_master_hunter", type: "boolean"),
+                                                    new OA\Property(property: "is_invited", type: "boolean"),
+                                                    new OA\Property(property: "invitation_accepted", type: "boolean"),
+                                                    new OA\Property(
+                                                        property: "hotel",
+                                                        required: [
+                                                            "id", "title", "slug", "location",
+                                                            "collection_timer_hours", "paid_timer_hours",
+                                                            "bed_timer_hours",
+                                                        ],
+                                                        properties: [
+                                                            new OA\Property(property: "id", type: "integer"),
+                                                            new OA\Property(property: "title", type: "string", nullable: true),
+                                                            new OA\Property(property: "slug", type: "string", nullable: true),
+                                                            new OA\Property(
+                                                                property: "location",
+                                                                required: ["slug"],
+                                                                properties: [
+                                                                    new OA\Property(property: "slug", type: "string", nullable: true),
+                                                                ],
+                                                                type: "object",
+                                                                nullable: true
+                                                            ),
+                                                            new OA\Property(
+                                                                property: "collection_timer_hours",
+                                                                type: "integer",
+                                                                nullable: true
+                                                            ),
+                                                            new OA\Property(
+                                                                property: "paid_timer_hours",
+                                                                type: "integer",
+                                                                nullable: true
+                                                            ),
+                                                            new OA\Property(
+                                                                property: "bed_timer_hours",
+                                                                type: "integer",
+                                                                nullable: true
+                                                            ),
+                                                        ],
+                                                        type: "object",
+                                                        nullable: true
+                                                    ),
+                                                    new OA\Property(
+                                                        property: "creator",
+                                                        required: [
+                                                            "id", "user_name", "first_name",
+                                                            "last_name", "email", "phone",
+                                                        ],
+                                                        properties: [
+                                                            new OA\Property(property: "id", type: "integer"),
+                                                            new OA\Property(property: "user_name", type: "string", nullable: true),
+                                                            new OA\Property(property: "first_name", type: "string", nullable: true),
+                                                            new OA\Property(property: "last_name", type: "string", nullable: true),
+                                                            new OA\Property(
+                                                                property: "email",
+                                                                type: "string",
+                                                                format: "email",
+                                                                nullable: true
+                                                            ),
+                                                            new OA\Property(property: "phone", type: "string", nullable: true),
+                                                        ],
+                                                        type: "object",
+                                                        nullable: true
+                                                    ),
+                                                    new OA\Property(
+                                                        property: "details",
+                                                        required: [
+                                                            "start_date", "end_date", "duration_days",
+                                                            "total_guests", "start_date_animal",
+                                                            "total_hunting", "animal", "rooms",
+                                                        ],
+                                                        properties: [
+                                                            new OA\Property(
+                                                                property: "start_date",
+                                                                type: "string",
+                                                                format: "date"
+                                                            ),
+                                                            new OA\Property(
+                                                                property: "end_date",
+                                                                type: "string",
+                                                                format: "date"
+                                                            ),
+                                                            new OA\Property(property: "duration_days", type: "integer"),
+                                                            new OA\Property(property: "total_guests", type: "integer"),
+                                                            new OA\Property(
+                                                                property: "start_date_animal",
+                                                                type: "string",
+                                                                format: "date",
+                                                                nullable: true
+                                                            ),
+                                                            new OA\Property(
+                                                                property: "total_hunting",
+                                                                type: "integer",
+                                                                nullable: true
+                                                            ),
+                                                            new OA\Property(
+                                                                property: "animal",
+                                                                required: ["id", "title"],
+                                                                properties: [
+                                                                    new OA\Property(property: "id", type: "integer"),
+                                                                    new OA\Property(property: "title", type: "string", nullable: true),
+                                                                ],
+                                                                type: "object",
+                                                                nullable: true
+                                                            ),
+                                                            new OA\Property(
+                                                                property: "rooms",
+                                                                type: "array",
+                                                                items: new OA\Items(
+                                                                    required: [
+                                                                        "room_id", "title", "number",
+                                                                        "price", "adults",
+                                                                    ],
+                                                                    properties: [
+                                                                        new OA\Property(property: "room_id", type: "integer"),
+                                                                        new OA\Property(
+                                                                            property: "title",
+                                                                            type: "string",
+                                                                            nullable: true
+                                                                        ),
+                                                                        new OA\Property(property: "number", type: "integer"),
+                                                                        new OA\Property(
+                                                                            property: "price",
+                                                                            type: "number",
+                                                                            format: "float"
+                                                                        ),
+                                                                        new OA\Property(property: "adults", type: "integer"),
+                                                                    ],
+                                                                    type: "object"
+                                                                )
+                                                            ),
+                                                        ],
+                                                        type: "object"
+                                                    ),
+                                                    new OA\Property(
+                                                        property: "collection",
+                                                        required: [
+                                                            "accepted_count", "total_needed", "paid_count",
+                                                            "collection_end_at", "paid_end_at", "beds_end_at",
+                                                        ],
+                                                        properties: [
+                                                            new OA\Property(property: "accepted_count", type: "integer"),
+                                                            new OA\Property(property: "total_needed", type: "integer"),
+                                                            new OA\Property(property: "paid_count", type: "integer"),
+                                                            new OA\Property(
+                                                                property: "collection_end_at",
+                                                                type: "string",
+                                                                format: "date-time",
+                                                                nullable: true
+                                                            ),
+                                                            new OA\Property(
+                                                                property: "paid_end_at",
+                                                                type: "string",
+                                                                format: "date-time",
+                                                                nullable: true
+                                                            ),
+                                                            new OA\Property(
+                                                                property: "beds_end_at",
+                                                                type: "string",
+                                                                format: "date-time",
+                                                                nullable: true
+                                                            ),
+                                                        ],
+                                                        type: "object"
+                                                    ),
+                                                    new OA\Property(
+                                                        property: "payment",
+                                                        required: ["prepaid_total", "base_total", "total"],
+                                                        properties: [
+                                                            new OA\Property(
+                                                                property: "prepaid_total",
+                                                                type: "number",
+                                                                format: "float"
+                                                            ),
+                                                            new OA\Property(
+                                                                property: "base_total",
+                                                                type: "number",
+                                                                format: "float"
+                                                            ),
+                                                            new OA\Property(
+                                                                property: "total",
+                                                                type: "number",
+                                                                format: "float"
+                                                            ),
+                                                        ],
+                                                        type: "object"
+                                                    ),
+                                                    new OA\Property(
+                                                        property: "available_actions",
+                                                        type: "array",
+                                                        items: new OA\Items(
+                                                            required: ["code", "label"],
+                                                            properties: [
+                                                                new OA\Property(property: "code", type: "string"),
+                                                                new OA\Property(property: "label", type: "string"),
+                                                            ],
+                                                            type: "object"
+                                                        )
+                                                    ),
+                                                ],
+                                                type: "object"
+                                            )
+                                        ),
+                                        new OA\Property(
+                                            property: "pagination",
+                                            required: [
+                                                "current_page", "per_page", "total",
+                                                "last_page", "has_more_pages",
+                                            ],
+                                            properties: [
+                                                new OA\Property(property: "current_page", type: "integer"),
+                                                new OA\Property(property: "per_page", type: "integer"),
+                                                new OA\Property(property: "total", type: "integer"),
+                                                new OA\Property(property: "last_page", type: "integer"),
+                                                new OA\Property(property: "has_more_pages", type: "boolean"),
+                                            ],
+                                            type: "object"
+                                        ),
+                                    ],
+                                    type: "object"
+                                ),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/AuthResponse",
@@ -68,8 +370,26 @@ class BookingPath
         ],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Бронирование подтверждено",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string"),
+                        new OA\Property(
+                            property: "data",
+                            required: ["id", "code", "status"],
+                            properties: [
+                                new OA\Property(property: "id", type: "integer"),
+                                new OA\Property(property: "code", type: "string"),
+                                new OA\Property(property: "status", type: "string"),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/AuthResponse",
@@ -103,8 +423,26 @@ class BookingPath
         ],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Бронирование отменено",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string"),
+                        new OA\Property(
+                            property: "data",
+                            required: ["id", "code", "status"],
+                            properties: [
+                                new OA\Property(property: "id", type: "integer"),
+                                new OA\Property(property: "code", type: "string"),
+                                new OA\Property(property: "status", type: "string"),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/AuthResponse",
@@ -196,8 +534,24 @@ class BookingPath
         tags: ["Bookings"],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 201
+                response: 201,
+                description: "Бронирование создано",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string"),
+                        new OA\Property(
+                            property: "data",
+                            required: ["booking_code"],
+                            properties: [
+                                new OA\Property(property: "booking_code", type: "string"),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/ValidationError",
@@ -227,8 +581,92 @@ class BookingPath
         ],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Данные бронирования перед подтверждением",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            required: [
+                                "booking_number", "created_at", "status", "gateway", "type",
+                                "check_in", "check_out", "start_date_animal", "location",
+                                "hotel", "animal", "total", "amount_hunting", "all_total",
+                                "deposit", "total_guests", "total_hunting", "rooms",
+                            ],
+                            properties: [
+                                new OA\Property(property: "booking_number", type: "string", nullable: true),
+                                new OA\Property(property: "created_at", type: "string", format: "date-time", nullable: true),
+                                new OA\Property(property: "status", type: "string", nullable: true),
+                                new OA\Property(property: "gateway", type: "string", nullable: true),
+                                new OA\Property(property: "type", type: "string", nullable: true),
+                                new OA\Property(property: "check_in", type: "string", format: "date", nullable: true),
+                                new OA\Property(property: "check_out", type: "string", format: "date", nullable: true),
+                                new OA\Property(property: "start_date_animal", type: "string", format: "date", nullable: true),
+                                new OA\Property(
+                                    property: "location",
+                                    required: ["id", "name", "slug"],
+                                    properties: [
+                                        new OA\Property(property: "id", type: "integer"),
+                                        new OA\Property(property: "name", type: "string", nullable: true),
+                                        new OA\Property(property: "slug", type: "string", nullable: true),
+                                    ],
+                                    type: "object",
+                                    nullable: true
+                                ),
+                                new OA\Property(
+                                    property: "hotel",
+                                    required: ["id", "title", "slug", "image_url"],
+                                    properties: [
+                                        new OA\Property(property: "id", type: "integer"),
+                                        new OA\Property(property: "title", type: "string", nullable: true),
+                                        new OA\Property(property: "slug", type: "string", nullable: true),
+                                        new OA\Property(property: "image_url", type: "string"),
+                                    ],
+                                    type: "object",
+                                    nullable: true
+                                ),
+                                new OA\Property(
+                                    property: "animal",
+                                    required: ["id", "title", "slug", "image_url", "content"],
+                                    properties: [
+                                        new OA\Property(property: "id", type: "integer"),
+                                        new OA\Property(property: "title", type: "string", nullable: true),
+                                        new OA\Property(property: "slug", type: "string", nullable: true),
+                                        new OA\Property(property: "image_url", type: "string"),
+                                        new OA\Property(property: "content", type: "string", nullable: true),
+                                    ],
+                                    type: "object",
+                                    nullable: true
+                                ),
+                                new OA\Property(property: "total", type: "number", format: "float"),
+                                new OA\Property(property: "amount_hunting", type: "number", format: "float"),
+                                new OA\Property(property: "all_total", type: "number", format: "float"),
+                                new OA\Property(property: "deposit", type: "number", format: "float"),
+                                new OA\Property(property: "total_guests", type: "integer", nullable: true),
+                                new OA\Property(property: "total_hunting", type: "integer", nullable: true),
+                                new OA\Property(
+                                    property: "rooms",
+                                    type: "array",
+                                    items: new OA\Items(
+                                        required: ["room_id", "title", "number", "price"],
+                                        properties: [
+                                            new OA\Property(property: "room_id", type: "integer"),
+                                            new OA\Property(property: "title", type: "string", nullable: true),
+                                            new OA\Property(property: "number", type: "integer"),
+                                            new OA\Property(property: "price", type: "number", format: "float"),
+                                        ],
+                                        type: "object"
+                                    )
+                                ),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/AuthResponse",
@@ -270,8 +708,24 @@ class BookingPath
         tags: ["Bookings"],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Сохранённые особые требования",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string"),
+                        new OA\Property(
+                            property: "data",
+                            required: ["customer_notes"],
+                            properties: [
+                                new OA\Property(property: "customer_notes", type: "string", nullable: true),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/AuthResponse",
@@ -416,8 +870,8 @@ class BookingPath
         ],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 500,
+                description: "Endpoint не реализован: метод BookingController::doCheckout отсутствует"
             ),
             new OA\Response(
                 ref: "#/components/responses/AuthResponse",

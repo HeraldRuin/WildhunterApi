@@ -14,8 +14,46 @@ class UserPath
         tags: ["Users"],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Список пользователей",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            type: "array",
+                            items: new OA\Items(
+                                required: [
+                                    "id", "name", "first_name", "last_name", "nik", "birthday", "email",
+                                    "avatar_url", "phone", "city", "address", "role", "bio", "is_verified",
+                                    "status", "created_at"
+                                ],
+                                properties: [
+                                    new OA\Property(property: "id", type: "integer"),
+                                    new OA\Property(property: "name", type: "string", nullable: true),
+                                    new OA\Property(property: "first_name", type: "string", nullable: true),
+                                    new OA\Property(property: "last_name", type: "string", nullable: true),
+                                    new OA\Property(property: "nik", type: "string", nullable: true),
+                                    new OA\Property(property: "birthday", type: "string", nullable: true),
+                                    new OA\Property(property: "email", type: "string", format: "email", nullable: true),
+                                    new OA\Property(property: "avatar_url", type: "string", format: "uri"),
+                                    new OA\Property(property: "phone", type: "string", nullable: true),
+                                    new OA\Property(property: "city", type: "string", nullable: true),
+                                    new OA\Property(property: "address", type: "string", nullable: true),
+                                    new OA\Property(property: "role", type: "string", nullable: true),
+                                    new OA\Property(property: "bio", type: "string", nullable: true),
+                                    new OA\Property(property: "is_verified", type: "integer", nullable: true),
+                                    new OA\Property(property: "status", type: "string", nullable: true),
+                                    new OA\Property(property: "created_at", type: "string", nullable: true),
+                                ],
+                                type: "object"
+                            )
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/AuthResponse",
@@ -42,8 +80,43 @@ class UserPath
         ],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Данные пользователя",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            required: [
+                                "id", "name", "first_name", "last_name", "nik", "birthday", "email",
+                                "avatar_url", "phone", "city", "address", "role", "bio", "is_verified",
+                                "status", "created_at"
+                            ],
+                            properties: [
+                                new OA\Property(property: "id", type: "integer"),
+                                new OA\Property(property: "name", type: "string", nullable: true),
+                                new OA\Property(property: "first_name", type: "string", nullable: true),
+                                new OA\Property(property: "last_name", type: "string", nullable: true),
+                                new OA\Property(property: "nik", type: "string", nullable: true),
+                                new OA\Property(property: "birthday", type: "string", nullable: true),
+                                new OA\Property(property: "email", type: "string", format: "email", nullable: true),
+                                new OA\Property(property: "avatar_url", type: "string", format: "uri"),
+                                new OA\Property(property: "phone", type: "string", nullable: true),
+                                new OA\Property(property: "city", type: "string", nullable: true),
+                                new OA\Property(property: "address", type: "string", nullable: true),
+                                new OA\Property(property: "role", type: "string", nullable: true),
+                                new OA\Property(property: "bio", type: "string", nullable: true),
+                                new OA\Property(property: "is_verified", type: "integer", nullable: true),
+                                new OA\Property(property: "status", type: "string", nullable: true),
+                                new OA\Property(property: "created_at", type: "string", nullable: true),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/AuthResponse",
@@ -61,8 +134,29 @@ class UserPath
         tags: ["Users"],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "История аватаров",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            type: "array",
+                            items: new OA\Items(
+                                required: ["id", "url", "created_at"],
+                                properties: [
+                                    new OA\Property(property: "id", type: "integer"),
+                                    new OA\Property(property: "url", type: "string", format: "uri"),
+                                    new OA\Property(property: "created_at", type: "string", format: "date-time", nullable: true),
+                                ],
+                                type: "object"
+                            )
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/AuthResponse",
@@ -116,8 +210,43 @@ class UserPath
         tags: ["Users"],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Обновлённые данные пользователя",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string"),
+                        new OA\Property(
+                            property: "data",
+                            required: [
+                                "id", "name", "first_name", "last_name", "nik", "birthday", "email",
+                                "avatar_url", "phone", "city", "address", "role", "bio", "is_verified",
+                                "status", "created_at"
+                            ],
+                            properties: [
+                                new OA\Property(property: "id", type: "integer"),
+                                new OA\Property(property: "name", type: "string", nullable: true),
+                                new OA\Property(property: "first_name", type: "string", nullable: true),
+                                new OA\Property(property: "last_name", type: "string", nullable: true),
+                                new OA\Property(property: "nik", type: "string", nullable: true),
+                                new OA\Property(property: "birthday", type: "string", nullable: true),
+                                new OA\Property(property: "email", type: "string", format: "email", nullable: true),
+                                new OA\Property(property: "avatar_url", type: "string", format: "uri"),
+                                new OA\Property(property: "phone", type: "string", nullable: true),
+                                new OA\Property(property: "city", type: "string", nullable: true),
+                                new OA\Property(property: "address", type: "string", nullable: true),
+                                new OA\Property(property: "role", type: "string", nullable: true),
+                                new OA\Property(property: "bio", type: "string", nullable: true),
+                                new OA\Property(property: "is_verified", type: "integer", nullable: true),
+                                new OA\Property(property: "status", type: "string", nullable: true),
+                                new OA\Property(property: "created_at", type: "string", nullable: true),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/ValidationError",
@@ -164,8 +293,17 @@ class UserPath
         tags: ["Users"],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Пароль успешно изменён",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string"),
+                        new OA\Property(property: "data", type: "array", items: new OA\Items(), example: []),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/ValidationError",
@@ -187,8 +325,24 @@ class UserPath
         tags: ["Users"],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Текущий пароль пользователя",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            required: ["current_password"],
+                            properties: [
+                                new OA\Property(property: "current_password", type: "string", nullable: true),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/AuthResponse",
@@ -225,8 +379,17 @@ class UserPath
         tags: ["Users"],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
                 response: 200,
+                description: "Подписка на рассылку оформлена",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string"),
+                        new OA\Property(property: "data", type: "array", items: new OA\Items(), example: []),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/ValidationError",

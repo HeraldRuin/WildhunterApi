@@ -14,8 +14,32 @@ class WeaponPath
         tags: ["Weapons"],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Список типов оружия",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            type: "array",
+                            items: new OA\Items(
+                                required: ["id", "title", "slug", "content", "image_url", "status"],
+                                properties: [
+                                    new OA\Property(property: "id", type: "integer"),
+                                    new OA\Property(property: "title", type: "string", nullable: true),
+                                    new OA\Property(property: "slug", type: "string", nullable: true),
+                                    new OA\Property(property: "content", type: "string", nullable: true),
+                                    new OA\Property(property: "image_url", type: "string", nullable: true),
+                                    new OA\Property(property: "status", type: "string", nullable: true),
+                                ],
+                                type: "object"
+                            )
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/AuthResponse",
@@ -33,8 +57,31 @@ class WeaponPath
         tags: ["Weapons"],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Список калибров",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            type: "array",
+                            items: new OA\Items(
+                                required: ["id", "title", "slug", "content", "status"],
+                                properties: [
+                                    new OA\Property(property: "id", type: "integer"),
+                                    new OA\Property(property: "title", type: "string", nullable: true),
+                                    new OA\Property(property: "slug", type: "string", nullable: true),
+                                    new OA\Property(property: "content", type: "string", nullable: true),
+                                    new OA\Property(property: "status", type: "string", nullable: true),
+                                ],
+                                type: "object"
+                            )
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
              new OA\Response(
                  ref: "#/components/responses/AuthResponse",
@@ -52,8 +99,49 @@ class WeaponPath
         tags: ["Weapons"],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Оружие пользователя",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            required: ["hunter_billet_number", "weapons"],
+                            properties: [
+                                new OA\Property(property: "hunter_billet_number", type: "string", nullable: true),
+                                new OA\Property(
+                                    property: "weapons",
+                                    type: "array",
+                                    items: new OA\Items(
+                                        required: [
+                                            "id",
+                                            "hunter_license_number",
+                                            "hunter_license_date",
+                                            "weapon_type",
+                                            "weapon_type_id",
+                                            "caliber",
+                                            "caliber_id"
+                                        ],
+                                        properties: [
+                                            new OA\Property(property: "id", type: "integer"),
+                                            new OA\Property(property: "hunter_license_number", type: "string", nullable: true),
+                                            new OA\Property(property: "hunter_license_date", type: "string", nullable: true),
+                                            new OA\Property(property: "weapon_type", type: "string", nullable: true),
+                                            new OA\Property(property: "weapon_type_id", type: "integer", nullable: true),
+                                            new OA\Property(property: "caliber", type: "string", nullable: true),
+                                            new OA\Property(property: "caliber_id", type: "integer", nullable: true),
+                                        ],
+                                        type: "object"
+                                    )
+                                ),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/AuthResponse",
@@ -110,8 +198,17 @@ class WeaponPath
         tags: ["Weapons"],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Оружие или охотничий билет сохранены",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string"),
+                        new OA\Property(property: "data", type: "array", items: new OA\Items(), example: []),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/AuthResponse",
@@ -180,8 +277,17 @@ class WeaponPath
         ],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Оружие или охотничий билет обновлены",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string"),
+                        new OA\Property(property: "data", type: "array", items: new OA\Items(), example: []),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/AuthResponse",
@@ -211,8 +317,17 @@ class WeaponPath
         ],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Оружие пользователя удалено",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string"),
+                        new OA\Property(property: "data", type: "array", items: new OA\Items(), example: []),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/AuthResponse",

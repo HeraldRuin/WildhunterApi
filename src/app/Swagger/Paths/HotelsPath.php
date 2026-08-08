@@ -36,8 +36,46 @@ class HotelsPath
         tags: ["Hotels"],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Список отелей",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            type: "array",
+                            items: new OA\Items(
+                                required: ["id", "title", "slug", "map_lat", "map_lng", "image_url", "star_rate", "price", "review_count", "location"],
+                                properties: [
+                                    new OA\Property(property: "id", type: "integer"),
+                                    new OA\Property(property: "title", type: "string", nullable: true),
+                                    new OA\Property(property: "slug", type: "string", nullable: true),
+                                    new OA\Property(property: "map_lat", type: "string", nullable: true),
+                                    new OA\Property(property: "map_lng", type: "string", nullable: true),
+                                    new OA\Property(property: "image_url", type: "string"),
+                                    new OA\Property(property: "star_rate", type: "integer", nullable: true),
+                                    new OA\Property(property: "price", type: "number", format: "float", nullable: true),
+                                    new OA\Property(property: "review_count", type: "integer"),
+                                    new OA\Property(
+                                        property: "location",
+                                        required: ["id", "name", "slug"],
+                                        properties: [
+                                            new OA\Property(property: "id", type: "integer"),
+                                            new OA\Property(property: "name", type: "string", nullable: true),
+                                            new OA\Property(property: "slug", type: "string", nullable: true),
+                                        ],
+                                        type: "object",
+                                        nullable: true
+                                    ),
+                                ],
+                                type: "object"
+                            )
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/ValidationError",
@@ -77,8 +115,104 @@ class HotelsPath
         ],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Подробные данные отеля",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            required: ["id", "title", "slug", "address", "content", "image_url", "gallery", "review_count", "star_rate", "rooms", "animals", "location"],
+                            properties: [
+                                new OA\Property(property: "id", type: "integer"),
+                                new OA\Property(property: "title", type: "string", nullable: true),
+                                new OA\Property(property: "slug", type: "string", nullable: true),
+                                new OA\Property(property: "address", type: "string", nullable: true),
+                                new OA\Property(property: "content", type: "string", nullable: true),
+                                new OA\Property(property: "image_url", type: "string"),
+                                new OA\Property(
+                                    property: "gallery",
+                                    type: "array",
+                                    items: new OA\Items(
+                                        required: ["large", "medium", "thumb"],
+                                        properties: [
+                                            new OA\Property(property: "large", type: "string"),
+                                            new OA\Property(property: "medium", type: "string"),
+                                            new OA\Property(property: "thumb", type: "string"),
+                                        ],
+                                        type: "object"
+                                    )
+                                ),
+                                new OA\Property(property: "review_count", type: "integer"),
+                                new OA\Property(property: "star_rate", type: "integer", nullable: true),
+                                new OA\Property(
+                                    property: "rooms",
+                                    type: "array",
+                                    items: new OA\Items(
+                                        required: ["id", "title", "price", "nights", "size", "beds", "adults", "children", "number_selected", "number", "image_url", "gallery"],
+                                        properties: [
+                                            new OA\Property(property: "id", type: "integer"),
+                                            new OA\Property(property: "title", type: "string", nullable: true),
+                                            new OA\Property(property: "price", type: "number", format: "float", nullable: true),
+                                            new OA\Property(property: "nights", type: "integer"),
+                                            new OA\Property(property: "size", type: "string", nullable: true),
+                                            new OA\Property(property: "beds", type: "integer", nullable: true),
+                                            new OA\Property(property: "adults", type: "integer", nullable: true),
+                                            new OA\Property(property: "children", type: "integer", nullable: true),
+                                            new OA\Property(property: "number_selected", type: "integer"),
+                                            new OA\Property(property: "number", type: "integer", nullable: true),
+                                            new OA\Property(property: "image_url", type: "string"),
+                                            new OA\Property(
+                                                property: "gallery",
+                                                type: "array",
+                                                items: new OA\Items(
+                                                    required: ["large", "medium", "thumb"],
+                                                    properties: [
+                                                        new OA\Property(property: "large", type: "string"),
+                                                        new OA\Property(property: "medium", type: "string"),
+                                                        new OA\Property(property: "thumb", type: "string"),
+                                                    ],
+                                                    type: "object"
+                                                )
+                                            ),
+                                        ],
+                                        type: "object"
+                                    )
+                                ),
+                                new OA\Property(
+                                    property: "animals",
+                                    type: "array",
+                                    items: new OA\Items(
+                                        required: ["id", "title", "slug", "image_url", "content"],
+                                        properties: [
+                                            new OA\Property(property: "id", type: "integer"),
+                                            new OA\Property(property: "title", type: "string", nullable: true),
+                                            new OA\Property(property: "slug", type: "string", nullable: true),
+                                            new OA\Property(property: "image_url", type: "string"),
+                                            new OA\Property(property: "content", type: "string", nullable: true),
+                                        ],
+                                        type: "object"
+                                    )
+                                ),
+                                new OA\Property(
+                                    property: "location",
+                                    required: ["id", "name", "slug"],
+                                    properties: [
+                                        new OA\Property(property: "id", type: "integer"),
+                                        new OA\Property(property: "name", type: "string", nullable: true),
+                                        new OA\Property(property: "slug", type: "string", nullable: true),
+                                    ],
+                                    type: "object",
+                                    nullable: true
+                                ),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/NotFoundResponse",
@@ -213,8 +347,66 @@ class HotelsPath
         ],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Результаты поиска отелей",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            required: ["items", "pagination"],
+                            properties: [
+                                new OA\Property(
+                                    property: "items",
+                                    type: "array",
+                                    items: new OA\Items(
+                                        required: ["id", "title", "slug", "map_lat", "map_lng", "image_url", "price", "review_count", "star_rate", "is_in_wishList", "location"],
+                                        properties: [
+                                            new OA\Property(property: "id", type: "integer"),
+                                            new OA\Property(property: "title", type: "string", nullable: true),
+                                            new OA\Property(property: "slug", type: "string", nullable: true),
+                                            new OA\Property(property: "map_lat", type: "string", nullable: true),
+                                            new OA\Property(property: "map_lng", type: "string", nullable: true),
+                                            new OA\Property(property: "image_url", type: "string"),
+                                            new OA\Property(property: "price", type: "number", format: "float", nullable: true),
+                                            new OA\Property(property: "review_count", type: "integer"),
+                                            new OA\Property(property: "star_rate", type: "integer", nullable: true),
+                                            new OA\Property(property: "is_in_wishList", type: "boolean"),
+                                            new OA\Property(
+                                                property: "location",
+                                                required: ["id", "name", "slug"],
+                                                properties: [
+                                                    new OA\Property(property: "id", type: "integer"),
+                                                    new OA\Property(property: "name", type: "string", nullable: true),
+                                                    new OA\Property(property: "slug", type: "string", nullable: true),
+                                                ],
+                                                type: "object",
+                                                nullable: true
+                                            ),
+                                        ],
+                                        type: "object"
+                                    )
+                                ),
+                                new OA\Property(
+                                    property: "pagination",
+                                    required: ["current_page", "per_page", "total", "last_page", "has_more_pages"],
+                                    properties: [
+                                        new OA\Property(property: "current_page", type: "integer"),
+                                        new OA\Property(property: "per_page", type: "integer"),
+                                        new OA\Property(property: "total", type: "integer"),
+                                        new OA\Property(property: "last_page", type: "integer"),
+                                        new OA\Property(property: "has_more_pages", type: "boolean"),
+                                    ],
+                                    type: "object"
+                                ),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/ValidationError",
@@ -232,8 +424,25 @@ class HotelsPath
         tags: ["Hotels"],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Минимальная и максимальная цена",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            required: ["min_price", "max_price"],
+                            properties: [
+                                new OA\Property(property: "min_price", type: "number", format: "float"),
+                                new OA\Property(property: "max_price", type: "number", format: "float"),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
         ]
     )]

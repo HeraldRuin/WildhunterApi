@@ -37,8 +37,31 @@ class LocationPath
         tags: ["Locations"],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Лучшие локации",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            type: "array",
+                            items: new OA\Items(
+                                required: ["id", "name", "slug", "image_url", "hotel_count"],
+                                properties: [
+                                    new OA\Property(property: "id", type: "integer"),
+                                    new OA\Property(property: "name", type: "string", nullable: true),
+                                    new OA\Property(property: "slug", type: "string", nullable: true),
+                                    new OA\Property(property: "image_url", type: "string"),
+                                    new OA\Property(property: "hotel_count", type: "integer"),
+                                ],
+                                type: "object"
+                            )
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/ValidationError",
@@ -60,8 +83,29 @@ class LocationPath
         tags: ["Locations"],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Список локаций",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            type: "array",
+                            items: new OA\Items(
+                                required: ["id", "name", "slug"],
+                                properties: [
+                                    new OA\Property(property: "id", type: "integer"),
+                                    new OA\Property(property: "name", type: "string", nullable: true),
+                                    new OA\Property(property: "slug", type: "string", nullable: true),
+                                ],
+                                type: "object"
+                            )
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/AuthResponse",
@@ -92,8 +136,46 @@ class LocationPath
         ],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Список отелей указанной локации",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            type: "array",
+                            items: new OA\Items(
+                                required: ["id", "title", "slug", "map_lat", "map_lng", "image_url", "star_rate", "price", "review_count", "location"],
+                                properties: [
+                                    new OA\Property(property: "id", type: "integer"),
+                                    new OA\Property(property: "title", type: "string", nullable: true),
+                                    new OA\Property(property: "slug", type: "string", nullable: true),
+                                    new OA\Property(property: "map_lat", type: "string", nullable: true),
+                                    new OA\Property(property: "map_lng", type: "string", nullable: true),
+                                    new OA\Property(property: "image_url", type: "string"),
+                                    new OA\Property(property: "star_rate", type: "integer", nullable: true),
+                                    new OA\Property(property: "price", type: "number", format: "float", nullable: true),
+                                    new OA\Property(property: "review_count", type: "integer"),
+                                    new OA\Property(
+                                        property: "location",
+                                        required: ["id", "name", "slug"],
+                                        properties: [
+                                            new OA\Property(property: "id", type: "integer"),
+                                            new OA\Property(property: "name", type: "string", nullable: true),
+                                            new OA\Property(property: "slug", type: "string", nullable: true),
+                                        ],
+                                        type: "object",
+                                        nullable: true
+                                    ),
+                                ],
+                                type: "object"
+                            )
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/NotFoundResponse",

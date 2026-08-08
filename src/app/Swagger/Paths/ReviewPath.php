@@ -52,8 +52,49 @@ class ReviewPath
         ],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Список отзывов сервиса",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            type: "array",
+                            items: new OA\Items(
+                                required: ["id", "title", "content", "rate_number", "rate_text", "author", "created_at", "updated_at"],
+                                properties: [
+                                    new OA\Property(property: "id", type: "integer"),
+                                    new OA\Property(property: "title", type: "string", nullable: true),
+                                    new OA\Property(property: "content", type: "string", nullable: true),
+                                    new OA\Property(property: "rate_number", type: "number", format: "float", nullable: true),
+                                    new OA\Property(property: "rate_text", type: "string"),
+                                    new OA\Property(
+                                        property: "author",
+                                        required: ["is_guest", "id", "name", "first_name", "last_name", "nik", "avatar_url", "bio"],
+                                        properties: [
+                                            new OA\Property(property: "is_guest", type: "boolean"),
+                                            new OA\Property(property: "id", type: "integer", nullable: true),
+                                            new OA\Property(property: "name", type: "string", nullable: true),
+                                            new OA\Property(property: "first_name", type: "string", nullable: true),
+                                            new OA\Property(property: "last_name", type: "string", nullable: true),
+                                            new OA\Property(property: "nik", type: "string", nullable: true),
+                                            new OA\Property(property: "avatar_url", type: "string"),
+                                            new OA\Property(property: "bio", type: "string", nullable: true),
+                                        ],
+                                        type: "object",
+                                        nullable: true
+                                    ),
+                                    new OA\Property(property: "created_at", type: "string", format: "date-time", nullable: true),
+                                    new OA\Property(property: "updated_at", type: "string", format: "date-time", nullable: true),
+                                ],
+                                type: "object"
+                            )
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/AuthResponse",
@@ -97,8 +138,49 @@ class ReviewPath
         tags: ["Reviews/Ratings"],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Список отзывов по типу сервиса",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            type: "array",
+                            items: new OA\Items(
+                                required: ["id", "title", "content", "rate_number", "rate_text", "author", "created_at", "updated_at"],
+                                properties: [
+                                    new OA\Property(property: "id", type: "integer"),
+                                    new OA\Property(property: "title", type: "string", nullable: true),
+                                    new OA\Property(property: "content", type: "string", nullable: true),
+                                    new OA\Property(property: "rate_number", type: "number", format: "float", nullable: true),
+                                    new OA\Property(property: "rate_text", type: "string"),
+                                    new OA\Property(
+                                        property: "author",
+                                        required: ["is_guest", "id", "name", "first_name", "last_name", "nik", "avatar_url", "bio"],
+                                        properties: [
+                                            new OA\Property(property: "is_guest", type: "boolean"),
+                                            new OA\Property(property: "id", type: "integer", nullable: true),
+                                            new OA\Property(property: "name", type: "string", nullable: true),
+                                            new OA\Property(property: "first_name", type: "string", nullable: true),
+                                            new OA\Property(property: "last_name", type: "string", nullable: true),
+                                            new OA\Property(property: "nik", type: "string", nullable: true),
+                                            new OA\Property(property: "avatar_url", type: "string"),
+                                            new OA\Property(property: "bio", type: "string", nullable: true),
+                                        ],
+                                        type: "object",
+                                        nullable: true
+                                    ),
+                                    new OA\Property(property: "created_at", type: "string", format: "date-time", nullable: true),
+                                    new OA\Property(property: "updated_at", type: "string", format: "date-time", nullable: true),
+                                ],
+                                type: "object"
+                            )
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
              new OA\Response(
                  ref: "#/components/responses/AuthResponse",
@@ -115,8 +197,28 @@ class ReviewPath
         tags: ["Reviews/Ratings"],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Список вариантов оценки",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            type: "array",
+                            items: new OA\Items(
+                                required: ["value", "label"],
+                                properties: [
+                                    new OA\Property(property: "value", type: "string", example: "excellent"),
+                                    new OA\Property(property: "label", type: "string", example: "Превосходный"),
+                                ],
+                                type: "object"
+                            )
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
         ]
     )]

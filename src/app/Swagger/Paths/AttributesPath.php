@@ -25,8 +25,60 @@ class AttributesPath
         tags: ["Attributes"],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Список атрибутов",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            type: "array",
+                            items: new OA\Items(
+                                required: ["id", "name", "slug", "service", "position", "terms"],
+                                properties: [
+                                    new OA\Property(property: "id", type: "integer"),
+                                    new OA\Property(property: "name", type: "string", nullable: true),
+                                    new OA\Property(property: "slug", type: "string", nullable: true),
+                                    new OA\Property(property: "service", type: "string", nullable: true),
+                                    new OA\Property(property: "position", type: "integer", nullable: true),
+                                    new OA\Property(
+                                        property: "terms",
+                                        type: "array",
+                                        items: new OA\Items(
+                                            required: ["id", "name", "slug", "content", "icon", "image_url"],
+                                            properties: [
+                                                new OA\Property(property: "id", type: "integer"),
+                                                new OA\Property(property: "name", type: "string", nullable: true),
+                                                new OA\Property(property: "slug", type: "string", nullable: true),
+                                                new OA\Property(property: "content", type: "string", nullable: true),
+                                                new OA\Property(property: "icon", type: "string", nullable: true),
+                                                new OA\Property(property: "image_url", type: "string"),
+                                                new OA\Property(
+                                                    property: "translation",
+                                                    required: ["id", "origin_id", "locale", "name", "content"],
+                                                    properties: [
+                                                        new OA\Property(property: "id", type: "integer"),
+                                                        new OA\Property(property: "origin_id", type: "integer"),
+                                                        new OA\Property(property: "locale", type: "string"),
+                                                        new OA\Property(property: "name", type: "string", nullable: true),
+                                                        new OA\Property(property: "content", type: "string", nullable: true),
+                                                    ],
+                                                    type: "object",
+                                                    nullable: true
+                                                ),
+                                            ],
+                                            type: "object"
+                                        )
+                                    ),
+                                ],
+                                type: "object"
+                            )
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
         ]
     )]

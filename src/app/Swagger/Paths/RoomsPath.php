@@ -27,10 +27,6 @@ class RoomsPath
         ],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
-            ),
-            new OA\Response(
                 ref: "#/components/responses/NotFoundResponse",
                 response: 404
             ),
@@ -83,8 +79,61 @@ class RoomsPath
         tags: ["Rooms"],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Доступные номера",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            required: ["rooms"],
+                            properties: [
+                                new OA\Property(
+                                    property: "rooms",
+                                    type: "array",
+                                    items: new OA\Items(
+                                        required: [
+                                            "id", "title", "price", "nights", "size", "beds",
+                                            "adults", "children", "number_selected", "number",
+                                            "image_url", "gallery",
+                                        ],
+                                        properties: [
+                                            new OA\Property(property: "id", type: "integer"),
+                                            new OA\Property(property: "title", type: "string", nullable: true),
+                                            new OA\Property(property: "price", type: "number", format: "float"),
+                                            new OA\Property(property: "nights", type: "integer"),
+                                            new OA\Property(property: "size", type: "integer", nullable: true),
+                                            new OA\Property(property: "beds", type: "integer", nullable: true),
+                                            new OA\Property(property: "adults", type: "integer", nullable: true),
+                                            new OA\Property(property: "children", type: "integer", nullable: true),
+                                            new OA\Property(property: "number_selected", type: "integer"),
+                                            new OA\Property(property: "number", type: "integer"),
+                                            new OA\Property(property: "image_url", type: "string", format: "uri"),
+                                            new OA\Property(
+                                                property: "gallery",
+                                                type: "array",
+                                                items: new OA\Items(
+                                                    required: ["large", "medium", "thumb"],
+                                                    properties: [
+                                                        new OA\Property(property: "large", type: "string", format: "uri"),
+                                                        new OA\Property(property: "medium", type: "string", format: "uri"),
+                                                        new OA\Property(property: "thumb", type: "string", format: "uri"),
+                                                    ],
+                                                    type: "object"
+                                                )
+                                            ),
+                                        ],
+                                        type: "object"
+                                    )
+                                ),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/NotFoundResponse",

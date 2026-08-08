@@ -36,8 +36,24 @@ class WhiteListPath
         ],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Статус нахождения в избранном",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            required: ["is_in_wishList"],
+                            properties: [
+                                new OA\Property(property: "is_in_wishList", type: "boolean"),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/ValidationError",
@@ -71,8 +87,29 @@ class WhiteListPath
         ],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Список избранного",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            type: "array",
+                            items: new OA\Items(
+                                required: ["service_id", "service_model", "user_id"],
+                                properties: [
+                                    new OA\Property(property: "service_id", type: "integer"),
+                                    new OA\Property(property: "service_model", type: "string", example: "hotel"),
+                                    new OA\Property(property: "user_id", type: "integer"),
+                                ],
+                                type: "object"
+                            )
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/ValidationError",
@@ -116,8 +153,26 @@ class WhiteListPath
         ],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Сервис добавлен в избранное",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string"),
+                        new OA\Property(
+                            property: "data",
+                            required: ["service_id", "service_model", "user_id"],
+                            properties: [
+                                new OA\Property(property: "service_id", type: "integer"),
+                                new OA\Property(property: "service_model", type: "string", example: "hotel"),
+                                new OA\Property(property: "user_id", type: "integer"),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/ValidationError",
@@ -161,8 +216,29 @@ class WhiteListPath
         ],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Обновлённый список избранного",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string"),
+                        new OA\Property(
+                            property: "data",
+                            type: "array",
+                            items: new OA\Items(
+                                required: ["service_id", "service_model", "user_id"],
+                                properties: [
+                                    new OA\Property(property: "service_id", type: "integer"),
+                                    new OA\Property(property: "service_model", type: "string", example: "hotel"),
+                                    new OA\Property(property: "user_id", type: "integer"),
+                                ],
+                                type: "object"
+                            )
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/ValidationError",

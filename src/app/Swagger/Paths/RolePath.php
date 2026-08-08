@@ -15,8 +15,31 @@ class RolePath
         tags: ["Roles/Permissions"],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Список ролей",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            type: "array",
+                            items: new OA\Items(
+                                required: ["id", "code", "name", "created_at", "updated_at"],
+                                properties: [
+                                    new OA\Property(property: "id", type: "integer"),
+                                    new OA\Property(property: "code", type: "string"),
+                                    new OA\Property(property: "name", type: "string"),
+                                    new OA\Property(property: "created_at", type: "string", format: "date-time", nullable: true),
+                                    new OA\Property(property: "updated_at", type: "string", format: "date-time", nullable: true),
+                                ],
+                                type: "object"
+                            )
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/AuthResponse",
@@ -43,8 +66,29 @@ class RolePath
         ],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Данные роли или null",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            required: ["id", "code", "name", "created_at", "updated_at"],
+                            properties: [
+                                new OA\Property(property: "id", type: "integer"),
+                                new OA\Property(property: "code", type: "string"),
+                                new OA\Property(property: "name", type: "string"),
+                                new OA\Property(property: "created_at", type: "string", format: "date-time", nullable: true),
+                                new OA\Property(property: "updated_at", type: "string", format: "date-time", nullable: true),
+                            ],
+                            type: "object",
+                            nullable: true
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/ValidationError",
@@ -74,8 +118,29 @@ class RolePath
         ],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Данные роли или null",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            required: ["id", "code", "name", "created_at", "updated_at"],
+                            properties: [
+                                new OA\Property(property: "id", type: "integer"),
+                                new OA\Property(property: "code", type: "string"),
+                                new OA\Property(property: "name", type: "string"),
+                                new OA\Property(property: "created_at", type: "string", format: "date-time", nullable: true),
+                                new OA\Property(property: "updated_at", type: "string", format: "date-time", nullable: true),
+                            ],
+                            type: "object",
+                            nullable: true
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/ValidationError",
@@ -105,8 +170,29 @@ class RolePath
         ],
         responses: [
             new OA\Response(
-                ref: "#/components/responses/SuccessResponse",
-                response: 200
+                response: 200,
+                description: "Данные роли пользователя или null",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            required: ["id", "code", "name", "created_at", "updated_at"],
+                            properties: [
+                                new OA\Property(property: "id", type: "integer"),
+                                new OA\Property(property: "code", type: "string"),
+                                new OA\Property(property: "name", type: "string"),
+                                new OA\Property(property: "created_at", type: "string", format: "date-time", nullable: true),
+                                new OA\Property(property: "updated_at", type: "string", format: "date-time", nullable: true),
+                            ],
+                            type: "object",
+                            nullable: true
+                        ),
+                    ],
+                    type: "object"
+                )
             ),
             new OA\Response(
                 ref: "#/components/responses/ValidationError",
