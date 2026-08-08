@@ -2,11 +2,12 @@
 
 namespace Modules\Booking\Services;
 
+use App\Models\User;
+use Modules\Booking\Models\Booking;
 use App\Exceptions\ConflictException;
 use App\Exceptions\ForbiddenException;
 use App\Exceptions\NotFoundException;
-use App\Models\User;
-use Modules\Booking\Models\Booking;
+use Modules\Booking\Events\BookingUpdatedEvent;
 
 class BookingConfirmService
 {
@@ -54,6 +55,8 @@ class BookingConfirmService
             ->update(['status' => Booking::CONFIRMED]);
 
         $booking->status = Booking::CONFIRMED;
+
+        event(new BookingUpdatedEvent($booking));
 
         return $booking;
     }
