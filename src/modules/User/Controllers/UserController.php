@@ -13,7 +13,6 @@ use App\Http\Responses\SuccessResponse;
 use Modules\User\Dto\ProfileUpdateData;
 use Modules\User\Events\UserSubscriberSubmit;
 use Modules\User\Http\Resources\AvatarHistoryResource;
-use Modules\User\Http\Resources\HunterSearchResource;
 use Modules\User\Http\Resources\UserSearchResource;
 use Modules\User\Http\Resources\UserResource;
 use Modules\User\Http\Requests\SearchHuntersRequest;
@@ -64,7 +63,7 @@ class UserController
             $user,
         );
 
-        return new SuccessResponse(data: HunterSearchResource::collection($result));
+        return new SuccessResponse(data: UserSearchResource::collection($result));
     }
 
     /**

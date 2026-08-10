@@ -13,6 +13,8 @@ class UserSearchResource extends BaseJsonResource
             'user_name' => $this->resource->user_name,
             'first_name' => $this->resource->first_name,
             'last_name' => $this->resource->last_name,
+            'email' => $this->resource->email,
+            'phone' => $this->resource->phone,
         ];
     }
 }

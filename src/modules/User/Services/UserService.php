@@ -143,7 +143,7 @@ class UserService
             })
             ->whereKeyNot($excludedUserId)
             ->where('id', 'like', "%{$query}%")
-            ->get(['id', 'user_name', 'first_name', 'last_name']);
+            ->get(['id', 'user_name', 'first_name', 'last_name', 'email', 'phone']);
     }
 
     public function update($user, ProfileUpdateData $dto): array
