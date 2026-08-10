@@ -93,6 +93,48 @@ class UserService
         return $this->searchByIdQuery($query, $currentCustomerId);
     }
 
+    /**
+     * @throws ForbiddenException
+     */
+    public function searchHunters(string $query, int $bookingId, User $actor): Collection
+    {
+        $canManageCollection = Booking::query()
+            ->whereKey($bookingId)
+            ->whereHas('masterHunter', function ($masterHunterQuery) use ($actor) {
+                $masterHunterQuery->where('invited_by', $actor->id);
+            })
+            ->exists();
+
+        if (!$canManageCollection) {
+            throw new ForbiddenException(
+                errorCode: 'booking_access_denied',
+                domain: 'booking',
+            );
+        }
+
+        return User::query()
+            ->whereHas('role', function ($roleQuery) {
+                $roleQuery->where('code', Role::CUSTOMER);
+            })
+            ->where(function ($userQuery) use ($query) {
+                $userQuery->where('id', 'like', "{$query}%")
+                    ->orWhere('user_name', 'like', "{$query}%")
+                    ->orWhere('first_name', 'like', "{$query}%")
+                    ->orWhere('last_name', 'like', "{$query}%")
+                    ->orWhere('email', 'like', "{$query}%");
+            })
+            ->limit(10)
+            ->get([
+                'id',
+                'user_name',
+                'first_name',
+                'last_name',
+                'email',
+                'phone',
+                'role_id',
+            ]);
+    }
+
     private function searchByIdQuery(string $query, int $excludedUserId): Collection
     {
         return User::query()

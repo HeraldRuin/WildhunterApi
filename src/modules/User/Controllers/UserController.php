@@ -13,8 +13,10 @@ use App\Http\Responses\SuccessResponse;
 use Modules\User\Dto\ProfileUpdateData;
 use Modules\User\Events\UserSubscriberSubmit;
 use Modules\User\Http\Resources\AvatarHistoryResource;
+use Modules\User\Http\Resources\HunterSearchResource;
 use Modules\User\Http\Resources\UserSearchResource;
 use Modules\User\Http\Resources\UserResource;
+use Modules\User\Http\Requests\SearchHuntersRequest;
 use Modules\User\Http\Requests\SearchUsersRequest;
 use Modules\User\Http\Requests\SubscribeRequest;
 use Modules\User\Http\Requests\ProfileUpdateRequest;
@@ -46,6 +48,23 @@ class UserController
         );
 
         return new SuccessResponse(data: UserSearchResource::collection($result));
+    }
+
+    /**
+     * @throws ForbiddenException
+     */
+    public function searchHunters(SearchHuntersRequest $request): JsonResponse
+    {
+        $user = Auth::user();
+        assert($user instanceof User);
+
+        $result = $this->userService->searchHunters(
+            trim($request->string('query')->toString()),
+            $request->integer('booking_id'),
+            $user,
+        );
+
+        return new SuccessResponse(data: HunterSearchResource::collection($result));
     }
 
     /**
