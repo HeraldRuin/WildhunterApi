@@ -179,7 +179,7 @@ class BookingController extends Controller
             code: 'invitation_accepted',
             domain: 'booking',
             data: [
-                'status' => $invitation->status,
+                'status' => __('statuses.invitation.' . $invitation->status),
                 'accepted_at' => $invitation->accepted_at,
             ],
         );
@@ -198,7 +198,7 @@ class BookingController extends Controller
             code: 'invitation_declined',
             domain: 'booking',
             data: [
-                'status' => $invitation->status,
+                'status' => __('statuses.invitation.' . $invitation->status),
                 'declined_at' => $invitation->declined_at,
             ],
         );
