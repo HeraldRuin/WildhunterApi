@@ -10,6 +10,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/bookings/{code}/confirm', [BookingController::class, 'confirm']);
     Route::post('/bookings/{code}/start-collection', [BookingController::class, 'startCollection']);
     Route::post('/bookings/{code}/extend-collection', [BookingController::class, 'extendCollection']);
+    Route::post('/bookings/{code}/cancel-collection', [BookingController::class, 'cancelCollection']);
     Route::post('/bookings/{code}/accept-invitation', [BookingController::class, 'acceptInvitation']);
     Route::post('/bookings/{code}/decline-invitation', [BookingController::class, 'declineInvitation']);
     Route::post('/bookings/{code}/cancel', [BookingController::class, 'cancel']);
