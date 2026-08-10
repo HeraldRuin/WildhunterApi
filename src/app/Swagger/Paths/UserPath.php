@@ -65,6 +65,64 @@ class UserPath
     {}
 
     #[OA\Get(
+        path: "/api/" . ApiConfig::VERSION . "/user/search",
+        summary: "Найти пользователей для смены заказчика",
+        security: [['bearerAuth' => []]],
+        tags: ["Users"],
+        parameters: [
+            new OA\Parameter(
+                name: "query",
+                description: "Полная или частичная последовательность цифр ID пользователя",
+                in: "query",
+                required: true,
+                schema: new OA\Schema(type: "string", maxLength: 255, example: "9")
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Пользователи, ID которых содержит строку поиска",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            type: "array",
+                            items: new OA\Items(
+                                required: ["id", "user_name", "first_name", "last_name"],
+                                properties: [
+                                    new OA\Property(property: "id", type: "integer"),
+                                    new OA\Property(property: "user_name", type: "string", nullable: true),
+                                    new OA\Property(property: "first_name", type: "string", nullable: true),
+                                    new OA\Property(property: "last_name", type: "string", nullable: true),
+                                ],
+                                type: "object"
+                            )
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(
+                ref: "#/components/responses/AuthResponse",
+                response: 401
+            ),
+            new OA\Response(
+                response: 403,
+                description: "Доступно только администратору базы"
+            ),
+            new OA\Response(
+                ref: "#/components/responses/ValidationError",
+                response: 422
+            ),
+        ]
+    )]
+    public function SearchUsers(): void
+    {}
+
+    #[OA\Get(
         path: "/api/" . ApiConfig::VERSION . "/user/{id}",
         summary: "Получить пользователя",
         security: [['bearerAuth' => []]],
