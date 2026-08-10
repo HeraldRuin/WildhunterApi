@@ -22,6 +22,7 @@ use Modules\Booking\Http\Resources\BookingCheckoutResource;
 use Modules\Booking\Http\Resources\BookingHistoryResource;
 use Modules\Booking\Http\Resources\CollectionTimerResource;
 use Modules\Booking\Services\BookingCancelService;
+use Modules\Booking\Services\BookingCancelCollectionService;
 use Modules\Booking\Services\BookingCheckoutService;
 use Modules\Booking\Services\BookingConfirmService;
 use Modules\Booking\Services\BookingCustomerService;
@@ -39,6 +40,7 @@ class BookingController extends Controller
         protected BookingConfirmService $bookingConfirmService,
         protected BookingCustomerService $bookingCustomerService,
         protected BookingCancelService $bookingCancelService,
+        protected BookingCancelCollectionService $bookingCancelCollectionService,
         protected BookingStartCollectionService $bookingStartCollectionService,
         protected BookingInvitationService $bookingInvitationService,
     ) {
@@ -215,6 +217,28 @@ class BookingController extends Controller
             code: 'gathering_has_extended',
             domain: 'collection',
             data: new CollectionTimerResource($result),
+        );
+    }
+
+    /**
+     * Отмена активного сбора охотников мастером.
+     *
+     * @throws ConflictException
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     */
+    public function cancelCollection(string $code): JsonResponse
+    {
+        $booking = $this->bookingCancelCollectionService->cancel($code, Auth::user());
+
+        return new SuccessResponse(
+            code: 'hunter_gathering_cancelled',
+            domain: 'booking',
+            data: [
+                'id' => $booking->id,
+                'code' => $booking->code,
+                'status' => $booking->status,
+            ],
         );
     }
 
