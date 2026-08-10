@@ -98,12 +98,21 @@ class UserPath
                             property: "data",
                             type: "array",
                             items: new OA\Items(
-                                required: ["id", "user_name", "first_name", "last_name"],
+                                required: [
+                                    "id", "user_name", "first_name", "last_name", "email", "phone",
+                                ],
                                 properties: [
                                     new OA\Property(property: "id", type: "integer"),
                                     new OA\Property(property: "user_name", type: "string", nullable: true),
                                     new OA\Property(property: "first_name", type: "string", nullable: true),
                                     new OA\Property(property: "last_name", type: "string", nullable: true),
+                                    new OA\Property(
+                                        property: "email",
+                                        type: "string",
+                                        format: "email",
+                                        nullable: true
+                                    ),
+                                    new OA\Property(property: "phone", type: "string", nullable: true),
                                 ],
                                 type: "object"
                             )
