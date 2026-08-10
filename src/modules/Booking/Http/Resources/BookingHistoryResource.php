@@ -31,6 +31,10 @@ class BookingHistoryResource extends BaseJsonResource
             'id' => $booking->id,
             'booking_number' => $booking->booking_number,
             'code' => $booking->code,
+            'invitation_url' => '/profile/bookings?' . http_build_query([
+                'status' => 'invitation',
+                'code' => $booking->code,
+            ]),
             'created_at' => $booking->created_at,
             'type' => $booking->type,
             'type_text' => $booking->type_text,
