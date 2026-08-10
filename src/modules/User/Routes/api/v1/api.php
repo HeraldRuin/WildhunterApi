@@ -33,6 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/user/weapons/{id}', [WeaponController::class, 'destroy']);
 
     Route::get('/user/avatars', [UserController::class, 'avatarHistory']);
+    Route::get('/user/search', [UserController::class, 'searchCustomers']);
     Route::get('/user/{user}', [UserController::class, 'searchUser'])->whereNumber('user');
     Route::post('/user', [UserController::class, 'profileUpdate']);
 
