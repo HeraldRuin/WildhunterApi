@@ -26,6 +26,23 @@ class BookingHistoryResource extends BaseJsonResource
         $calculation = $booking->calculation ?? [];
         $role = is_baseAdmin() ? Role::ADMIN : Role::CUSTOMER;
         $invitation = $booking->getCurrentUserInvitation();
+        $mappedInvitations = $invitations->map(static function (BookingHunterInvitation $invitation) {
+            $hunter = $invitation->hunter;
+            $name = trim(implode(' ', array_filter([
+                $hunter?->first_name,
+                $hunter?->last_name,
+            ])));
+
+            return [
+                'invitation_id' => $invitation->id,
+                'hunter_id' => $invitation->hunter_id,
+                'user_name' => $hunter?->user_name,
+                'name' => $name ?: ($hunter?->user_name ?: $invitation->email),
+                'email' => $hunter?->email ?: $invitation->email,
+                'status' => $invitation->status,
+                'is_accepted' => $invitation->status === BookingHunterInvitation::STATUS_ACCEPTED,
+            ];
+        })->values()->all();
 
         return [
             'id' => $booking->id,
@@ -86,6 +103,7 @@ class BookingHistoryResource extends BaseJsonResource
                 'accepted_count' => $acceptedCount,
                 'total_needed' => $totalNeeded,
                 'paid_count' => $paidCount,
+                'invitations' => $mappedInvitations,
                 'collection_end_at' => $booking->getMeta('collection_end_at') ?: null,
                 'paid_end_at' => $booking->getMeta('paid_end_at') ?: null,
                 'beds_end_at' => $booking->getMeta('beds_end_at') ?: null,

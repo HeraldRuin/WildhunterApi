@@ -263,13 +263,60 @@ class BookingPath
                                                     new OA\Property(
                                                         property: "collection",
                                                         required: [
-                                                            "accepted_count", "total_needed", "paid_count",
+                                                            "accepted_count", "total_needed", "paid_count", "invitations",
                                                             "collection_end_at", "paid_end_at", "beds_end_at",
                                                         ],
                                                         properties: [
                                                             new OA\Property(property: "accepted_count", type: "integer"),
                                                             new OA\Property(property: "total_needed", type: "integer"),
                                                             new OA\Property(property: "paid_count", type: "integer"),
+                                                            new OA\Property(
+                                                                property: "invitations",
+                                                                type: "array",
+                                                                items: new OA\Items(
+                                                                    required: [
+                                                                        "invitation_id", "hunter_id", "user_name",
+                                                                        "name", "email", "status", "is_accepted",
+                                                                    ],
+                                                                    properties: [
+                                                                        new OA\Property(
+                                                                            property: "invitation_id",
+                                                                            type: "integer"
+                                                                        ),
+                                                                        new OA\Property(
+                                                                            property: "hunter_id",
+                                                                            type: "integer",
+                                                                            nullable: true
+                                                                        ),
+                                                                        new OA\Property(
+                                                                            property: "user_name",
+                                                                            type: "string",
+                                                                            nullable: true
+                                                                        ),
+                                                                        new OA\Property(
+                                                                            property: "name",
+                                                                            type: "string",
+                                                                            nullable: true
+                                                                        ),
+                                                                        new OA\Property(
+                                                                            property: "email",
+                                                                            type: "string",
+                                                                            format: "email",
+                                                                            nullable: true
+                                                                        ),
+                                                                        new OA\Property(
+                                                                            property: "status",
+                                                                            type: "string",
+                                                                            enum: ["invited", "accepted", "declined", "removed"]
+                                                                        ),
+                                                                        new OA\Property(
+                                                                            property: "is_accepted",
+                                                                            type: "boolean"
+                                                                        ),
+                                                                    ],
+                                                                    type: "object"
+                                                                )
+                                                            ),
                                                             new OA\Property(
                                                                 property: "collection_end_at",
                                                                 type: "string",
