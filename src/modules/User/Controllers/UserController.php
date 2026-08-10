@@ -3,6 +3,7 @@
 namespace Modules\User\Controllers;
 
 use App\Models\User;
+use App\Exceptions\ForbiddenException;
 use Illuminate\Http\JsonResponse;
 use Modules\User\Dto\SubscribeData;
 use Illuminate\Support\Facades\Auth;
@@ -12,7 +13,9 @@ use App\Http\Responses\SuccessResponse;
 use Modules\User\Dto\ProfileUpdateData;
 use Modules\User\Events\UserSubscriberSubmit;
 use Modules\User\Http\Resources\AvatarHistoryResource;
+use Modules\User\Http\Resources\UserSearchResource;
 use Modules\User\Http\Resources\UserResource;
+use Modules\User\Http\Requests\SearchUsersRequest;
 use Modules\User\Http\Requests\SubscribeRequest;
 use Modules\User\Http\Requests\ProfileUpdateRequest;
 
@@ -26,6 +29,23 @@ class UserController
         $result = $this->userService->searchAl();
 
         return new SuccessResponse(data: UserResource::collection($result));
+    }
+
+    /**
+     * @throws ForbiddenException
+     */
+    public function searchCustomers(SearchUsersRequest $request): JsonResponse
+    {
+        if (!is_baseAdmin()) {
+            throw new ForbiddenException(
+                errorCode: 'booking_access_denied',
+                domain: 'booking',
+            );
+        }
+
+        $result = $this->userService->searchByIdQuery(trim($request->string('query')->toString()));
+
+        return new SuccessResponse(data: UserSearchResource::collection($result));
     }
 
     /**

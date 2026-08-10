@@ -62,6 +62,13 @@ class UserService
             ->get();
     }
 
+    public function searchByIdQuery(string $query): Collection
+    {
+        return User::query()
+            ->where('id', 'like', "%{$query}%")
+            ->get(['id', 'user_name', 'first_name', 'last_name']);
+    }
+
     public function update($user, ProfileUpdateData $dto): array
     {
         $user->fill(array_filter([
