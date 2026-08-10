@@ -11,6 +11,7 @@ use App\Http\Resources\PaginateResource;
 use App\Http\Responses\SuccessResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Modules\Booking\Dto\BookingHistoryData;
 use Modules\Booking\Dto\CreateBookingData;
 use Modules\Booking\Dto\UpdateCustomerNotesData;
 use Modules\Booking\Http\Requests\BookingCreateRequest;
@@ -114,7 +115,8 @@ class BookingController extends Controller
      */
     public function bookingHistory(BookingHistoryRequest $request): JsonResponse
     {
-        $result = $this->bookingHistoryService->getHistory(Auth::user(), $request->input('status'), $request->integer('booking_id') ?: null);
+        $dto = BookingHistoryData::fromRequest($request);
+        $result = $this->bookingHistoryService->getHistory(Auth::user(), $dto);
 
         return new SuccessResponse(data: [
             'role' => $result['role'],
