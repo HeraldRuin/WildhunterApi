@@ -39,7 +39,7 @@ class BookingHistoryResource extends BaseJsonResource
                 'user_name' => $hunter?->user_name,
                 'name' => $name ?: ($hunter?->user_name ?: $invitation->email),
                 'email' => $hunter?->email ?: $invitation->email,
-                'status' => $invitation->status,
+                'status' => __('statuses.invitation.' . $invitation->status),
                 'is_accepted' => $invitation->status === BookingHunterInvitation::STATUS_ACCEPTED,
             ];
         })->values()->all();
