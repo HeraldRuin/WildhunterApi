@@ -8,9 +8,12 @@ use App\Exceptions\NotFoundException;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Modules\Booking\Events\BookingUpdatedEvent;
 use Modules\Booking\Models\Booking;
+use Modules\Booking\Models\BookingHunter;
+use Modules\Booking\Models\BookingHunterInvitation;
 
-class BookingStartCollectionService
+class BookingCollectionService
 {
     private const int DEFAULT_TIMER_HOURS = 24;
 
@@ -75,6 +78,58 @@ class BookingStartCollectionService
     }
 
     /**
+     * @throws ConflictException
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     */
+    public function cancel(string $code, User $user): Booking
+    {
+        return DB::transaction(function () use ($code, $user): Booking {
+            $booking = $this->findForUpdate($code);
+            $masterHunter = $this->ensureMasterHunter($booking, $user);
+
+            if ($booking->status !== Booking::START_COLLECTION) {
+                throw new ConflictException(
+                    errorCode: 'booking_hunter_gathering_not_started',
+                    domain: 'booking',
+                );
+            }
+
+            Booking::query()
+                ->whereKey($booking->id)
+                ->update(['status' => Booking::CONFIRMED]);
+
+            DB::table('bc_booking_meta')
+                ->where('booking_id', $booking->id)
+                ->whereIn('name', [
+                    'collection_start_at',
+                    'collection_timer_hours',
+                    'collection_end_at',
+                    'paid_start_at',
+                    'paid_timer_hours',
+                    'paid_end_at',
+                    'beds_start_at',
+                    'beds_timer_hours',
+                    'beds_end_at',
+                ])
+                ->delete();
+
+            BookingHunterInvitation::query()
+                ->where('booking_hunter_id', $masterHunter->id)
+                ->where(function ($query) use ($masterHunter) {
+                    $query->where('hunter_id', '!=', $masterHunter->invited_by)
+                        ->orWhereNull('hunter_id');
+                })
+                ->delete();
+
+            $booking->status = Booking::CONFIRMED;
+            event(new BookingUpdatedEvent($booking));
+
+            return $booking;
+        });
+    }
+
+    /**
      * @throws NotFoundException
      */
     private function findForUpdate(string $code): Booking
@@ -97,18 +152,20 @@ class BookingStartCollectionService
     /**
      * @throws ForbiddenException
      */
-    private function ensureMasterHunter(Booking $booking, User $user): void
+    private function ensureMasterHunter(Booking $booking, User $user): BookingHunter
     {
-        $isMasterHunter = $booking->masterHunter()
+        $masterHunter = $booking->masterHunter()
             ->where('invited_by', $user->id)
-            ->exists();
+            ->first();
 
-        if (!$isMasterHunter) {
+        if (!$masterHunter) {
             throw new ForbiddenException(
                 errorCode: 'booking_access_denied',
                 domain: 'booking',
             );
         }
+
+        return $masterHunter;
     }
 
     /**

@@ -22,13 +22,12 @@ use Modules\Booking\Http\Resources\BookingCheckoutResource;
 use Modules\Booking\Http\Resources\BookingHistoryResource;
 use Modules\Booking\Http\Resources\CollectionTimerResource;
 use Modules\Booking\Services\BookingCancelService;
-use Modules\Booking\Services\BookingCancelCollectionService;
 use Modules\Booking\Services\BookingCheckoutService;
+use Modules\Booking\Services\BookingCollectionService;
 use Modules\Booking\Services\BookingConfirmService;
 use Modules\Booking\Services\BookingCustomerService;
 use Modules\Booking\Services\BookingHistoryService;
 use Modules\Booking\Services\BookingInvitationService;
-use Modules\Booking\Services\BookingStartCollectionService;
 use Modules\Booking\Services\BookingStoreService;
 
 class BookingController extends Controller
@@ -40,8 +39,7 @@ class BookingController extends Controller
         protected BookingConfirmService $bookingConfirmService,
         protected BookingCustomerService $bookingCustomerService,
         protected BookingCancelService $bookingCancelService,
-        protected BookingCancelCollectionService $bookingCancelCollectionService,
-        protected BookingStartCollectionService $bookingStartCollectionService,
+        protected BookingCollectionService $bookingCollectionService,
         protected BookingInvitationService $bookingInvitationService,
     ) {
     }
@@ -159,7 +157,7 @@ class BookingController extends Controller
      */
     public function startCollection(string $code): JsonResponse
     {
-        $result = $this->bookingStartCollectionService->start($code, Auth::user());
+        $result = $this->bookingCollectionService->start($code, Auth::user());
 
         return new SuccessResponse(
             code: 'gathering_has_started',
@@ -211,7 +209,7 @@ class BookingController extends Controller
      */
     public function extendCollection(string $code): JsonResponse
     {
-        $result = $this->bookingStartCollectionService->extend($code, Auth::user());
+        $result = $this->bookingCollectionService->extend($code, Auth::user());
 
         return new SuccessResponse(
             code: 'gathering_has_extended',
@@ -229,7 +227,7 @@ class BookingController extends Controller
      */
     public function cancelCollection(string $code): JsonResponse
     {
-        $booking = $this->bookingCancelCollectionService->cancel($code, Auth::user());
+        $booking = $this->bookingCollectionService->cancel($code, Auth::user());
 
         return new SuccessResponse(
             code: 'hunter_gathering_cancelled',
