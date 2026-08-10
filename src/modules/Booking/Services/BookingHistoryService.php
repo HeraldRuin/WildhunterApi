@@ -83,12 +83,13 @@ class BookingHistoryService
             return;
         }
 
-        BookingHunterInvitation::query()->firstOrCreate(
+        BookingHunterInvitation::query()->updateOrCreate(
             [
                 'booking_hunter_id' => $masterHunter->id,
                 'hunter_id' => $user->id,
             ],
             [
+                'email' => $user->email,
                 'invited' => true,
             ],
         );
