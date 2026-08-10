@@ -16,6 +16,7 @@ class BookingHistoryRequest extends FormRequest
 
         return [
             'status' => ['nullable', 'string', Rule::in($statuses)],
+            'code' => ['nullable', 'string', 'max:255'],
             'booking_id' => ['nullable', 'integer', 'min:1'],
             'page' => ['nullable', 'integer', 'min:1'],
         ];
@@ -26,6 +27,8 @@ class BookingHistoryRequest extends FormRequest
         return [
             'status.string' => __('booking.validation.status_must_be_string'),
             'status.in' => __('booking.validation.status_invalid'),
+            'code.string' => __('booking.validation.code_must_be_string'),
+            'code.max' => __('booking.validation.code_max_length'),
             'booking_id.integer' => __('booking.validation.booking_id_must_be_integer'),
             'booking_id.min' => __('booking.validation.booking_id_min_value'),
             'page.integer' => __('booking.validation.page_must_be_integer'),
