@@ -106,6 +106,9 @@ return [
         'code_required' => 'Укажите код бронирования',
         'code_must_be_string' => 'Код бронирования должен быть строкой',
 
+        'user_id_required' => 'Укажите ID пользователя',
+        'user_id_must_be_integer' => 'ID пользователя должен быть целым числом',
+
         'customer_notes_required' => 'Укажите особые требования',
         'customer_notes_must_be_string' => 'Особые требования должны быть строкой',
         'customer_notes_max' => 'Особые требования не должны превышать 5000 символов',
