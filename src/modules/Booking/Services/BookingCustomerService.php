@@ -56,7 +56,9 @@ class BookingCustomerService
 
             $booking->changeCreator($customer);
             $booking->changeMasterHunterCreator($customer);
-            $booking->save();
+            Booking::query()
+                ->whereKey($booking->id)
+                ->update(['create_user' => $booking->create_user]);
             $booking->masterHunter->save();
 
             return [
