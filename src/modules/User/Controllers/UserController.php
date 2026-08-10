@@ -36,14 +36,14 @@ class UserController
      */
     public function searchCustomers(SearchUsersRequest $request): JsonResponse
     {
-        if (!is_baseAdmin()) {
-            throw new ForbiddenException(
-                errorCode: 'booking_access_denied',
-                domain: 'booking',
-            );
-        }
+        $user = Auth::user();
+        assert($user instanceof User);
 
-        $result = $this->userService->searchByIdQuery(trim($request->string('query')->toString()));
+        $result = $this->userService->searchCustomers(
+            trim($request->string('query')->toString()),
+            $request->integer('booking_id'),
+            $user,
+        );
 
         return new SuccessResponse(data: UserSearchResource::collection($result));
     }

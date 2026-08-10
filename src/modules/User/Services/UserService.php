@@ -7,6 +7,7 @@ use App\Exceptions\ForbiddenException;
 use App\Exceptions\NotFoundException;
 use App\Exceptions\ValidationException;
 use App\Models\User;
+use Modules\Booking\Models\Booking;
 use Modules\Hotel\Models\Hotel;
 use Modules\Media\Helpers\FileHelper;
 use Modules\Media\Models\MediaFile;
@@ -63,12 +64,42 @@ class UserService
             ->get();
     }
 
-    public function searchByIdQuery(string $query): Collection
+    /**
+     * @throws ForbiddenException
+     */
+    public function searchCustomers(string $query, int $bookingId, User $actor): Collection
+    {
+        if (!$actor->hasRole(Role::ADMIN)) {
+            throw new ForbiddenException(
+                errorCode: 'booking_access_denied',
+                domain: 'booking',
+            );
+        }
+
+        $booking = Booking::query()
+            ->whereKey($bookingId)
+            ->whereIn('hotel_id', $actor->hotels()->select('id'))
+            ->first();
+
+        if (!$booking) {
+            throw new ForbiddenException(
+                errorCode: 'booking_access_denied',
+                domain: 'booking',
+            );
+        }
+
+        $currentCustomerId = (int) ($booking->create_user ?: $booking->customer_id);
+
+        return $this->searchByIdQuery($query, $currentCustomerId);
+    }
+
+    private function searchByIdQuery(string $query, int $excludedUserId): Collection
     {
         return User::query()
             ->whereHas('role', function ($roleQuery) {
                 $roleQuery->where('code', Role::CUSTOMER);
             })
+            ->whereKeyNot($excludedUserId)
             ->where('id', 'like', "%{$query}%")
             ->get(['id', 'user_name', 'first_name', 'last_name']);
     }

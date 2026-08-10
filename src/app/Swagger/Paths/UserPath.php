@@ -77,6 +77,13 @@ class UserPath
                 required: true,
                 schema: new OA\Schema(type: "string", maxLength: 255, example: "9")
             ),
+            new OA\Parameter(
+                name: "booking_id",
+                description: "ID бронирования; текущий заказчик будет исключён из результатов",
+                in: "query",
+                required: true,
+                schema: new OA\Schema(type: "integer", example: 319)
+            ),
         ],
         responses: [
             new OA\Response(
