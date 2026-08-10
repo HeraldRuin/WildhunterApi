@@ -21,6 +21,16 @@ class BookingPath
                 schema: new OA\Schema(type: "string", example: "invitation")
             ),
             new OA\Parameter(
+                name: "code",
+                description: "Код бронирования из ссылки-приглашения",
+                in: "query",
+                required: false,
+                schema: new OA\Schema(
+                    type: "string",
+                    example: "faa1c65d4b0de02146a27cea429340fb"
+                )
+            ),
+            new OA\Parameter(
                 name: "booking_id",
                 description: "Фильтр по ID брони",
                 in: "query",
@@ -95,8 +105,9 @@ class BookingPath
                                                     "id", "booking_number", "code", "created_at", "type",
                                                     "type_text", "status", "status_for_user", "status_label",
                                                     "display_status", "is_paid", "is_master_hunter",
-                                                    "is_invited", "invitation_accepted", "hotel", "creator",
-                                                    "details", "collection", "payment", "available_actions",
+                                                    "is_invited", "invitation_accepted", "invitation_url",
+                                                    "hotel", "creator", "details", "collection", "payment",
+                                                    "available_actions",
                                                 ],
                                                 properties: [
                                                     new OA\Property(property: "id", type: "integer"),
@@ -117,6 +128,7 @@ class BookingPath
                                                     new OA\Property(property: "is_master_hunter", type: "boolean"),
                                                     new OA\Property(property: "is_invited", type: "boolean"),
                                                     new OA\Property(property: "invitation_accepted", type: "boolean"),
+                                                    new OA\Property(property: "invitation_url", type: "string"),
                                                     new OA\Property(
                                                         property: "hotel",
                                                         required: [
@@ -402,6 +414,118 @@ class BookingPath
         ]
     )]
     public function ConfirmBooking(): void
+    {}
+
+    #[OA\Post(
+        path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/accept-invitation",
+        summary: "Принять приглашение в бронь",
+        security: [['bearerAuth' => []]],
+        tags: ["Bookings"],
+        parameters: [
+            new OA\Parameter(
+                name: "code",
+                description: "Код бронирования",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(
+                    type: "string",
+                    example: "faa1c65d4b0de02146a27cea429340fb"
+                )
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Приглашение принято",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: "Приглашение принято"),
+                        new OA\Property(
+                            property: "data",
+                            required: ["status", "accepted_at"],
+                            properties: [
+                                new OA\Property(property: "status", type: "string", example: "accepted"),
+                                new OA\Property(
+                                    property: "accepted_at",
+                                    type: "string",
+                                    format: "date-time"
+                                ),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(
+                ref: "#/components/responses/AuthResponse",
+                response: 401
+            ),
+            new OA\Response(
+                ref: "#/components/responses/NotFoundResponse",
+                response: 404
+            ),
+        ]
+    )]
+    public function AcceptBookingInvitation(): void
+    {}
+
+    #[OA\Post(
+        path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/decline-invitation",
+        summary: "Отклонить приглашение в бронь",
+        security: [['bearerAuth' => []]],
+        tags: ["Bookings"],
+        parameters: [
+            new OA\Parameter(
+                name: "code",
+                description: "Код бронирования",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(
+                    type: "string",
+                    example: "faa1c65d4b0de02146a27cea429340fb"
+                )
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Приглашение отклонено",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: "Приглашение отклонено"),
+                        new OA\Property(
+                            property: "data",
+                            required: ["status", "declined_at"],
+                            properties: [
+                                new OA\Property(property: "status", type: "string", example: "declined"),
+                                new OA\Property(
+                                    property: "declined_at",
+                                    type: "string",
+                                    format: "date-time"
+                                ),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(
+                ref: "#/components/responses/AuthResponse",
+                response: 401
+            ),
+            new OA\Response(
+                ref: "#/components/responses/NotFoundResponse",
+                response: 404
+            ),
+        ]
+    )]
+    public function DeclineBookingInvitation(): void
     {}
 
     #[OA\Post(
