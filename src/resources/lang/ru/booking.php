@@ -113,6 +113,10 @@ return [
         'customer_notes_required' => 'Укажите особые требования',
         'customer_notes_must_be_string' => 'Особые требования должны быть строкой',
         'customer_notes_max' => 'Особые требования не должны превышать 5000 символов',
+
+        'hunter_id_required' => 'Не передан hunter_id',
+        'hunter_id_must_be_integer' => 'hunter_id должен быть числом',
+        'hunter_id_not_found' => 'Пользователь не найден',
     ],
     'successes' => [
         'place_selected' => 'Выбранное место занято за вами',
