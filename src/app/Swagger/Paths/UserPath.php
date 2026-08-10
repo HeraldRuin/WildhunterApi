@@ -140,6 +140,7 @@ class UserPath
 
     #[OA\Get(
         path: "/api/" . ApiConfig::VERSION . "/user/search-hunters",
+        description: "Поиск по началу ID, ника, имени, фамилии или email. Мастер и уже приглашённые охотники исключаются.",
         summary: "Найти охотников для приглашения в бронь",
         security: [['bearerAuth' => []]],
         tags: ["Users"],

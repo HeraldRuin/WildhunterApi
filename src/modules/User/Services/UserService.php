@@ -116,6 +116,23 @@ class UserService
             ->whereHas('role', function ($roleQuery) {
                 $roleQuery->where('code', Role::CUSTOMER);
             })
+            ->whereKeyNot($actor->id)
+            ->whereNotIn('id', function ($invitedHuntersQuery) use ($bookingId) {
+                $invitedHuntersQuery
+                    ->select('invitations.hunter_id')
+                    ->from('bc_booking_hunter_invitations as invitations')
+                    ->join(
+                        'bc_booking_hunters as booking_hunters',
+                        'booking_hunters.id',
+                        '=',
+                        'invitations.booking_hunter_id',
+                    )
+                    ->where('booking_hunters.booking_id', $bookingId)
+                    ->whereNull('booking_hunters.deleted_at')
+                    ->whereNull('invitations.deleted_at')
+                    ->whereNotNull('invitations.hunter_id')
+                    ->whereNotIn('invitations.status', ['declined', 'removed']);
+            })
             ->where(function ($userQuery) use ($query) {
                 $userQuery->where('id', 'like', "{$query}%")
                     ->orWhere('user_name', 'like', "{$query}%")
