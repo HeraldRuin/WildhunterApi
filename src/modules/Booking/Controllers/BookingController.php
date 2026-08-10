@@ -15,6 +15,7 @@ use Modules\Booking\Dto\CreateBookingData;
 use Modules\Booking\Dto\UpdateCustomerNotesData;
 use Modules\Booking\Http\Requests\BookingCreateRequest;
 use Modules\Booking\Http\Requests\BookingHistoryRequest;
+use Modules\Booking\Http\Requests\ChangeBookingCustomerRequest;
 use Modules\Booking\Http\Requests\UpdateCustomerNotesRequest;
 use Modules\Booking\Http\Resources\BookingCheckoutResource;
 use Modules\Booking\Http\Resources\BookingHistoryResource;
@@ -22,6 +23,7 @@ use Modules\Booking\Http\Resources\CollectionTimerResource;
 use Modules\Booking\Services\BookingCancelService;
 use Modules\Booking\Services\BookingCheckoutService;
 use Modules\Booking\Services\BookingConfirmService;
+use Modules\Booking\Services\BookingCustomerService;
 use Modules\Booking\Services\BookingHistoryService;
 use Modules\Booking\Services\BookingStartCollectionService;
 use Modules\Booking\Services\BookingStoreService;
@@ -33,6 +35,7 @@ class BookingController extends Controller
         protected BookingCheckoutService $bookingCheckoutService,
         protected BookingHistoryService $bookingHistoryService,
         protected BookingConfirmService $bookingConfirmService,
+        protected BookingCustomerService $bookingCustomerService,
         protected BookingCancelService $bookingCancelService,
         protected BookingStartCollectionService $bookingStartCollectionService,
     ) {
@@ -83,6 +86,26 @@ class BookingController extends Controller
             data: [
                 'customer_notes' => $booking->customer_notes,
             ],
+        );
+    }
+
+    /**
+     * Смена заказчика бронирования администратором базы.
+     *
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     */
+    public function changeCustomer(ChangeBookingCustomerRequest $request, string $code): JsonResponse
+    {
+        $result = $this->bookingCustomerService->change(
+            $code,
+            $request->integer('user_id'),
+            Auth::user(),
+        );
+
+        return new SuccessResponse(
+            code: $result['code'],
+            domain: 'booking',
         );
     }
 
