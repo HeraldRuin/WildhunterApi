@@ -34,6 +34,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/user/avatars', [UserController::class, 'avatarHistory']);
     Route::get('/user/search', [UserController::class, 'searchCustomers']);
+    Route::get('/user/search-hunters', [UserController::class, 'searchHunters']);
     Route::get('/user/{user}', [UserController::class, 'searchUser'])->whereNumber('user');
     Route::post('/user', [UserController::class, 'profileUpdate']);
 
