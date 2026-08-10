@@ -307,7 +307,7 @@ class BookingPath
                                                                         new OA\Property(
                                                                             property: "status",
                                                                             type: "string",
-                                                                            enum: ["invited", "accepted", "declined", "removed"]
+                                                                            example: "Приглашение принято"
                                                                         ),
                                                                         new OA\Property(
                                                                             property: "is_accepted",
@@ -493,7 +493,11 @@ class BookingPath
                             property: "data",
                             required: ["status", "accepted_at"],
                             properties: [
-                                new OA\Property(property: "status", type: "string", example: "accepted"),
+                                new OA\Property(
+                                    property: "status",
+                                    type: "string",
+                                    example: "Приглашение принято"
+                                ),
                                 new OA\Property(
                                     property: "accepted_at",
                                     type: "string",
@@ -549,7 +553,11 @@ class BookingPath
                             property: "data",
                             required: ["status", "declined_at"],
                             properties: [
-                                new OA\Property(property: "status", type: "string", example: "declined"),
+                                new OA\Property(
+                                    property: "status",
+                                    type: "string",
+                                    example: "Приглашение отклонено"
+                                ),
                                 new OA\Property(
                                     property: "declined_at",
                                     type: "string",
