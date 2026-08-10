@@ -19,3 +19,7 @@ Broadcast::channel('bookings.{bookingId}', function (User $user, int $bookingId)
         })
         ->exists();
 }, ['guards' => ['sanctum']]);
+
+Broadcast::channel('booking-history.{userId}', function (User $user, int $userId): bool {
+    return (int) $user->id === $userId;
+}, ['guards' => ['sanctum']]);
