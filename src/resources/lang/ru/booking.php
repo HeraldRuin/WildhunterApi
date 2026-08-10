@@ -34,6 +34,7 @@ return [
         'confirm' => 'Подтвердить бронь',
         'cancel' => 'Отменить бронь',
         'start_collection' => 'Собрать охотников',
+        'cancel_collection' => 'Отменить сбор',
         'open_collection' => 'Сбор',
         'prepayment' => 'Предоплата',
         'select_place' => 'Выбрать место',
