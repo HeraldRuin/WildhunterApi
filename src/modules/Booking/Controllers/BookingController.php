@@ -17,6 +17,7 @@ use Modules\Booking\Dto\UpdateCustomerNotesData;
 use Modules\Booking\Http\Requests\BookingCreateRequest;
 use Modules\Booking\Http\Requests\BookingHistoryRequest;
 use Modules\Booking\Http\Requests\ChangeBookingCustomerRequest;
+use Modules\Booking\Http\Requests\InviteHunterRequest;
 use Modules\Booking\Http\Requests\UpdateCustomerNotesRequest;
 use Modules\Booking\Http\Resources\BookingCheckoutResource;
 use Modules\Booking\Http\Resources\BookingHistoryResource;
@@ -163,6 +164,32 @@ class BookingController extends Controller
             code: 'gathering_has_started',
             domain: 'collection',
             data: new CollectionTimerResource($result),
+        );
+    }
+
+    /**
+     * Приглашение охотника в активный сбор.
+     *
+     * @throws ConflictException
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     */
+    public function inviteHunter(InviteHunterRequest $request, string $code): JsonResponse
+    {
+        $invitation = $this->bookingInvitationService->invite(
+            $code,
+            (int) $request->validated('hunter_id'),
+            Auth::user(),
+        );
+
+        return new SuccessResponse(
+            code: 'booking_invitation_sent',
+            domain: 'booking',
+            data: [
+                'invitation_id' => $invitation->id,
+                'hunter_id' => $invitation->hunter_id,
+                'status' => $invitation->status,
+            ],
         );
     }
 
