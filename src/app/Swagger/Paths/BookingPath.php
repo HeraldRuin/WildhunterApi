@@ -458,6 +458,76 @@ class BookingPath
     {}
 
     #[OA\Post(
+        path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/change-user",
+        summary: "Сменить заказчика бронирования (администратор базы)",
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["user_id"],
+                properties: [
+                    new OA\Property(
+                        property: "user_id",
+                        description: "ID нового заказчика",
+                        type: "integer",
+                        example: 15
+                    ),
+                ]
+            )
+        ),
+        tags: ["Bookings"],
+        parameters: [
+            new OA\Parameter(
+                name: "code",
+                description: "Код бронирования",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(
+                    type: "string",
+                    example: "faa1c65d4b0de02146a27cea429340fb"
+                )
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Заказчик изменён",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: "Заказчик изменён"),
+                        new OA\Property(
+                            property: "data",
+                            type: "array",
+                            items: new OA\Items()
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(
+                ref: "#/components/responses/AuthResponse",
+                response: 401
+            ),
+            new OA\Response(
+                response: 403,
+                description: "Пользователь не является администратором этой базы"
+            ),
+            new OA\Response(
+                ref: "#/components/responses/NotFoundResponse",
+                response: 404
+            ),
+            new OA\Response(
+                ref: "#/components/responses/ValidationError",
+                response: 422
+            ),
+        ]
+    )]
+    public function ChangeBookingCustomer(): void
+    {}
+
+    #[OA\Post(
         path: "/api/" . ApiConfig::VERSION . "/bookings",
         summary: "Создать бронирование",
         security: [['bearerAuth' => []]],
