@@ -26,6 +26,7 @@ use Modules\Booking\Services\BookingCheckoutService;
 use Modules\Booking\Services\BookingConfirmService;
 use Modules\Booking\Services\BookingCustomerService;
 use Modules\Booking\Services\BookingHistoryService;
+use Modules\Booking\Services\BookingInvitationService;
 use Modules\Booking\Services\BookingStartCollectionService;
 use Modules\Booking\Services\BookingStoreService;
 
@@ -39,6 +40,7 @@ class BookingController extends Controller
         protected BookingCustomerService $bookingCustomerService,
         protected BookingCancelService $bookingCancelService,
         protected BookingStartCollectionService $bookingStartCollectionService,
+        protected BookingInvitationService $bookingInvitationService,
     ) {
     }
 
@@ -161,6 +163,44 @@ class BookingController extends Controller
             code: 'gathering_has_started',
             domain: 'collection',
             data: new CollectionTimerResource($result),
+        );
+    }
+
+    /**
+     * Принятие приглашения текущим охотником.
+     *
+     * @throws NotFoundException
+     */
+    public function acceptInvitation(string $code): JsonResponse
+    {
+        $invitation = $this->bookingInvitationService->accept($code, Auth::user());
+
+        return new SuccessResponse(
+            code: 'invitation_accepted',
+            domain: 'booking',
+            data: [
+                'status' => $invitation->status,
+                'accepted_at' => $invitation->accepted_at,
+            ],
+        );
+    }
+
+    /**
+     * Отклонение приглашения текущим охотником.
+     *
+     * @throws NotFoundException
+     */
+    public function declineInvitation(string $code): JsonResponse
+    {
+        $invitation = $this->bookingInvitationService->decline($code, Auth::user());
+
+        return new SuccessResponse(
+            code: 'invitation_declined',
+            domain: 'booking',
+            data: [
+                'status' => $invitation->status,
+                'declined_at' => $invitation->declined_at,
+            ],
         );
     }
 
