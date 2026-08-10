@@ -130,6 +130,80 @@ class UserPath
     {}
 
     #[OA\Get(
+        path: "/api/" . ApiConfig::VERSION . "/user/search-hunters",
+        summary: "Найти охотников для приглашения в бронь",
+        security: [['bearerAuth' => []]],
+        tags: ["Users"],
+        parameters: [
+            new OA\Parameter(
+                name: "query",
+                description: "Строка поиска",
+                in: "query",
+                required: true,
+                schema: new OA\Schema(type: "string", maxLength: 255, example: "Мар")
+            ),
+            new OA\Parameter(
+                name: "booking_id",
+                description: "ID бронирования",
+                in: "query",
+                required: true,
+                schema: new OA\Schema(type: "integer", example: 319)
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Найденные охотники",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            type: "array",
+                            items: new OA\Items(
+                                required: [
+                                    "id", "user_name", "first_name", "last_name", "email", "phone",
+                                ],
+                                properties: [
+                                    new OA\Property(property: "id", type: "integer"),
+                                    new OA\Property(property: "user_name", type: "string", nullable: true),
+                                    new OA\Property(property: "first_name", type: "string", nullable: true),
+                                    new OA\Property(property: "last_name", type: "string", nullable: true),
+                                    new OA\Property(
+                                        property: "email",
+                                        type: "string",
+                                        format: "email",
+                                        nullable: true
+                                    ),
+                                    new OA\Property(property: "phone", type: "string", nullable: true),
+                                ],
+                                type: "object"
+                            )
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(
+                ref: "#/components/responses/AuthResponse",
+                response: 401
+            ),
+            new OA\Response(
+                response: 403,
+                description: "Текущий пользователь не является мастером охотником этой брони"
+            ),
+            new OA\Response(
+                ref: "#/components/responses/ValidationError",
+                response: 422
+            ),
+        ]
+    )]
+    public function SearchHunters(): void
+    {}
+
+    #[OA\Get(
         path: "/api/" . ApiConfig::VERSION . "/user/{id}",
         summary: "Получить пользователя",
         security: [['bearerAuth' => []]],
