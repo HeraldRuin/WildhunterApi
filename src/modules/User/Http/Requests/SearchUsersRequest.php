@@ -10,6 +10,7 @@ class SearchUsersRequest extends FormRequest
     {
         return [
             'query' => ['required', 'string', 'max:255'],
+            'booking_id' => ['required', 'integer', 'exists:bc_bookings,id'],
         ];
     }
 }
