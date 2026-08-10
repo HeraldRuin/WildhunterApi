@@ -15,6 +15,7 @@ use Modules\User\Dto\SubscribeData;
 use Modules\User\Models\Subscriber;
 use Modules\User\Dto\ProfileUpdateData;
 use Illuminate\Database\Eloquent\Collection;
+use Modules\Role\Models\Role;
 use Modules\User\Models\UserWishList;
 use Modules\User\Models\UserAvatarHistory;
 
@@ -65,6 +66,9 @@ class UserService
     public function searchByIdQuery(string $query): Collection
     {
         return User::query()
+            ->whereHas('role', function ($roleQuery) {
+                $roleQuery->where('code', Role::CUSTOMER);
+            })
             ->where('id', 'like', "%{$query}%")
             ->get(['id', 'user_name', 'first_name', 'last_name']);
     }

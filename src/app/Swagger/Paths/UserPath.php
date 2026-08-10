@@ -66,7 +66,7 @@ class UserPath
 
     #[OA\Get(
         path: "/api/" . ApiConfig::VERSION . "/user/search",
-        summary: "Найти пользователей для смены заказчика",
+        summary: "Найти охотников для смены заказчика",
         security: [['bearerAuth' => []]],
         tags: ["Users"],
         parameters: [
@@ -81,7 +81,7 @@ class UserPath
         responses: [
             new OA\Response(
                 response: 200,
-                description: "Пользователи, ID которых содержит строку поиска",
+                description: "Охотники, ID которых содержит строку поиска",
                 content: new OA\JsonContent(
                     required: ["success", "message", "data"],
                     properties: [
