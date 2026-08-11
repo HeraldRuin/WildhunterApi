@@ -78,6 +78,81 @@ class BookingCollectionService
     }
 
     /**
+     * @return array{booking: Booking, start_at?: string, end_at?: string, hours?: int}
+     *
+     */
+    public function finish(string $code, User $user): array
+    {
+        return DB::transaction(function () use ($code, $user): array {
+            $booking = $this->findForUpdate($code);
+            $masterHunter = $this->ensureMasterHunter($booking, $user);
+
+            if ($booking->status !== Booking::START_COLLECTION) {
+                throw new ConflictException(
+                    errorCode: 'booking_hunter_gathering_not_started',
+                    domain: 'booking',
+                );
+            }
+
+            if ($booking->type !== Booking::BookingTypeHotel) {
+                $requiredHunters = $this->getRequiredHuntersCount($booking);
+                $activeInvitationsCount = BookingHunterInvitation::query()
+                    ->where('booking_hunter_id', $masterHunter->id)
+                    ->whereNotIn('status', [
+                        BookingHunterInvitation::STATUS_DECLINED,
+                        'removed',
+                    ])
+                    ->count();
+
+                if ($activeInvitationsCount < $requiredHunters) {
+                    throw new ConflictException(
+                        errorCode: 'not_enough_hunters',
+                        domain: 'booking',
+                        context: [
+                            'required' => $requiredHunters,
+                            'invited' => $activeInvitationsCount,
+                        ],
+                    );
+                }
+
+                $confirmedInvitationsCount = BookingHunterInvitation::query()
+                    ->where('booking_hunter_id', $masterHunter->id)
+                    ->where('status', BookingHunterInvitation::STATUS_ACCEPTED)
+                    ->count();
+
+                if ($confirmedInvitationsCount < $requiredHunters) {
+                    throw new ConflictException(
+                        errorCode: 'not_all_hunters_confirmed',
+                        domain: 'booking',
+                        context: [
+                            'required' => $requiredHunters,
+                            'confirmed' => $confirmedInvitationsCount,
+                        ],
+                    );
+                }
+            }
+
+            if ($booking->type === Booking::BookingTypeAnimal) {
+                $booking->status = Booking::FINISHED_COLLECTION;
+                $booking->save();
+                event(new BookingUpdatedEvent($booking));
+
+                return ['booking' => $booking];
+            }
+
+            $booking->status = Booking::PREPAYMENT_COLLECTION;
+            $booking->save();
+            $timer = $this->startPaidTimer($booking);
+            event(new BookingUpdatedEvent($booking));
+
+            return [
+                'booking' => $booking,
+                ...$timer,
+            ];
+        });
+    }
+
+    /**
      * @throws ConflictException
      * @throws ForbiddenException
      * @throws NotFoundException
@@ -238,6 +313,92 @@ class BookingCollectionService
         }
 
         $hours = $booking->hotel?->collection_timer_hours;
+
+        return $hours !== null && $hours > 0
+            ? (int) $hours
+            : self::DEFAULT_TIMER_HOURS;
+    }
+
+    private function getRequiredHuntersCount(Booking $booking): int
+    {
+        if ($booking->animal_id && $booking->hotel_id) {
+            $huntersCount = DB::table('bc_hotel_animals')
+                ->where('hotel_id', $booking->hotel_id)
+                ->where('animal_id', $booking->animal_id)
+                ->value('hunters_count');
+
+            return $huntersCount !== null && (int) $huntersCount > 0
+                ? (int) $huntersCount
+                : 1;
+        }
+
+        $huntersCount = match ($booking->type) {
+            Booking::BookingTypeHotel => (int) ($booking->total_guests ?? 0),
+            Booking::BookingTypeAnimal,
+            Booking::BookingTypeHotelAnimal => (int) ($booking->total_hunting ?? 0),
+            default => 0,
+        };
+
+        return max(1, $huntersCount);
+    }
+
+    /**
+     * @return array{start_at: string, end_at: string, hours: int}
+     */
+    private function startPaidTimer(Booking $booking): array
+    {
+        $hours = $this->getPaidTimerHours($booking);
+        $now = Carbon::now();
+        $startAt = $now->toIso8601String();
+        $endAt = $now->copy()->addHours($hours)->toIso8601String();
+
+        DB::table('bc_booking_meta')
+            ->where('booking_id', $booking->id)
+            ->whereIn('name', [
+                'collection_start_at',
+                'collection_timer_hours',
+                'collection_end_at',
+            ])
+            ->delete();
+
+        DB::table('bc_booking_meta')->insert([
+            [
+                'booking_id' => $booking->id,
+                'name' => 'paid_start_at',
+                'val' => $startAt,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'booking_id' => $booking->id,
+                'name' => 'paid_timer_hours',
+                'val' => (string) $hours,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'booking_id' => $booking->id,
+                'name' => 'paid_end_at',
+                'val' => $endAt,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+        ]);
+
+        return [
+            'start_at' => $startAt,
+            'end_at' => $endAt,
+            'hours' => $hours,
+        ];
+    }
+
+    private function getPaidTimerHours(Booking $booking): int
+    {
+        if (!$booking->hotel_id) {
+            return self::DEFAULT_TIMER_HOURS;
+        }
+
+        $hours = $booking->hotel?->paid_timer_hours;
 
         return $hours !== null && $hours > 0
             ? (int) $hours

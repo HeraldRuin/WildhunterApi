@@ -246,6 +246,33 @@ class BookingController extends Controller
     }
 
     /**
+     * Завершение сбора охотников мастер-охотником.
+     *
+     */
+    public function finishCollection(string $code): JsonResponse
+    {
+        $result = $this->bookingCollectionService->finish($code, Auth::user());
+        $booking = $result['booking'];
+        $data = [
+            'id' => $booking->id,
+            'code' => $booking->code,
+            'status' => $booking->status,
+        ];
+
+        if (isset($result['start_at'], $result['end_at'], $result['hours'])) {
+            $data['paid_start_at'] = $result['start_at'];
+            $data['paid_end_at'] = $result['end_at'];
+            $data['paid_timer_hours'] = $result['hours'];
+        }
+
+        return new SuccessResponse(
+            code: 'gathering_has_completed',
+            domain: 'booking',
+            data: $data,
+        );
+    }
+
+    /**
      * Отмена активного сбора охотников мастером.
      *
      * @throws ConflictException
