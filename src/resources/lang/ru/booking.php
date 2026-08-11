@@ -13,6 +13,7 @@ return [
         'booking_access_denied' => 'Доступ запрещён',
         'booking_status_locked' => 'Статус бронирования заблокирован',
         'booking_invitation_not_found' => 'Для этой брони не найден приглашенный',
+        'not_enough_hunters' => 'Пригласите необходимое количество охотников: :invited из :required',
         'not_all_hunters_confirmed' => 'Не все приглашённые участники подтвердили приглашение. Дождитесь ответа всех участников',
         'booking_hunter_gathering_not_started' => 'Сбор охотников не начат',
         'invalid_dates' => 'Выбранные даты недоступны',
