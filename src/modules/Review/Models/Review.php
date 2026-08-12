@@ -19,11 +19,11 @@ class Review extends BaseModel
     public const string RATING_NOT_RATED = 'not_rated';
 
     public const array RATINGS = [
-        self::RATING_EXCELLENT => 'Превосходный',
-        self::RATING_VERY_GOOD => 'Очень хороший',
-        self::RATING_AVERAGE => 'Хороший',
-        self::RATING_POOR => 'Плохой',
-        self::RATING_TERRIBLE => 'Ужасный',
+        self::RATING_EXCELLENT => 'Превосходно',
+        self::RATING_VERY_GOOD => 'Очень хорошо',
+        self::RATING_AVERAGE => 'Хорошо',
+        self::RATING_POOR => 'Нормально',
+//        self::RATING_TERRIBLE => 'Ужасный',
     ];
     public const array RATING_VALUES = [
         self::RATING_EXCELLENT => 5,
