@@ -37,6 +37,7 @@ class BookingHunterInvitation extends BaseModel
 
     protected $casts = [
         'invited' => 'boolean',
+        'prepayment_paid' => 'boolean',
         'invited_at' => 'datetime',
         'accepted_at' => 'datetime',
         'declined_at' => 'datetime',
