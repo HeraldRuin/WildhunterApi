@@ -1,9 +1,6 @@
 <?php
 
 return [
-    'base_url' => rtrim((string) env('PAYKEEPER_BASE_URL', ''), '/'),
-    'client_id' => env('PAYKEEPER_CLIENT_ID'),
-    'client_secret' => env('PAYKEEPER_CLIENT_SECRET'),
     'token_path' => env('PAYKEEPER_TOKEN_PATH', '/info/settings/token/'),
     'invoice_path' => env('PAYKEEPER_INVOICE_PATH', '/change/invoice/preview/'),
     'revoke_path' => env('PAYKEEPER_REVOKE_PATH', '/change/invoice/revoke/'),
