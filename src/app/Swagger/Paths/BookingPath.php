@@ -608,6 +608,110 @@ class BookingPath
     {}
 
     #[OA\Post(
+        path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/replace-hunter",
+        summary: "Заменить охотника после завершения сбора",
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["old_hunter_id", "hunter_id"],
+                properties: [
+                    new OA\Property(
+                        property: "old_hunter_id",
+                        description: "ID заменяемого охотника",
+                        type: "integer",
+                        example: 123
+                    ),
+                    new OA\Property(
+                        property: "hunter_id",
+                        description: "ID нового охотника",
+                        type: "integer",
+                        example: 456
+                    ),
+                ]
+            )
+        ),
+        tags: ["Bookings"],
+        parameters: [
+            new OA\Parameter(
+                name: "code",
+                description: "Код бронирования",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(
+                    type: "string",
+                    example: "faa1c65d4b0de02146a27cea429340fb"
+                )
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Охотник успешно заменён",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: "Охотник успешно заменён"),
+                        new OA\Property(
+                            property: "data",
+                            required: [
+                                "invitation_id",
+                                "hunter_id",
+                                "invitation_status",
+                                "prepayment_paid",
+                            ],
+                            properties: [
+                                new OA\Property(property: "invitation_id", type: "integer", example: 789),
+                                new OA\Property(property: "hunter_id", type: "integer", example: 456),
+                                new OA\Property(property: "email", type: "string", example: "hunter@example.com"),
+                                new OA\Property(property: "first_name", type: "string", example: "Иван"),
+                                new OA\Property(property: "last_name", type: "string", example: "Иванов"),
+                                new OA\Property(property: "user_name", type: "string", example: "ivan_h"),
+                                new OA\Property(
+                                    property: "invitation_status",
+                                    type: "string",
+                                    example: "accepted"
+                                ),
+                                new OA\Property(property: "prepayment_paid", type: "boolean", example: false),
+                                new OA\Property(
+                                    property: "prepayment_paid_status",
+                                    type: "string",
+                                    example: "pending"
+                                ),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(
+                ref: "#/components/responses/AuthResponse",
+                response: 401
+            ),
+            new OA\Response(
+                response: 403,
+                description: "Текущий пользователь не является мастером охоты"
+            ),
+            new OA\Response(
+                ref: "#/components/responses/NotFoundResponse",
+                response: 404
+            ),
+            new OA\Response(
+                response: 409,
+                description: "Замена недоступна, охотник уже оплатил предоплату, является мастером или новый охотник уже участвует в брони"
+            ),
+            new OA\Response(
+                ref: "#/components/responses/ValidationError",
+                response: 422
+            ),
+        ]
+    )]
+    public function ReplaceHunter(): void
+    {}
+
+    #[OA\Post(
         path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/accept-invitation",
         summary: "Принять приглашение в бронь",
         security: [['bearerAuth' => []]],
