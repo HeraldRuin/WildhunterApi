@@ -152,6 +152,82 @@ class UserService
             ]);
     }
 
+    /**
+     * @throws ConflictException
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     */
+    public function searchReplacementHunters(string $query, int $bookingId, User $actor): Collection
+    {
+        $booking = Booking::query()->find($bookingId);
+
+        if (!$booking) {
+            throw new NotFoundException(
+                errorCode: 'booking_not_found',
+                domain: 'booking',
+            );
+        }
+
+        $canReplaceHunters = $booking->masterHunter()
+            ->where('invited_by', $actor->id)
+            ->exists();
+
+        if (!$canReplaceHunters) {
+            throw new ForbiddenException(
+                errorCode: 'booking_access_denied',
+                domain: 'booking',
+            );
+        }
+
+        if (!in_array($booking->status, [
+            Booking::FINISHED_COLLECTION,
+            Booking::PREPAYMENT_COLLECTION,
+        ], true)) {
+            throw new ConflictException(
+                errorCode: 'booking_hunter_replace_not_allowed',
+                domain: 'booking',
+            );
+        }
+
+        return User::query()
+            ->whereHas('role', function ($roleQuery) {
+                $roleQuery->where('code', Role::CUSTOMER);
+            })
+            ->whereKeyNot($actor->id)
+            ->whereNotIn('id', function ($bookingHuntersQuery) use ($bookingId) {
+                $bookingHuntersQuery
+                    ->select('invitations.hunter_id')
+                    ->from('bc_booking_hunter_invitations as invitations')
+                    ->join(
+                        'bc_booking_hunters as booking_hunters',
+                        'booking_hunters.id',
+                        '=',
+                        'invitations.booking_hunter_id',
+                    )
+                    ->where('booking_hunters.booking_id', $bookingId)
+                    ->whereNull('booking_hunters.deleted_at')
+                    ->whereNull('invitations.deleted_at')
+                    ->whereNotNull('invitations.hunter_id');
+            })
+            ->where(function ($userQuery) use ($query) {
+                $userQuery->where('id', 'like', "{$query}%")
+                    ->orWhere('user_name', 'like', "{$query}%")
+                    ->orWhere('first_name', 'like', "{$query}%")
+                    ->orWhere('last_name', 'like', "{$query}%")
+                    ->orWhere('email', 'like', "{$query}%");
+            })
+            ->limit(10)
+            ->get([
+                'id',
+                'user_name',
+                'first_name',
+                'last_name',
+                'email',
+                'phone',
+                'role_id',
+            ]);
+    }
+
     private function searchByIdQuery(string $query, int $excludedUserId): Collection
     {
         return User::query()

@@ -2,6 +2,7 @@
 
 namespace Modules\User\Controllers;
 
+use App\Exceptions\ConflictException;
 use App\Models\User;
 use App\Exceptions\ForbiddenException;
 use Illuminate\Http\JsonResponse;
@@ -58,6 +59,24 @@ class UserController
         assert($user instanceof User);
 
         $result = $this->userService->searchHunters(
+            trim($request->string('query')->toString()),
+            $request->integer('booking_id'),
+            $user,
+        );
+
+        return new SuccessResponse(data: UserSearchResource::collection($result));
+    }
+
+    /**
+     * @throws ForbiddenException
+     * @throws NotFoundException|ConflictException
+     */
+    public function searchReplacementHunters(SearchHuntersRequest $request): JsonResponse
+    {
+        $user = Auth::user();
+        assert($user instanceof User);
+
+        $result = $this->userService->searchReplacementHunters(
             trim($request->string('query')->toString()),
             $request->integer('booking_id'),
             $user,
