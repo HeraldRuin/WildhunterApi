@@ -41,6 +41,8 @@ class BookingHistoryResource extends BaseJsonResource
                 'email' => $hunter?->email ?: $invitation->email,
                 'status' => __('statuses.invitation.' . $invitation->status),
                 'is_accepted' => $invitation->status === BookingHunterInvitation::STATUS_ACCEPTED,
+                'prepayment_paid' => (bool) $invitation->prepayment_paid,
+                'prepayment_paid_status' => $invitation->prepayment_paid_status,
             ];
         })->values()->all();
 
