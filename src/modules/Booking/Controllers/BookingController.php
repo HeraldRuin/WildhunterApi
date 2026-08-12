@@ -13,11 +13,14 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Modules\Booking\Dto\BookingHistoryData;
 use Modules\Booking\Dto\CreateBookingData;
+use Modules\Booking\Dto\ReplaceHunterData;
 use Modules\Booking\Dto\UpdateCustomerNotesData;
 use Modules\Booking\Http\Requests\BookingCreateRequest;
 use Modules\Booking\Http\Requests\BookingHistoryRequest;
 use Modules\Booking\Http\Requests\ChangeBookingCustomerRequest;
 use Modules\Booking\Http\Requests\InviteHunterRequest;
+use Modules\Booking\Http\Requests\RemoveHunterRequest;
+use Modules\Booking\Http\Requests\ReplaceHunterRequest;
 use Modules\Booking\Http\Requests\UpdateCustomerNotesRequest;
 use Modules\Booking\Http\Resources\BookingCheckoutResource;
 use Modules\Booking\Http\Resources\BookingHistoryResource;
@@ -30,6 +33,7 @@ use Modules\Booking\Services\BookingCustomerService;
 use Modules\Booking\Services\BookingHistoryService;
 use Modules\Booking\Services\BookingInvitationService;
 use Modules\Booking\Services\BookingStoreService;
+use Modules\Booking\Services\PaymentManagerService;
 
 class BookingController extends Controller
 {
@@ -42,6 +46,7 @@ class BookingController extends Controller
         protected BookingCancelService $bookingCancelService,
         protected BookingCollectionService $bookingCollectionService,
         protected BookingInvitationService $bookingInvitationService,
+        protected PaymentManagerService $paymentManagerService,
     ) {
     }
 
@@ -194,6 +199,56 @@ class BookingController extends Controller
     }
 
     /**
+     * Удаление охотника с неоплаченной предоплатой после завершения сбора.
+     *
+     */
+    public function removeHunter(RemoveHunterRequest $request, string $code): JsonResponse
+    {
+        $this->bookingInvitationService->remove(
+            $code,
+            (int) $request->validated('hunter_id'),
+            Auth::user(),
+        );
+
+        return new SuccessResponse(
+            code: 'hunter_removed',
+            domain: 'booking',
+        );
+    }
+
+    /**
+     * Замена недоплатившего охотника после завершения сбора.
+     *
+     */
+    public function replaceHunter(ReplaceHunterRequest $request, string $code): JsonResponse
+    {
+        $data = ReplaceHunterData::fromRequest($request);
+        $result = $this->bookingInvitationService->replace(
+            $code,
+            $data,
+            Auth::user(),
+        );
+        $invitation = $result->invitation;
+        $hunter = $result->hunter;
+
+        return new SuccessResponse(
+            code: 'hunter_replace',
+            domain: 'booking',
+            data: [
+                'invitation_id' => $invitation->id,
+                'hunter_id' => $hunter->id,
+                'email' => $hunter->email,
+                'first_name' => $hunter->first_name,
+                'last_name' => $hunter->last_name,
+                'user_name' => $hunter->user_name,
+                'invitation_status' => $invitation->status,
+                'prepayment_paid' => (bool) $invitation->prepayment_paid,
+                'prepayment_paid_status' => $invitation->prepayment_paid_status,
+            ],
+        );
+    }
+
+    /**
      * Принятие приглашения текущим охотником.
      *
      * @throws NotFoundException
@@ -269,6 +324,30 @@ class BookingController extends Controller
             code: 'gathering_has_completed',
             domain: 'booking',
             data: $data,
+        );
+    }
+
+    /**
+     * Фиксация неоплаченных приглашений после окончания таймера предоплаты.
+     */
+    public function expirePrepaymentCollection(string $code): JsonResponse
+    {
+        $this->bookingCollectionService->expirePrepayment($code, Auth::user());
+
+        return new SuccessResponse;
+    }
+
+    public function storePrepayment(string $code): JsonResponse
+    {
+        return new SuccessResponse(
+            data: $this->paymentManagerService->createPayment($code, Auth::user()),
+        );
+    }
+
+    public function paymentStatus(string $code): JsonResponse
+    {
+        return new SuccessResponse(
+            data: $this->paymentManagerService->getPaymentStatus($code, Auth::user()),
         );
     }
 
