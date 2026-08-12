@@ -6,7 +6,6 @@ use App\Exceptions\ConflictException;
 use App\Exceptions\ForbiddenException;
 use App\Exceptions\NotFoundException;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Modules\Booking\Contracts\PaymentGatewayInterface;
 use Modules\Booking\Dto\PaykeeperOrderDTO;
@@ -28,7 +27,7 @@ class PaymentManagerService
         $user = $this->resolveUser($user);
 
         return DB::transaction(function () use ($bookingCode, $user): array {
-            [$booking, $invitation, $expiresAt] = $this->validateContext($bookingCode, $user, true);
+            [$booking, $invitation] = $this->validateContext($bookingCode, $user, true);
 
             $existing = Payment::query()
                 ->where('booking_id', $booking->id)
@@ -57,8 +56,7 @@ class PaymentManagerService
             }
 
             $amount = round((float) $booking->total / max(1, $booking->countAcceptedHunters()), 2);
-            $providerExpiry = now()->addMinutes((int) config('paykeeper.invoice_ttl_minutes', 30));
-            $paymentExpiry = $expiresAt->lessThan($providerExpiry) ? $expiresAt : $providerExpiry;
+            $paymentExpiry = now()->addMinutes((int) config('paykeeper.invoice_ttl_minutes', 30));
             $payment = Payment::query()->create([
                 'booking_id' => $booking->id,
                 'object_id' => $booking->object_id,
@@ -129,7 +127,7 @@ class PaymentManagerService
     }
 
     /**
-     * @return array{Booking, BookingHunterInvitation, Carbon}
+     * @return array{Booking, BookingHunterInvitation}
      */
     private function validateContext(string $bookingCode, User $user, bool $forUpdate): array
     {
@@ -155,21 +153,7 @@ class PaymentManagerService
             throw new ConflictException(errorCode: 'payment_already_paid', domain: 'payment');
         }
 
-        if ($invitation->prepayment_paid_status === BookingHunterInvitation::PREPAYMENT_UNPAID) {
-            throw new ConflictException(errorCode: 'prepayment_marked_unpaid', domain: 'payment');
-        }
-
-        $endAt = $booking->getMeta('paid_end_at');
-
-        if (!$endAt) {
-            throw new ConflictException(errorCode: 'prepayment_timer_not_found', domain: 'payment');
-        }
-
-        if (($expiresAt = Carbon::parse($endAt))->isPast()) {
-            throw new ConflictException(errorCode: 'prepayment_timer_expired', domain: 'payment');
-        }
-
-        return [$booking, $invitation, $expiresAt];
+        return [$booking, $invitation];
     }
 
     private function resolveUser(User|int $user): User
