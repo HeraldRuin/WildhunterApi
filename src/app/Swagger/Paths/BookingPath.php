@@ -662,7 +662,12 @@ class BookingPath
                             type: "string",
                             example: "Охотник успешно удален с этой охоты"
                         ),
-                        new OA\Property(property: "data", type: "array", example: []),
+                        new OA\Property(
+                            property: "data",
+                            type: "array",
+                            items: new OA\Items(type: "object"),
+                            example: []
+                        ),
                     ],
                     type: "object"
                 )
