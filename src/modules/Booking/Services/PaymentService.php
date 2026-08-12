@@ -100,19 +100,45 @@ readonly class PaymentService
                 'prepayment_paid_status' => BookingHunterInvitation::PREPAYMENT_PAID,
             ]);
 
-            if ($booking->status !== Booking::PREPAYMENT_COLLECTION) {
-                return;
-            }
-
-            $accepted = $booking->countAcceptedHunters();
-            $paid = $booking->countAcceptedAndPaidHunters();
-
-            if ($accepted > 0 && $paid >= $accepted) {
-                $booking->prepayment_paid = true;
-                $booking->save();
-                $this->collectionService->startBedTimer($booking);
-            }
+            $this->advanceBookingIfFullyPaid($booking);
         }, 3);
+    }
+
+    public function reconcilePrepaymentCollections(): void
+    {
+        Booking::query()
+            ->where('status', Booking::PREPAYMENT_COLLECTION)
+            ->chunkById(100, function ($bookings): void {
+                foreach ($bookings as $booking) {
+                    DB::transaction(function () use ($booking): void {
+                        $lockedBooking = Booking::query()
+                            ->whereKey($booking->id)
+                            ->where('status', Booking::PREPAYMENT_COLLECTION)
+                            ->lockForUpdate()
+                            ->first();
+
+                        if ($lockedBooking) {
+                            $this->advanceBookingIfFullyPaid($lockedBooking);
+                        }
+                    }, 3);
+                }
+            });
+    }
+
+    private function advanceBookingIfFullyPaid(Booking $booking): void
+    {
+        if ($booking->status !== Booking::PREPAYMENT_COLLECTION) {
+            return;
+        }
+
+        $accepted = $booking->countAcceptedHunters();
+        $paid = $booking->countAcceptedAndPaidHunters();
+
+        if ($accepted > 0 && $paid >= $accepted) {
+            $booking->prepayment_paid = true;
+            $booking->save();
+            $this->collectionService->startBedTimer($booking);
+        }
     }
 
     private function scheduleNextCheck(Payment $payment): void

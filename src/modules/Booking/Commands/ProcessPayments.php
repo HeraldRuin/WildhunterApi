@@ -29,6 +29,8 @@ class ProcessPayments extends Command
                         $service->poll($payment);
                     }
                 });
+
+            $service->reconcilePrepaymentCollections();
         } finally {
             $lock->release();
         }
