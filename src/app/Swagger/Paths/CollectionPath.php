@@ -307,19 +307,12 @@ class CollectionPath
                         new OA\Property(
                             property: "message",
                             type: "string",
-                            example: "Неоплаченные приглашения отмечены после завершения таймера"
+                            example: ""
                         ),
                         new OA\Property(
                             property: "data",
-                            required: ["updated_invitations_count"],
-                            properties: [
-                                new OA\Property(
-                                    property: "updated_invitations_count",
-                                    type: "integer",
-                                    example: 2
-                                ),
-                            ],
-                            type: "object"
+                            type: "array",
+                            items: new OA\Items()
                         ),
                     ],
                     type: "object"
