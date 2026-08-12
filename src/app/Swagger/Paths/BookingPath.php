@@ -277,6 +277,7 @@ class BookingPath
                                                                     required: [
                                                                         "invitation_id", "hunter_id", "user_name",
                                                                         "name", "email", "status", "is_accepted",
+                                                                        "prepayment_paid",
                                                                     ],
                                                                     properties: [
                                                                         new OA\Property(
@@ -312,6 +313,16 @@ class BookingPath
                                                                         new OA\Property(
                                                                             property: "is_accepted",
                                                                             type: "boolean"
+                                                                        ),
+                                                                        new OA\Property(
+                                                                            property: "prepayment_paid",
+                                                                            type: "boolean"
+                                                                        ),
+                                                                        new OA\Property(
+                                                                            property: "prepayment_paid_status",
+                                                                            type: "string",
+                                                                            example: "pending",
+                                                                            nullable: true
                                                                         ),
                                                                     ],
                                                                     type: "object"
