@@ -214,6 +214,88 @@ class UserPath
     {}
 
     #[OA\Get(
+        path: "/api/" . ApiConfig::VERSION . "/user/search-replacement-hunters",
+        summary: "Найти охотника для замены",
+        security: [['bearerAuth' => []]],
+        tags: ["Users"],
+        parameters: [
+            new OA\Parameter(
+                name: "query",
+                description: "Строка поиска",
+                in: "query",
+                required: true,
+                schema: new OA\Schema(type: "string", example: "Мар", maxLength: 255)
+            ),
+            new OA\Parameter(
+                name: "booking_id",
+                description: "ID бронирования",
+                in: "query",
+                required: true,
+                schema: new OA\Schema(type: "integer", example: 319)
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Охотники, доступные для замены",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            type: "array",
+                            items: new OA\Items(
+                                required: [
+                                    "id", "user_name", "first_name", "last_name", "email", "phone",
+                                ],
+                                properties: [
+                                    new OA\Property(property: "id", type: "integer"),
+                                    new OA\Property(property: "user_name", type: "string", nullable: true),
+                                    new OA\Property(property: "first_name", type: "string", nullable: true),
+                                    new OA\Property(property: "last_name", type: "string", nullable: true),
+                                    new OA\Property(
+                                        property: "email",
+                                        type: "string",
+                                        format: "email",
+                                        nullable: true
+                                    ),
+                                    new OA\Property(property: "phone", type: "string", nullable: true),
+                                ],
+                                type: "object"
+                            )
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(
+                ref: "#/components/responses/AuthResponse",
+                response: 401
+            ),
+            new OA\Response(
+                response: 403,
+                description: "Текущий пользователь не является мастером охоты"
+            ),
+            new OA\Response(
+                ref: "#/components/responses/NotFoundResponse",
+                response: 404
+            ),
+            new OA\Response(
+                response: 409,
+                description: "Статус бронирования не допускает замену охотника"
+            ),
+            new OA\Response(
+                ref: "#/components/responses/ValidationError",
+                response: 422
+            ),
+        ]
+    )]
+    public function SearchReplacementHunters(): void
+    {}
+
+    #[OA\Get(
         path: "/api/" . ApiConfig::VERSION . "/user/{id}",
         summary: "Получить пользователя",
         security: [['bearerAuth' => []]],
