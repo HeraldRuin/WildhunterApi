@@ -135,7 +135,7 @@ class BookingCollectionService
             if ($booking->type === Booking::BookingTypeAnimal) {
                 $booking->status = Booking::FINISHED_COLLECTION;
                 $booking->save();
-                event(new BookingUpdatedEvent($booking));
+                // event(new BookingUpdatedEvent($booking));
 
                 return ['booking' => $booking];
             }
@@ -143,12 +143,56 @@ class BookingCollectionService
             $booking->status = Booking::PREPAYMENT_COLLECTION;
             $booking->save();
             $timer = $this->startPaidTimer($booking);
-            event(new BookingUpdatedEvent($booking));
+            // event(new BookingUpdatedEvent($booking));
 
             return [
                 'booking' => $booking,
                 ...$timer,
             ];
+        });
+    }
+
+    public function expirePrepayment(string $code, User $user): void
+    {
+        DB::transaction(function () use ($code, $user): void {
+            $booking = $this->findForUpdate($code);
+            $masterHunter = $this->ensureMasterHunter($booking, $user);
+
+            if ($booking->status !== Booking::PREPAYMENT_COLLECTION) {
+                throw new ConflictException(
+                    errorCode: 'booking_prepayment_collection_not_active',
+                    domain: 'booking',
+                );
+            }
+
+            $endAt = DB::table('bc_booking_meta')
+                ->where('booking_id', $booking->id)
+                ->where('name', 'paid_end_at')
+                ->value('val');
+
+            if (!$endAt) {
+                throw new ConflictException(
+                    errorCode: 'prepayment_timer_not_found',
+                    domain: 'booking',
+                );
+            }
+
+            if (Carbon::parse($endAt)->isFuture()) {
+                throw new ConflictException(
+                    errorCode: 'prepayment_timer_not_expired',
+                    domain: 'booking',
+                );
+            }
+
+            BookingHunterInvitation::query()
+                ->where('booking_hunter_id', $masterHunter->id)
+                ->where('status', BookingHunterInvitation::STATUS_ACCEPTED)
+                ->where('prepayment_paid', false)
+                ->where('prepayment_paid_status', BookingHunterInvitation::PREPAYMENT_PENDING)
+                ->update([
+                    'prepayment_paid_status' => BookingHunterInvitation::PREPAYMENT_UNPAID,
+                    'updated_at' => now(),
+                ]);
         });
     }
 
@@ -345,6 +389,74 @@ class BookingCollectionService
     /**
      * @return array{start_at: string, end_at: string, hours: int}
      */
+    public function restartPaidTimer(Booking $booking): array
+    {
+        return $this->startPaidTimer($booking);
+    }
+
+    /**
+     * @return array{start_at: string, end_at: string, hours: int}
+     */
+    public function startBedTimer(Booking $booking): array
+    {
+        $hours = $booking->hotel?->bed_timer_hours;
+        $hours = $hours !== null && $hours > 0 ? (int) $hours : self::DEFAULT_TIMER_HOURS;
+        $now = Carbon::now();
+        $startAt = $now->toIso8601String();
+        $endAt = $now->copy()->addHours($hours)->toIso8601String();
+
+        $booking->status = Booking::BED_COLLECTION;
+        $booking->save();
+
+        DB::table('bc_booking_meta')
+            ->where('booking_id', $booking->id)
+            ->whereIn('name', [
+                'collection_start_at',
+                'collection_timer_hours',
+                'collection_end_at',
+                'paid_start_at',
+                'paid_timer_hours',
+                'paid_end_at',
+                'beds_start_at',
+                'beds_timer_hours',
+                'beds_end_at',
+            ])
+            ->delete();
+
+        DB::table('bc_booking_meta')->insert([
+            [
+                'booking_id' => $booking->id,
+                'name' => 'beds_start_at',
+                'val' => $startAt,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'booking_id' => $booking->id,
+                'name' => 'beds_timer_hours',
+                'val' => (string) $hours,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'booking_id' => $booking->id,
+                'name' => 'beds_end_at',
+                'val' => $endAt,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+        ]);
+
+        return [
+            'start_at' => $startAt,
+            'end_at' => $endAt,
+            'hours' => $hours,
+        ];
+    }
+
+    /**
+     * @return array{start_at: string, end_at: string, hours: int}
+     */
     private function startPaidTimer(Booking $booking): array
     {
         $hours = $this->getPaidTimerHours($booking);
@@ -358,6 +470,12 @@ class BookingCollectionService
                 'collection_start_at',
                 'collection_timer_hours',
                 'collection_end_at',
+                'paid_start_at',
+                'paid_timer_hours',
+                'paid_end_at',
+                'beds_start_at',
+                'beds_timer_hours',
+                'beds_end_at',
             ])
             ->delete();
 
