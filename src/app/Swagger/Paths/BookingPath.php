@@ -618,6 +618,80 @@ class BookingPath
     public function InviteHunter(): void
     {}
 
+    #[OA\Delete(
+        path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/remove-hunter",
+        summary: "Удалить охотника с неоплаченной предоплатой",
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["hunter_id"],
+                properties: [
+                    new OA\Property(
+                        property: "hunter_id",
+                        description: "ID удаляемого охотника",
+                        type: "integer",
+                        example: 123
+                    ),
+                ]
+            )
+        ),
+        tags: ["Bookings"],
+        parameters: [
+            new OA\Parameter(
+                name: "code",
+                description: "Код бронирования",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(
+                    type: "string",
+                    example: "faa1c65d4b0de02146a27cea429340fb"
+                )
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Охотник успешно удалён",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(
+                            property: "message",
+                            type: "string",
+                            example: "Охотник успешно удален с этой охоты"
+                        ),
+                        new OA\Property(property: "data", type: "array", example: []),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(
+                ref: "#/components/responses/AuthResponse",
+                response: 401
+            ),
+            new OA\Response(
+                response: 403,
+                description: "Текущий пользователь не является мастером охоты"
+            ),
+            new OA\Response(
+                ref: "#/components/responses/NotFoundResponse",
+                response: 404
+            ),
+            new OA\Response(
+                response: 409,
+                description: "Удаление недоступно, охотник оплатил предоплату или является мастером"
+            ),
+            new OA\Response(
+                ref: "#/components/responses/ValidationError",
+                response: 422
+            ),
+        ]
+    )]
+    public function RemoveHunter(): void
+    {}
+
     #[OA\Post(
         path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/replace-hunter",
         summary: "Заменить охотника после завершения сбора",
@@ -1396,5 +1470,125 @@ class BookingPath
         ]
     )]
     public function doCheckout(): void
+    {}
+
+    #[OA\Post(
+        path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/prepayment-paid",
+        summary: "Получить ссылку для внесения предоплаты",
+        security: [['bearerAuth' => []]],
+        tags: ["Bookings"],
+        parameters: [
+            new OA\Parameter(
+                name: "code",
+                description: "Код бронирования",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(type: "string", example: "faa1c65d4b0de02146a27cea429340fb")
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Ссылка PayKeeper создана или возвращена повторно",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            required: ["payment_url", "status", "expires_at"],
+                            properties: [
+                                new OA\Property(
+                                    property: "payment_url",
+                                    type: "string",
+                                    format: "uri",
+                                    example: "https://pay.example.ru/order/123"
+                                ),
+                                new OA\Property(
+                                    property: "status",
+                                    type: "string",
+                                    example: "processing",
+                                    enum: ["processing", "paid", "expired", "failed"]
+                                ),
+                                new OA\Property(
+                                    property: "expires_at",
+                                    type: "string",
+                                    format: "date-time",
+                                    example: "2026-08-13T17:30:00+03:00"
+                                ),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(ref: "#/components/responses/AuthResponse", response: 401),
+            new OA\Response(response: 403, description: "Нет принятого приглашения для этой брони"),
+            new OA\Response(ref: "#/components/responses/NotFoundResponse", response: 404),
+            new OA\Response(
+                response: 409,
+                description: "Сбор предоплаты не активен, срок истёк или предоплата уже внесена"
+            ),
+            new OA\Response(ref: "#/components/responses/ValidationError", response: 422),
+            new OA\Response(response: 502, description: "PayKeeper временно недоступен"),
+        ]
+    )]
+    public function StorePrepayment(): void
+    {}
+
+    #[OA\Get(
+        path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/payment-status",
+        summary: "Получить статус предоплаты текущего пользователя",
+        security: [['bearerAuth' => []]],
+        tags: ["Bookings"],
+        parameters: [
+            new OA\Parameter(
+                name: "code",
+                description: "Код бронирования",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(type: "string", example: "faa1c65d4b0de02146a27cea429340fb")
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Текущий статус платежа",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            required: ["status"],
+                            properties: [
+                                new OA\Property(
+                                    property: "status",
+                                    type: "string",
+                                    example: "processing",
+                                    enum: ["processing", "paid", "expired", "failed"]
+                                ),
+                                new OA\Property(
+                                    property: "expires_at",
+                                    type: "string",
+                                    format: "date-time",
+                                    nullable: true
+                                ),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(ref: "#/components/responses/AuthResponse", response: 401),
+            new OA\Response(response: 403, description: "Нет доступа к бронированию"),
+            new OA\Response(ref: "#/components/responses/NotFoundResponse", response: 404),
+        ]
+    )]
+    public function PaymentStatus(): void
     {}
 }
