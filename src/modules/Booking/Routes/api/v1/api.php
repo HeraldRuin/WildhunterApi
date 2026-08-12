@@ -11,6 +11,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/bookings/{code}/start-collection', [BookingController::class, 'startCollection']);
     Route::post('/bookings/{code}/extend-collection', [BookingController::class, 'extendCollection']);
     Route::post('/bookings/{code}/finish-collection', [BookingController::class, 'finishCollection']);
+    Route::post('/bookings/{code}/expire-prepayment', [BookingController::class, 'expirePrepaymentCollection']);
     Route::post('/bookings/{code}/cancel-collection', [BookingController::class, 'cancelCollection']);
     Route::post('/bookings/{code}/invite-hunter', [BookingController::class, 'inviteHunter']);
     Route::post('/bookings/{code}/replace-hunter', [BookingController::class, 'replaceHunter']);
