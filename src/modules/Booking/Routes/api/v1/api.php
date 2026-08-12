@@ -12,8 +12,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/bookings/{code}/extend-collection', [BookingController::class, 'extendCollection']);
     Route::post('/bookings/{code}/finish-collection', [BookingController::class, 'finishCollection']);
     Route::post('/bookings/{code}/expire-prepayment', [BookingController::class, 'expirePrepaymentCollection']);
+    Route::post('/bookings/{code}/prepayment-paid', [BookingController::class, 'storePrepayment']);
+    Route::get('/bookings/{code}/payment-status', [BookingController::class, 'paymentStatus']);
     Route::post('/bookings/{code}/cancel-collection', [BookingController::class, 'cancelCollection']);
     Route::post('/bookings/{code}/invite-hunter', [BookingController::class, 'inviteHunter']);
+    Route::delete('/bookings/{code}/remove-hunter', [BookingController::class, 'removeHunter']);
     Route::post('/bookings/{code}/replace-hunter', [BookingController::class, 'replaceHunter']);
     Route::post('/bookings/{code}/accept-invitation', [BookingController::class, 'acceptInvitation']);
     Route::post('/bookings/{code}/decline-invitation', [BookingController::class, 'declineInvitation']);
