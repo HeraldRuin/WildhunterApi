@@ -82,7 +82,9 @@ class PaymentManagerService
                 phone: $user->getAttribute('phone'),
                 description: 'Prepayment for booking '.$booking->code,
                 currency: (string) config('paykeeper.currency', 'RUB'),
-                expiresAt: $paymentExpiry->format('Y-m-d H:i:s'),
+                expiresAt: $paymentExpiry->copy()
+                    ->setTimezone('Europe/Moscow')
+                    ->format('Y-m-d H:i:s'),
             ));
 
             $payment->update([

@@ -7,6 +7,7 @@ use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Modules\Booking\Contracts\PaymentGatewayInterface;
 use Modules\Booking\Dto\PaykeeperOrderDTO;
 use Throwable;
@@ -124,9 +125,9 @@ class PaykeeperGateway implements PaymentGatewayInterface
 
     private function client(): PendingRequest
     {
-        $baseUrl = (string) config('paykeeper.base_url');
-        $clientId = (string) config('paykeeper.client_id');
-        $clientSecret = (string) config('paykeeper.client_secret');
+        $baseUrl = (string) setting_item('g_paykeeper_payment_url');
+        $clientId = $this->clientId();
+        $clientSecret = $this->clientSecret();
 
         if ($baseUrl === '' || $clientId === '' || $clientSecret === '') {
             throw new PaymentGatewayException(errorCode: 'payment_gateway_not_configured');
@@ -138,6 +139,20 @@ class PaykeeperGateway implements PaymentGatewayInterface
             ->connectTimeout((int) config('paykeeper.connect_timeout'))
             ->timeout((int) config('paykeeper.timeout'))
             ->retry(2, 200, throw: false);
+    }
+
+    private function clientId(): string
+    {
+        $key = setting_item('g_paykeeper_test') ? 'g_paykeeper_test_client_id' : 'g_paykeeper_client_id';
+
+        return (string) setting_item($key);
+    }
+
+    private function clientSecret(): string
+    {
+        $key = setting_item('g_paykeeper_test') ? 'g_paykeeper_test_client_secret' : 'g_paykeeper_client_secret';
+
+        return (string) setting_item($key);
     }
 
     private function json(Response $response): array
@@ -156,9 +171,18 @@ class PaykeeperGateway implements PaymentGatewayInterface
         $payload = $this->json($response);
 
         if (($payload['result'] ?? null) === 'fail') {
+            Log::error('PayKeeper rejected request', [
+                'operation' => $operation,
+                'provider_message' => $payload['msg'] ?? $payload['message'] ?? null,
+                'provider_errors' => $payload['errors'] ?? null,
+            ]);
+
             throw new PaymentGatewayException(
                 errorCode: 'payment_gateway_rejected',
-                context: ['operation' => $operation],
+                context: [
+                    'operation' => $operation,
+                    'provider_message' => $payload['msg'] ?? $payload['message'] ?? null,
+                ],
             );
         }
 
@@ -167,6 +191,6 @@ class PaykeeperGateway implements PaymentGatewayInterface
 
     private function url(string $path): string
     {
-        return rtrim((string) config('paykeeper.base_url'), '/').'/'.ltrim($path, '/');
+        return rtrim((string) setting_item('g_paykeeper_payment_url'), '/').'/'.ltrim($path, '/');
     }
 }
