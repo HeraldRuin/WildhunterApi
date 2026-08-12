@@ -160,6 +160,7 @@ class BookingStoreService
             $booking->vendor_id = $hotel->author_id ?? null;
             $booking->customer_id = $userId;
             $booking->create_user = $userId;
+            $booking->gateway = 'paykeeper';
             $booking->total = $total;
             $booking->amount_hunting = $amountHunting;
             $booking->total_guests = $totalGuests;
