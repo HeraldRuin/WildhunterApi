@@ -1720,7 +1720,7 @@ class BookingPath
 
     #[OA\Post(
         path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/select-place",
-        description: "Охотник занимает конкретное свободное место. Один пользователь — максимум одно место на бронь. Недоступно после автораздачи (is_all_places_assigned).",
+        description: "Охотник занимает первое свободное место в выбранном экземпляре комнаты (room_id + room_index). Переданный place_number — с UI; бэкенд назначает минимальный свободный номер, как в bc-cms. Один пользователь — максимум одно место на бронь.",
         summary: "Выбрать койко-место",
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
@@ -1731,7 +1731,7 @@ class BookingPath
                     new OA\Property(property: "room_id", type: "integer", example: 5),
                     new OA\Property(
                         property: "place_number",
-                        description: "Номер койко-места внутри экземпляра комнаты (1…capacity)",
+                        description: "Номер слота с UI (клик). Бэкенд игнорирует конкретный номер и сажает на первое свободное место в room_index",
                         type: "integer",
                         example: 3
                     ),
