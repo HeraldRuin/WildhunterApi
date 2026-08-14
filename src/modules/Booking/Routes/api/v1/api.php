@@ -8,6 +8,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/bookings/history', [BookingController::class, 'bookingHistory']);
     Route::post('/bookings/{code}/confirm', [BookingController::class, 'confirm']);
+    Route::post('/bookings/{code}/mark-paid', [BookingController::class, 'markPaid']);
     Route::post('/bookings/{code}/start-collection', [BookingController::class, 'startCollection']);
     Route::post('/bookings/{code}/extend-collection', [BookingController::class, 'extendCollection']);
     Route::post('/bookings/{code}/finish-collection', [BookingController::class, 'finishCollection']);
