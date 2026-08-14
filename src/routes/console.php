@@ -10,4 +10,11 @@ Artisan::command('inspire', function () {
 
 Schedule::command('payments:process')
     ->everyMinute()
-    ->withoutOverlapping();
+    ->withoutOverlapping()
+    ->timezone('Europe/Moscow');
+
+Schedule::command('beds:process-expired')->everyMinute()
+    ->withoutOverlapping()
+    ->timezone('Europe/Moscow');
+
+
