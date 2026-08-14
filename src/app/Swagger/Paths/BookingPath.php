@@ -1596,4 +1596,255 @@ class BookingPath
     )]
     public function PaymentStatus(): void
     {}
+
+    #[OA\Get(
+        path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/places",
+        summary: "Список койко-мест бронирования",
+        security: [['bearerAuth' => []]],
+        tags: ["Bookings"],
+        parameters: [
+            new OA\Parameter(
+                name: "code",
+                description: "Код бронирования",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(type: "string", example: "faa1c65d4b0de02146a27cea429340fb")
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Комнаты и занятые места",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            required: ["rooms", "places", "is_all_places_assigned", "status"],
+                            properties: [
+                                new OA\Property(
+                                    property: "rooms",
+                                    type: "array",
+                                    items: new OA\Items(
+                                        required: [
+                                            "booking_total_guests",
+                                            "booking_room_id",
+                                            "booking_number",
+                                            "room_id",
+                                            "title",
+                                            "number",
+                                            "beds",
+                                            "adults",
+                                            "total_guests_in_type",
+                                        ],
+                                        properties: [
+                                            new OA\Property(property: "booking_total_guests", type: "integer", example: 4),
+                                            new OA\Property(property: "booking_room_id", type: "integer", example: 12),
+                                            new OA\Property(
+                                                property: "booking_number",
+                                                description: "Сколько экземпляров этого типа комнаты в брони",
+                                                type: "integer",
+                                                example: 1
+                                            ),
+                                            new OA\Property(property: "room_id", type: "integer", example: 5),
+                                            new OA\Property(property: "title", type: "string", example: "4-х местный"),
+                                            new OA\Property(
+                                                property: "number",
+                                                description: "Число койко-мест в одном экземпляре комнаты (adults/beds)",
+                                                type: "integer",
+                                                example: 4
+                                            ),
+                                            new OA\Property(property: "beds", type: "integer", example: 4),
+                                            new OA\Property(property: "adults", type: "integer", example: 4),
+                                            new OA\Property(property: "total_guests_in_type", type: "integer", example: 4),
+                                        ],
+                                        type: "object"
+                                    )
+                                ),
+                                new OA\Property(
+                                    property: "places",
+                                    description: "Карта занятых мест: room_index → room_id → place_number → [place]",
+                                    type: "object",
+                                    example: [
+                                        "1" => [
+                                            "5" => [
+                                                "2" => [
+                                                    [
+                                                        "id" => 41,
+                                                        "booking_id" => 100,
+                                                        "room_index" => 1,
+                                                        "room_id" => 5,
+                                                        "place_number" => 2,
+                                                        "user_id" => 7,
+                                                        "user" => [
+                                                            "id" => 7,
+                                                            "first_name" => "Иван",
+                                                            "last_name" => "Иванов",
+                                                            "user_name" => "ivan",
+                                                        ],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                    ]
+                                ),
+                                new OA\Property(
+                                    property: "is_all_places_assigned",
+                                    type: "boolean",
+                                    example: false
+                                ),
+                                new OA\Property(
+                                    property: "status",
+                                    type: "string",
+                                    example: "bed_collection"
+                                ),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(ref: "#/components/responses/AuthResponse", response: 401),
+            new OA\Response(
+                response: 403,
+                description: "Нет доступа или этап выбора мест недоступен"
+            ),
+            new OA\Response(ref: "#/components/responses/NotFoundResponse", response: 404),
+        ]
+    )]
+    public function Places(): void
+    {}
+
+    #[OA\Post(
+        path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/select-place",
+        description: "Охотник занимает конкретное свободное место. Один пользователь — максимум одно место на бронь. Недоступно после автораздачи (is_all_places_assigned).",
+        summary: "Выбрать койко-место",
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["room_id", "place_number", "room_index"],
+                properties: [
+                    new OA\Property(property: "room_id", type: "integer", example: 5),
+                    new OA\Property(
+                        property: "place_number",
+                        description: "Номер койко-места внутри экземпляра комнаты (1…capacity)",
+                        type: "integer",
+                        example: 3
+                    ),
+                    new OA\Property(
+                        property: "room_index",
+                        description: "Номер экземпляра комнаты этого типа в брони (1…booking_number)",
+                        type: "integer",
+                        example: 1
+                    ),
+                ],
+                type: "object"
+            )
+        ),
+        tags: ["Bookings"],
+        parameters: [
+            new OA\Parameter(
+                name: "code",
+                description: "Код бронирования",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(type: "string", example: "faa1c65d4b0de02146a27cea429340fb")
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Место занято",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(
+                            property: "message",
+                            type: "string",
+                            example: "Выбранное место занято за вами"
+                        ),
+                        new OA\Property(property: "data", type: "array", items: new OA\Items()),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(ref: "#/components/responses/AuthResponse", response: 401),
+            new OA\Response(
+                response: 403,
+                description: "Уже есть место / места распределены / нет доступа"
+            ),
+            new OA\Response(ref: "#/components/responses/NotFoundResponse", response: 404),
+            new OA\Response(
+                response: 409,
+                description: "Место занято / нет свободных мест / некорректный номер"
+            ),
+            new OA\Response(ref: "#/components/responses/ValidationError", response: 422),
+        ]
+    )]
+    public function SelectPlace(): void
+    {}
+
+    #[OA\Post(
+        path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/cancel-select-place",
+        summary: "Отменить выбор своего койко-места",
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["place_id"],
+                properties: [
+                    new OA\Property(
+                        property: "place_id",
+                        description: "ID записи bc_booking_room_places",
+                        type: "integer",
+                        example: 41
+                    ),
+                ],
+                type: "object"
+            )
+        ),
+        tags: ["Bookings"],
+        parameters: [
+            new OA\Parameter(
+                name: "code",
+                description: "Код бронирования",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(type: "string", example: "faa1c65d4b0de02146a27cea429340fb")
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Место освобождено",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(
+                            property: "message",
+                            type: "string",
+                            example: "Выбранное место освобожденно"
+                        ),
+                        new OA\Property(property: "data", type: "array", items: new OA\Items()),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(ref: "#/components/responses/AuthResponse", response: 401),
+            new OA\Response(
+                response: 403,
+                description: "Чужое место / места уже распределены / нет доступа"
+            ),
+            new OA\Response(ref: "#/components/responses/NotFoundResponse", response: 404),
+            new OA\Response(ref: "#/components/responses/ValidationError", response: 422),
+        ]
+    )]
+    public function CancelSelectPlace(): void
+    {}
 }
