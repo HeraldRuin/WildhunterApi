@@ -1,0 +1,182 @@
+<?php
+
+namespace Modules\Booking\Services;
+
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Modules\Booking\Events\BookingStartCollectionEvent;
+use Modules\Booking\Models\Booking;
+
+class BookingTimerService
+{
+    protected BookingBedAllocatorService $allocatorBedsService;
+
+    public function __construct(BookingBedAllocatorService $service)
+    {
+        $this->allocatorBedsService = $service;
+    }
+
+    public function getTimerHours(Booking $booking, string $type): int
+    {
+        $defaultTimer = 24;
+
+        if (!$booking->hotel_id) {
+            return $defaultTimer;
+        }
+
+        $hotel = $booking->hotel;
+
+        $timerFields = [
+            'collection' => 'collection_timer_hours',
+            'paid'    => 'paid_timer_hours',
+            'beds'    => 'bed_timer_hours',
+        ];
+
+        if (!isset($timerFields[$type])) {
+            return $defaultTimer;
+        }
+
+        $field = $timerFields[$type];
+        $timer = $hotel->{$field};
+
+        return ($timer !== null && $timer > 0)
+            ? (int) $timer
+            : $defaultTimer;
+    }
+
+    public function startTimer(int $bookingId, int $hours, string $prefix, array $clearPrefixes = []): array
+    {
+        $now = Carbon::now();
+        $startAt = $now->toIso8601String();
+        $endAt = $now->copy()->addHours($hours)->toIso8601String();
+
+        DB::transaction(function () use ($bookingId, $hours, $startAt, $endAt, $prefix, $clearPrefixes) {
+
+            // Удаляем старые значения этого таймера или предыдущего
+            foreach ($clearPrefixes as $clearPrefix) {
+                $this->clearTimer($bookingId, $clearPrefix);
+            }
+
+            DB::table('bc_booking_meta')->insert([
+                [
+                    'booking_id' => $bookingId,
+                    'name' => "{$prefix}_start_at",
+                    'val' => $startAt,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+                [
+                    'booking_id' => $bookingId,
+                    'name' => "{$prefix}_timer_hours",
+                    'val' => (string)$hours,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+                [
+                    'booking_id' => $bookingId,
+                    'name' => "{$prefix}_end_at",
+                    'val' => $endAt,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+            ]);
+        });
+
+        return [
+            'start_at' => $startAt,
+            'end_at' => $endAt,
+            'hours' => $hours,
+        ];
+    }
+
+    public function processExpiredBeds(): void
+    {
+        $now = Carbon::now()->toIso8601String();
+
+        $expiredBookings = DB::table('bc_bookings as b')
+            ->join('bc_booking_meta as m', function ($join) {
+                $join->on('b.id', '=', 'm.booking_id')
+                    ->where('m.name', '=', 'beds_end_at');
+            })
+            ->where('b.status', Booking::BED_COLLECTION)
+            ->where('b.is_all_places_assigned', false)
+            ->where('m.val', '<', $now)
+            ->select('b.id')
+            ->get();
+
+        foreach ($expiredBookings as $row) {
+
+            $booking = Booking::find($row->id);
+            if (!$booking) {
+                continue;
+            }
+
+            $this->handleBooking($booking);
+        }
+    }
+
+    protected function handleBooking(Booking $booking): void
+    {
+        // Распределения охотников
+        $this->allocatorBedsService->allocateBeds($booking);
+    }
+
+    public function clearTimer($bookingId, $prefix): void
+    {
+        DB::transaction(function () use ($bookingId, $prefix) {
+            DB::table('bc_booking_meta')
+                ->where('booking_id', $bookingId)
+                ->whereIn('name', [
+                    "{$prefix}_start_at",
+                    "{$prefix}_timer_hours",
+                    "{$prefix}_end_at"
+                ])->delete();
+        });
+    }
+
+    public function clearAllTimers(int $bookingId): void
+    {
+        DB::transaction(function () use ($bookingId) {
+            DB::table('bc_booking_meta')
+                ->where('booking_id', $bookingId)
+                ->where(function($query) {
+                    $query->where('name', 'like', '%_start_at')
+                        ->orWhere('name', 'like', '%_timer_hours')
+                        ->orWhere('name', 'like', '%_end_at');
+                })
+                ->delete();
+        });
+    }
+
+    public function startCollectionTimer($booking): array
+    {
+        $booking->status = Booking::START_COLLECTION;
+        $booking->save();
+
+        $timerHour = $this->getTimerHours($booking, 'collection');
+        $this->startTimer($booking->id, $timerHour, 'collection', ['collection', 'paid', 'beds']);
+
+        event(new BookingStartCollectionEvent($booking));
+
+        return [
+            'code' => 'gathering_has_started',
+        ];
+    }
+    public function startPaidTimer($booking): void
+    {
+        $booking->status = Booking::PREPAYMENT_COLLECTION;
+        $booking->save();
+
+        $timerHour = $this->getTimerHours($booking, 'paid');
+        $this->startTimer($booking->id, $timerHour, 'paid', ['collection', 'paid', 'beds']);
+    }
+    public function startBedTimer($booking): void
+    {
+        $booking->status = Booking::BED_COLLECTION;
+        $booking->save();
+
+        $timerHour = $this->getTimerHours($booking, 'beds');
+        $this->startTimer($booking->id, $timerHour, 'beds', ['collection', 'paid', 'beds']);
+    }
+}
+
