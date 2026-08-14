@@ -26,4 +26,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/bookings/{code}/checkout', [BookingController::class, 'checkout']);
     Route::post('/bookings/{code}/checkout', [BookingController::class, 'doCheckout']);
     Route::put('/bookings/customer-notes', [BookingController::class, 'updateCustomerNotes']);
+
+    Route::get('/bookings/{code}/places', [BookingController::class, 'places']);
+    Route::post('/bookings/{code}/select-place', [BookingController::class, 'selectPlace']);
+    Route::post('/bookings/{code}/cancel-select-place', [BookingController::class, 'cancelSelectPlace']);
 });
