@@ -41,10 +41,11 @@ function is_vendor(): bool
 }
 function is_baseAdmin(): bool
 {
-    if (!auth()->check()) return false;
-    if(!auth()->user()->hasRole(\Modules\Role\Models\Role::ADMIN)) return false;
-    if (auth()->user()->hasPermission('dashboard_access')) return true;
-    return false;
+    if (!auth()->check()) {
+        return false;
+    }
+
+    return auth()->user()->hasRole(\Modules\Role\Models\Role::ADMIN);
 }
 
 function booking_status_to_text($status): string
