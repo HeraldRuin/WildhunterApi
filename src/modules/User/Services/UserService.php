@@ -153,7 +153,6 @@ class UserService
     }
 
     /**
-     * @throws ConflictException
      * @throws ForbiddenException
      * @throws NotFoundException
      */
@@ -175,16 +174,6 @@ class UserService
         if (!$canReplaceHunters) {
             throw new ForbiddenException(
                 errorCode: 'booking_access_denied',
-                domain: 'booking',
-            );
-        }
-
-        if (!in_array($booking->status, [
-            Booking::FINISHED_COLLECTION,
-            Booking::PREPAYMENT_COLLECTION,
-        ], true)) {
-            throw new ConflictException(
-                errorCode: 'booking_hunter_replace_not_allowed',
                 domain: 'booking',
             );
         }

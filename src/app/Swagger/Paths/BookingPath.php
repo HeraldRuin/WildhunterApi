@@ -765,7 +765,7 @@ class BookingPath
 
     #[OA\Post(
         path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/replace-hunter",
-        summary: "Заменить охотника после завершения сбора",
+        summary: "Заменить охотника",
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
             required: true,
@@ -856,7 +856,7 @@ class BookingPath
             ),
             new OA\Response(
                 response: 409,
-                description: "Замена недоступна, охотник уже оплатил предоплату, является мастером или новый охотник уже участвует в брони"
+                description: "Охотник уже оплатил предоплату, является мастером или новый охотник уже участвует в брони"
             ),
             new OA\Response(
                 ref: "#/components/responses/ValidationError",
