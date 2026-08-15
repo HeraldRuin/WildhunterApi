@@ -9,6 +9,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/bookings/history', [BookingController::class, 'bookingHistory']);
     Route::post('/bookings/{code}/confirm', [BookingController::class, 'confirm']);
     Route::post('/bookings/{code}/mark-paid', [BookingController::class, 'markPaid']);
+    Route::post('/bookings/{code}/complete', [BookingController::class, 'complete']);
     Route::post('/bookings/{code}/start-collection', [BookingController::class, 'startCollection']);
     Route::post('/bookings/{code}/extend-collection', [BookingController::class, 'extendCollection']);
     Route::post('/bookings/{code}/finish-collection', [BookingController::class, 'finishCollection']);
@@ -32,6 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/bookings/{code}/select-place', [BookingController::class, 'selectPlace']);
     Route::post('/bookings/{code}/cancel-select-place', [BookingController::class, 'cancelSelectPlace']);
 
+    Route::get('/bookings/{code}/calculating', [BookingController::class, 'calculating']);
     Route::get('/bookings/{code}/services', [BookingController::class, 'services']);
     Route::post('/bookings/{code}/services/trophies', [BookingController::class, 'storeTrophy']);
     Route::post('/bookings/{code}/services/penalties', [BookingController::class, 'storePenalty']);
