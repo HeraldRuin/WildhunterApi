@@ -52,6 +52,7 @@ use Modules\Booking\Services\BookingMarkPaidService;
 use Modules\Booking\Services\BookingPlaceService;
 use Modules\Booking\Services\BookingServiceManager;
 use Modules\Booking\Services\BookingStoreService;
+use Modules\Booking\Services\Calculation\BookingCalculatingService;
 use Modules\Booking\Services\PaymentManagerService;
 
 class BookingController extends Controller
@@ -70,6 +71,7 @@ class BookingController extends Controller
         protected BookingCompleteService $bookingCompleteService,
         protected PaymentManagerService $paymentManagerService,
         protected BookingServiceManager $bookingServiceManager,
+        protected BookingCalculatingService $bookingCalculatingService,
     ) {
     }
 
@@ -657,6 +659,21 @@ class BookingController extends Controller
         return new SuccessResponse(
             code: 'service_deleted',
             domain: 'booking',
+        );
+    }
+
+    /**
+     * Калькуляция брони (админ базы / принятый охотник).
+     *
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     * @throws ConflictException
+     * @throws ValidationException
+     */
+    public function calculating(string $code): JsonResponse
+    {
+        return new SuccessResponse(
+            data: $this->bookingCalculatingService->getByCode($code, Auth::user()),
         );
     }
 }
