@@ -3,6 +3,7 @@
 namespace App\Swagger\Paths;
 
 use App\Swagger\ApiConfig;
+use App\Swagger\Schemas\BookingCalculationLine;
 use OpenApi\Attributes as OA;
 
 class BookingPath
@@ -1977,5 +1978,144 @@ class BookingPath
         ]
     )]
     public function CancelSelectPlace(): void
+    {}
+
+    #[OA\Get(
+        path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/calculating",
+        description: "Калькуляция брони для модалки. Доступна администратору базы и принятому охотнику, когда в истории есть действие calculating. Набор секций зависит от типа брони (hotel / animal / hotel_animal) и роли.",
+        summary: "Калькуляция бронирования",
+        security: [['bearerAuth' => []]],
+        tags: ["Bookings"],
+        parameters: [
+            new OA\Parameter(
+                name: "code",
+                description: "Код бронирования",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(
+                    type: "string",
+                    example: "faa1c65d4b0de02146a27cea429340fb"
+                )
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Разбивка калькуляции",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            required: [
+                                "is_baseAdmin",
+                                "items",
+                                "additional_services_show",
+                                "meals",
+                                "addetionals",
+                                "spendings_show",
+                                "spendings",
+                                "all_items",
+                                "base_total",
+                            ],
+                            properties: [
+                                new OA\Property(property: "success", type: "boolean", example: true),
+                                new OA\Property(property: "is_baseAdmin", type: "boolean", example: false),
+                                new OA\Property(
+                                    property: "items",
+                                    description: "Основные позиции: проживание и/или организация охоты",
+                                    type: "array",
+                                    items: new OA\Items(ref: BookingCalculationLine::class)
+                                ),
+                                new OA\Property(property: "trophy_show", type: "boolean", example: true),
+                                new OA\Property(
+                                    property: "trophies",
+                                    type: "array",
+                                    items: new OA\Items(ref: BookingCalculationLine::class)
+                                ),
+                                new OA\Property(property: "penalties_show", type: "boolean", example: false),
+                                new OA\Property(
+                                    property: "penalties",
+                                    type: "array",
+                                    items: new OA\Items(ref: BookingCalculationLine::class)
+                                ),
+                                new OA\Property(property: "additional_services_show", type: "boolean", example: true),
+                                new OA\Property(
+                                    property: "meals",
+                                    type: "array",
+                                    items: new OA\Items(ref: BookingCalculationLine::class)
+                                ),
+                                new OA\Property(
+                                    property: "preparation",
+                                    type: "array",
+                                    items: new OA\Items(ref: BookingCalculationLine::class)
+                                ),
+                                new OA\Property(
+                                    property: "addetionals",
+                                    type: "array",
+                                    items: new OA\Items(ref: BookingCalculationLine::class)
+                                ),
+                                new OA\Property(property: "spendings_show", type: "boolean", example: false),
+                                new OA\Property(
+                                    property: "spendings",
+                                    type: "array",
+                                    items: new OA\Items(ref: BookingCalculationLine::class)
+                                ),
+                                new OA\Property(
+                                    property: "all_items",
+                                    description: "Итоги: предоплата, остаток базе, итог охотникам",
+                                    type: "array",
+                                    items: new OA\Items(ref: BookingCalculationLine::class)
+                                ),
+                                new OA\Property(
+                                    property: "prepaid_total",
+                                    type: "number",
+                                    format: "float",
+                                    example: 5000
+                                ),
+                                new OA\Property(
+                                    property: "base_total",
+                                    type: "number",
+                                    format: "float",
+                                    example: 12000
+                                ),
+                                new OA\Property(
+                                    property: "total",
+                                    type: "number",
+                                    format: "float",
+                                    example: 17000
+                                ),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(
+                ref: "#/components/responses/AuthResponse",
+                response: 401
+            ),
+            new OA\Response(
+                response: 403,
+                description: "Нет доступа к бронированию"
+            ),
+            new OA\Response(
+                ref: "#/components/responses/NotFoundResponse",
+                response: 404
+            ),
+            new OA\Response(
+                response: 409,
+                description: "Калькуляция недоступна: нет оплативших участников, нет охотников или неподходящий статус брони"
+            ),
+            new OA\Response(
+                ref: "#/components/responses/ValidationError",
+                response: 422
+            ),
+        ]
+    )]
+    public function GetBookingCalculating(): void
     {}
 }
