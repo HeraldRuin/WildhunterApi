@@ -5,9 +5,9 @@ namespace Modules\Booking\Services;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Modules\Booking\Models\Booking;
-use Modules\Booking\Models\BookingHunter;
-use Modules\Booking\Models\BookingHunterInvitation;
 use Modules\Booking\Models\BookingRoomPlace;
+use Modules\Booking\Events\BookingUpdatedEvent;
+use Modules\Booking\Models\BookingHunterInvitation;
 
 class BookingBedAllocatorService
 {
@@ -135,6 +135,8 @@ class BookingBedAllocatorService
                 'status' => Booking::FINISHED_BED,
                 'is_all_places_assigned' => true
             ]);
+
+            event(new BookingUpdatedEvent($booking));
         }
     }
 }
