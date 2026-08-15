@@ -25,6 +25,7 @@ return [
         'master_not_found' => 'Мастер охотник не найден',
         'booking_not_confirmable' => 'Эта бронь уже подтверждена или недоступна для подтверждения',
         'booking_not_markable_as_paid' => 'Эта бронь недоступна для отметки как оплаченная',
+        'booking_not_completable' => 'Эта бронь недоступна для завершения',
         'booking_cannot_be_cancelled' => 'Эта бронь уже отменена или завершена и не доступна для отмены',
         'booking_access_denied' => 'Доступ запрещён',
         'booking_status_locked' => 'Статус бронирования заблокирован',
