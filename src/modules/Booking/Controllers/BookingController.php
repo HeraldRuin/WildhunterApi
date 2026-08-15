@@ -43,6 +43,7 @@ use Modules\Booking\Http\Resources\CollectionTimerResource;
 use Modules\Booking\Services\BookingCancelService;
 use Modules\Booking\Services\BookingCheckoutService;
 use Modules\Booking\Services\BookingCollectionService;
+use Modules\Booking\Services\BookingCompleteService;
 use Modules\Booking\Services\BookingConfirmService;
 use Modules\Booking\Services\BookingCustomerService;
 use Modules\Booking\Services\BookingHistoryService;
@@ -66,6 +67,7 @@ class BookingController extends Controller
         protected BookingInvitationService $bookingInvitationService,
         protected BookingPlaceService $bookingPlaceService,
         protected BookingMarkPaidService $bookingMarkPaidService,
+        protected BookingCompleteService $bookingCompleteService,
         protected PaymentManagerService $paymentManagerService,
         protected BookingServiceManager $bookingServiceManager,
     ) {
@@ -197,6 +199,28 @@ class BookingController extends Controller
                 'code' => $booking->code,
                 'status' => $booking->status,
                 'is_paid' => (bool) $booking->is_paid,
+            ],
+        );
+    }
+
+    /**
+     * Завершение брони администратором базы.
+     *
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     * @throws ConflictException
+     */
+    public function complete(string $code): JsonResponse
+    {
+        $booking = $this->bookingCompleteService->complete($code, Auth::user());
+
+        return new SuccessResponse(
+            code: 'booking_completed',
+            domain: 'booking',
+            data: [
+                'id' => $booking->id,
+                'code' => $booking->code,
+                'status' => $booking->status,
             ],
         );
     }
