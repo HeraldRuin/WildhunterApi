@@ -541,6 +541,71 @@ class BookingPath
     {}
 
     #[OA\Post(
+        path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/complete",
+        summary: "Завершить бронь (администратор базы)",
+        security: [['bearerAuth' => []]],
+        tags: ["Bookings"],
+        parameters: [
+            new OA\Parameter(
+                name: "code",
+                description: "Код бронирования",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(
+                    type: "string",
+                    example: "faa1c65d4b0de02146a27cea429340fb"
+                )
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Бронь успешно завершена",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(
+                            property: "message",
+                            type: "string",
+                            example: "Бронь успешно завершена"
+                        ),
+                        new OA\Property(
+                            property: "data",
+                            required: ["id", "code", "status"],
+                            properties: [
+                                new OA\Property(property: "id", type: "integer"),
+                                new OA\Property(property: "code", type: "string"),
+                                new OA\Property(property: "status", type: "string", example: "completed"),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(
+                ref: "#/components/responses/AuthResponse",
+                response: 401
+            ),
+            new OA\Response(
+                response: 403,
+                description: "Текущий пользователь не является администратором этой базы"
+            ),
+            new OA\Response(
+                ref: "#/components/responses/NotFoundResponse",
+                response: 404
+            ),
+            new OA\Response(
+                response: 409,
+                description: "Бронь недоступна для завершения"
+            ),
+        ]
+    )]
+    public function CompleteBooking(): void
+    {}
+
+    #[OA\Post(
         path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/cancel-collection",
         summary: "Отменить активный сбор охотников",
         security: [['bearerAuth' => []]],
