@@ -31,4 +31,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/bookings/{code}/places', [BookingController::class, 'places']);
     Route::post('/bookings/{code}/select-place', [BookingController::class, 'selectPlace']);
     Route::post('/bookings/{code}/cancel-select-place', [BookingController::class, 'cancelSelectPlace']);
+
+    Route::get('/bookings/{code}/services', [BookingController::class, 'services']);
+    Route::post('/bookings/{code}/services/trophies', [BookingController::class, 'storeTrophy']);
+    Route::post('/bookings/{code}/services/penalties', [BookingController::class, 'storePenalty']);
+    Route::post('/bookings/{code}/services/preparations', [BookingController::class, 'storePreparation']);
+    Route::post('/bookings/{code}/services/foods', [BookingController::class, 'storeFood']);
+    Route::post('/bookings/{code}/services/additionals', [BookingController::class, 'storeAdditional']);
+    Route::post('/bookings/{code}/services/spendings', [BookingController::class, 'storeSpending']);
+    Route::delete('/bookings/{code}/services/{serviceId}', [BookingController::class, 'deleteService']);
 });
