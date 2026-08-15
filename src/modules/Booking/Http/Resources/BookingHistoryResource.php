@@ -19,9 +19,7 @@ class BookingHistoryResource extends BaseJsonResource
         $invitations = $booking->getAllInvitations();
         $acceptedCount = $invitations->where('status', 'accepted')->count();
         $paidCount = $invitations->where('prepayment_paid', true)->count();
-        $totalNeeded = $booking->type === Booking::BookingTypeAnimal
-            ? (int) ($booking->total_hunting ?? 0)
-            : (int) ($booking->total_guests ?? 0);
+        $totalNeeded = $booking->getNeededHuntersCount();
 
         $calculation = $booking->calculation ?? [];
         $role = is_baseAdmin() ? Role::ADMIN : Role::CUSTOMER;

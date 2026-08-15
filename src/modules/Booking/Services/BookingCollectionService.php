@@ -365,25 +365,7 @@ class BookingCollectionService
 
     private function getRequiredHuntersCount(Booking $booking): int
     {
-        if ($booking->animal_id && $booking->hotel_id) {
-            $huntersCount = DB::table('bc_hotel_animals')
-                ->where('hotel_id', $booking->hotel_id)
-                ->where('animal_id', $booking->animal_id)
-                ->value('hunters_count');
-
-            return $huntersCount !== null && (int) $huntersCount > 0
-                ? (int) $huntersCount
-                : 1;
-        }
-
-        $huntersCount = match ($booking->type) {
-            Booking::BookingTypeHotel => (int) ($booking->total_guests ?? 0),
-            Booking::BookingTypeAnimal,
-            Booking::BookingTypeHotelAnimal => (int) ($booking->total_hunting ?? 0),
-            default => 0,
-        };
-
-        return max(1, $huntersCount);
+        return max(1, $booking->getNeededHuntersCount());
     }
 
     /**
