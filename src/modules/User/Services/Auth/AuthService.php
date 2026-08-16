@@ -61,7 +61,7 @@ class AuthService
             'current_password' => Crypt::encryptString($dto->password),
             'status'    => 'publish',
             'phone'    => $dto->phone,
-            'locale'   => setting_item('site_locale') ?? 'en',
+            'locale'   => app()->getLocale() ?: 'ru',
         ]);
 
         $user->assignRole($dto->role);
