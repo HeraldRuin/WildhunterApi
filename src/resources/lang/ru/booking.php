@@ -208,6 +208,7 @@ return [
         'paid' => 'Оплачено',
         'remain' => 'Остаток',
         'manage_bookings' => 'Управление бронированиями',
+        'go_to_collection' => 'Перейти к сбору',
         'customer_information' => 'Информация о клиенте',
         'first_name' => 'Имя',
         'last_name' => 'Фамилия',
