@@ -44,6 +44,8 @@
                 <hr>
                 <p>{{ $customMessage }}</p>
             @endif
+
+            @include('Booking::emails.parts.booking-details')
         </div>
 
         @include('Booking::emails.parts.panel-customer')
