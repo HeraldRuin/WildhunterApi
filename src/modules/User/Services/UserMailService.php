@@ -17,10 +17,7 @@ class UserMailService
     public function sendRegistered(User $user, ?string $plainPassword = null): void
     {
         $oldLocale = app()->getLocale();
-
-        if (!empty($user->locale)) {
-            app()->setLocale($user->locale);
-        }
+        app()->setLocale('ru');
 
         $password = $plainPassword ?: $this->plainPassword($user);
 
@@ -64,20 +61,33 @@ class UserMailService
 
     private function userBody(): string
     {
-        $body = setting_item_with_lang('user_content_email_registered', app()->getLocale());
+        $body = setting_item_with_lang('user_content_email_registered', 'ru', '', true, true);
 
-        return $body !== '' && $body !== null
-            ? (string) $body
-            : __('user.email.registered_user_body');
+        if ($this->isRussianBody($body)) {
+            return (string) $body;
+        }
+
+        return __('user.email.registered_user_body');
     }
 
     private function adminBody(): string
     {
-        $body = setting_item_with_lang('admin_content_email_user_registered', app()->getLocale());
+        $body = setting_item_with_lang('admin_content_email_user_registered', 'ru', '', true, true);
 
-        return $body !== '' && $body !== null
-            ? (string) $body
-            : __('user.email.registered_admin_body');
+        if ($this->isRussianBody($body)) {
+            return (string) $body;
+        }
+
+        return __('user.email.registered_admin_body');
+    }
+
+    private function isRussianBody(mixed $body): bool
+    {
+        if ($body === '' || $body === null) {
+            return false;
+        }
+
+        return !str_contains((string) $body, 'Booking Core');
     }
 
     private function replaceContent(User $user, ?string $password, string $content): string
