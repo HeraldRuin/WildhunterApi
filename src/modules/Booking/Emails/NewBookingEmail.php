@@ -12,11 +12,23 @@ class NewBookingEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public string $recipientName;
+
     public function __construct(
         public Booking $booking,
-        protected string $emailType = 'admin',
-        protected ?User $baseAdmin = null,
+        public string $emailType = 'admin',
+        public ?User $baseAdmin = null,
     ) {
+        $recipient = $this->emailType === 'customer'
+            ? $this->booking->creator
+            : $this->baseAdmin;
+
+        $this->recipientName = $this->resolveRecipientName(
+            $recipient,
+            $this->emailType === 'customer'
+                ? __('booking.email.hunter')
+                : __('booking.email.base_admin'),
+        );
     }
 
     public function build(): self
@@ -26,11 +38,17 @@ class NewBookingEmail extends Mailable
             : __('booking.email.new_booking_admin_subject');
 
         return $this->subject($subject)
-            ->view('Booking::emails.new-booking')
-            ->with([
-                'booking' => $this->booking,
-                'to' => $this->emailType,
-                'baseAdmin' => $this->baseAdmin,
-            ]);
+            ->view('Booking::emails.new-booking');
+    }
+
+    private function resolveRecipientName(?User $user, string $fallback): string
+    {
+        if (!$user) {
+            return $fallback;
+        }
+
+        $name = trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? ''));
+
+        return $name !== '' ? $name : (string) ($user->user_name ?: $user->email ?: $fallback);
     }
 }
