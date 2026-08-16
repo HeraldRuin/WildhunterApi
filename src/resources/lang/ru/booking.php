@@ -224,6 +224,8 @@ return [
         'collection_finished_hunter_body' => 'Сбор охотников завершён.',
         'hunter_message_subject' => 'Сообщение по бронированию №:id',
         'invitation_body' => ':name приглашает вас на охоту.',
+        'status_updated_short' => 'Статус бронирования обновлен',
+        'invites_you_to_hunt' => 'приглашает вас на охоту',
     ],
     'successes' => [
         'place_selected' => 'Выбранное место занято за вами',
