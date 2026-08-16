@@ -7,6 +7,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Modules\Booking\Models\Booking;
 
 class BookingUpdatedEvent implements ShouldBroadcast
@@ -46,5 +47,17 @@ class BookingUpdatedEvent implements ShouldBroadcast
             'status' => $this->status,
             'status_label' => booking_status_to_text($this->status),
         ];
+    }
+
+    public static function dispatchSafely(Booking $booking): void
+    {
+        try {
+            event(new self($booking));
+        } catch (\Throwable $e) {
+            Log::warning('Booking broadcast failed', [
+                'booking_id' => $booking->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 }
