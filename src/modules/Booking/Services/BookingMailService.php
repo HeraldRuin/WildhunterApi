@@ -160,7 +160,18 @@ class BookingMailService
     public function sendCollectionCancelled(Booking $booking, iterable $invitations): void
     {
         $this->withLocale($booking, function () use ($booking, $invitations): void {
+            $masterHunter = $booking->masterHunter()->first();
+            $masterHunterId = (int) ($masterHunter?->invited_by ?? 0);
+            $creatorId = (int) ($booking->create_user ?? 0);
+            $cancelledMessage = __('booking.successes.hunter_gathering_cancelled');
+
             foreach ($invitations as $invitation) {
+                $hunterId = (int) $invitation->hunter_id;
+
+                if ($hunterId === $masterHunterId || $hunterId === $creatorId) {
+                    continue;
+                }
+
                 $hunter = $invitation->hunter;
                 $email = $hunter?->email ?: $invitation->email;
 
@@ -168,20 +179,34 @@ class BookingMailService
                     continue;
                 }
 
-                $this->mailService->send(
+                $this->sendSafely(
                     $email,
-                    new HunterMessageEmail(
+                    fn () => new HunterMessageEmail(
                         $booking,
                         $hunter ?: $this->virtualHunter($email),
-                        __('booking.successes.hunter_gathering_cancelled'),
+                        $cancelledMessage,
                     ),
                 );
             }
 
-            $this->sendStatusUpdated(
-                $booking,
-                __('booking.successes.hunter_gathering_cancelled'),
-            );
+            $master = $masterHunterId ? User::query()->find($masterHunterId) : $this->creator($booking);
+            $masterEmail = $master?->email ?: $this->creator($booking)?->email;
+
+            if ($masterEmail) {
+                $this->sendSafely(
+                    $masterEmail,
+                    fn () => new StatusUpdatedEmail($booking, 'customer', $cancelledMessage),
+                );
+            }
+
+            $baseAdmin = $this->baseAdmin($booking);
+
+            if ($baseAdmin?->email) {
+                $this->sendSafely(
+                    $baseAdmin->email,
+                    fn () => new StatusUpdatedEmail($booking, 'admin', $cancelledMessage, $baseAdmin),
+                );
+            }
         });
     }
 
