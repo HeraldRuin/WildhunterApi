@@ -42,11 +42,7 @@ class StatusUpdatedEmail extends Mailable
                 'site_name' => setting_item('site_title'),
             ]);
 
-        $view = $this->emailType === 'customer'
-            ? 'Booking::emails.new-booking'
-            : 'Booking::emails.status-updated-booking';
-
-        return $this->subject($subject)->view($view);
+        return $this->subject($subject)->view('Booking::emails.new-booking');
     }
 
     private function resolveRecipientName(?User $user, string $fallback): string
