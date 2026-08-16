@@ -22,7 +22,6 @@ class ModuleProvider extends ModuleServiceProvider
     public function register(): void
     {
         $this->app->register(RouterServiceProvider::class);
-//        $this->app->register(EventServiceProvider::class);
-//        $this->app->register(CustomFortifyAuthenticationProvider::class);
+        $this->app->register(EventServiceProvider::class);
     }
 }
