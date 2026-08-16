@@ -16,6 +16,12 @@
                 <td class="label">{{ __('booking.email.last_name') }}</td>
                 <td class="val">{{ $customerLastName }}</td>
             </tr>
+            @if(!empty($showCustomerNotes) && filled(trim((string) ($booking->customer_notes ?? ''))))
+                <tr>
+                    <td class="label">{{ __('booking.email.customer_notes') }}</td>
+                    <td class="val">{!! nl2br(e($booking->customer_notes)) !!}</td>
+                </tr>
+            @endif
         </table>
     </div>
 </div>
