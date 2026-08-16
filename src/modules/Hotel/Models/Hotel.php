@@ -31,6 +31,7 @@ class Hotel extends Bookable
         'title',
         'content',
         'status',
+        'has_food',
     ];
 
     protected $casts = [
@@ -38,6 +39,7 @@ class Hotel extends Bookable
         'extra_price' => 'array',
         'service_fee' => 'array',
         'surrounding' => 'array',
+        'has_food' => 'boolean',
     ];
 
     public function __construct(array $attributes = [])
