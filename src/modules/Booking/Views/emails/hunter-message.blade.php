@@ -16,7 +16,7 @@
             <h3 class="email-headline"><strong>{{ __('booking.email.hello', ['name' => __('booking.email.hunter')]) }}</strong></h3>
 
             @if(!empty($isInvitation))
-                <div>{{ __('booking.email.invitation_body', ['name' => $inviterName]) }}</div>
+                <div>{{ __('booking.email.status_updated_short') }} <strong>{{ $inviterName }}</strong> {{ __('booking.email.invites_you_to_hunt') }}</div>
             @else
                 <div>{{ $bodyText }}</div>
             @endif
