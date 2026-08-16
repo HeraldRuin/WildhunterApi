@@ -33,6 +33,18 @@
                     </tr>
                 </table>
             </div>
+
+            @include('Booking::emails.parts.booking-details')
+
+            @if(!empty($isInvitation))
+                @php
+                    $siteUrl = rtrim((string) (setting_item('site_url') ?: config('app.url')), '/');
+                    $bookingsUrl = $siteUrl.'/profile/bookings';
+                @endphp
+                <div class="text-center mt20">
+                    <a href="{{ $bookingsUrl }}" target="_blank" class="btn btn-primary">{{ __('booking.email.go_to_collection') }}</a>
+                </div>
+            @endif
         </div>
     </div>
 @endsection
