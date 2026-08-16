@@ -58,7 +58,7 @@ return [
     ],
     'email' => [
         'registered_subject' => ':name Вы зарегистрированы',
-        'registered_user_body' => '<h3>Здравствуйте, [first_name] [last_name]</h3><p>Спасибо за регистрацию на Wild Hunter.</p><p>Логин: [login]</p>',
+        'registered_user_body' => '<h2>Добро пожаловать на онлайн платформу для настоящих охотников</h2><p><strong>Здравствуйте [first_name] [last_name]</strong></p><p>Ваш логин: [login]</p><p>Ваш пароль: [password]</p><p>Благодарим Вас за регистрацию в проекте Wild-Hunter.ru! Держите ружье наготове - совсем скоро начнется настоящий сезон охоты в цифровом мире!</p><p>С уважением,</p><p><strong>Команда Wild Hunter</strong></p><p>www.wild-hunter.ru</p>',
         'registered_admin_body' => '<h3>Новая регистрация</h3><p>Имя: [first_name] [last_name]</p><p>Email: [email]</p>',
     ],
 ];
