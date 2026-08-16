@@ -362,7 +362,7 @@ class HotelsPath
                                     property: "items",
                                     type: "array",
                                     items: new OA\Items(
-                                        required: ["id", "title", "slug", "map_lat", "map_lng", "image_url", "price", "review_count", "star_rate", "is_in_wishList", "location"],
+                                        required: ["id", "title", "slug", "map_lat", "map_lng", "image_url", "price", "review_count", "star_rate", "has_food", "is_in_wishList", "location"],
                                         properties: [
                                             new OA\Property(property: "id", type: "integer"),
                                             new OA\Property(property: "title", type: "string", nullable: true),
@@ -373,6 +373,7 @@ class HotelsPath
                                             new OA\Property(property: "price", type: "number", format: "float", nullable: true),
                                             new OA\Property(property: "review_count", type: "integer"),
                                             new OA\Property(property: "star_rate", type: "integer", nullable: true),
+                                            new OA\Property(property: "has_food", type: "boolean"),
                                             new OA\Property(property: "is_in_wishList", type: "boolean"),
                                             new OA\Property(
                                                 property: "location",
