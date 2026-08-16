@@ -211,6 +211,7 @@ return [
         'customer_information' => 'Информация о клиенте',
         'first_name' => 'Имя',
         'last_name' => 'Фамилия',
+        'customer_notes' => 'Особые требования',
         'email' => 'Email',
         'phone' => 'Телефон',
         'status_updated_admin_subject' => '[:site_name] Статус бронирования обновлён',
