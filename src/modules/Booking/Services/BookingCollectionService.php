@@ -17,13 +17,18 @@ class BookingCollectionService
 {
     private const int DEFAULT_TIMER_HOURS = 24;
 
+    public function __construct(
+        private readonly BookingMailService $bookingMailService,
+    ) {
+    }
+
     /**
      * @return array{booking: Booking, start_at: string, end_at: string, hours: int}
      *
      */
     public function start(string $code, User $user): array
     {
-        return DB::transaction(function () use ($code, $user): array {
+        $result = DB::transaction(function () use ($code, $user): array {
             $booking = $this->findForUpdate($code);
             $this->ensureMasterHunter($booking, $user);
 
@@ -36,6 +41,10 @@ class BookingCollectionService
 
             return $this->restartCollectionTimer($booking);
         });
+
+        $this->bookingMailService->sendStartCollection($result['booking']);
+
+        return $result;
     }
 
     /**
@@ -83,7 +92,7 @@ class BookingCollectionService
      */
     public function finish(string $code, User $user): array
     {
-        return DB::transaction(function () use ($code, $user): array {
+        $result = DB::transaction(function () use ($code, $user): array {
             $booking = $this->findForUpdate($code);
             $masterHunter = $this->ensureMasterHunter($booking, $user);
 
@@ -150,6 +159,10 @@ class BookingCollectionService
                 ...$timer,
             ];
         });
+
+        $this->bookingMailService->sendFinishCollection($result['booking']);
+
+        return $result;
     }
 
     public function expirePrepayment(string $code, User $user): void
@@ -203,7 +216,9 @@ class BookingCollectionService
      */
     public function cancel(string $code, User $user): Booking
     {
-        return DB::transaction(function () use ($code, $user): Booking {
+        $invitations = collect();
+
+        $booking = DB::transaction(function () use ($code, $user, &$invitations): Booking {
             $booking = $this->findForUpdate($code);
             $masterHunter = $this->ensureMasterHunter($booking, $user);
 
@@ -213,6 +228,11 @@ class BookingCollectionService
                     domain: 'booking',
                 );
             }
+
+            $invitations = BookingHunterInvitation::query()
+                ->with('hunter')
+                ->where('booking_hunter_id', $masterHunter->id)
+                ->get();
 
             Booking::query()
                 ->whereKey($booking->id)
@@ -246,6 +266,10 @@ class BookingCollectionService
 
             return $booking;
         });
+
+        $this->bookingMailService->sendCollectionCancelled($booking, $invitations);
+
+        return $booking;
     }
 
     /**
