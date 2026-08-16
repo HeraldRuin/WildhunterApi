@@ -216,7 +216,7 @@ return [
         'status_updated_admin_subject' => '[:site_name] Статус бронирования обновлён',
         'status_updated_customer_subject' => 'Статус вашей брони обновлён',
         'status_updated_admin_body' => 'Статус бронирования обновлён.',
-        'status_updated_customer_body' => 'Статус вашей брони обновлён.',
+        'status_updated_customer_body' => 'Статус вашего бронирования обновлен',
         'collection_started_body' => 'Мастер охотник запустил сбор охотников.',
         'collection_finished_admin_body' => 'Сбор охотников завершён.',
         'collection_finished_hunter_body' => 'Сбор охотников завершён.',
