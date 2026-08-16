@@ -262,12 +262,12 @@ class BookingCollectionService
                 ->delete();
 
             $booking->status = Booking::CONFIRMED;
-            event(new BookingUpdatedEvent($booking));
 
             return $booking;
         });
 
         $this->bookingMailService->sendCollectionCancelled($booking, $invitations);
+        BookingUpdatedEvent::dispatchSafely($booking);
 
         return $booking;
     }

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Modules\Booking\Dto\ReplaceHunterData;
 use Modules\Booking\Dto\ReplaceHunterResultData;
 use Modules\Booking\Events\BookingHistoryUpdatedEvent;
+use Modules\Booking\Events\BookingInvitationUpdatedEvent;
 use Modules\Booking\Models\Booking;
 use Modules\Booking\Models\BookingHunter;
 use Modules\Booking\Models\BookingHunterInvitation;
@@ -18,12 +19,13 @@ class BookingInvitationService
 {
     public function __construct(
         private readonly BookingCollectionService $bookingCollectionService,
+        private readonly BookingMailService $bookingMailService,
     ) {
     }
 
     public function remove(string $code, int $hunterId, User $actor): void
     {
-        DB::transaction(function () use ($code, $hunterId, $actor): void {
+        $booking = DB::transaction(function () use ($code, $hunterId, $actor): Booking {
             $booking = Booking::query()
                 ->where('code', $code)
                 ->lockForUpdate()
@@ -78,12 +80,14 @@ class BookingInvitationService
 
             $invitation->delete();
 
-            event(new BookingHistoryUpdatedEvent(
-                $booking,
-                $hunterId,
-                BookingHistoryUpdatedEvent::ACTION_REMOVED,
-            ));
+            return $booking;
         });
+
+        BookingHistoryUpdatedEvent::dispatchSafely(
+            $booking,
+            $hunterId,
+            BookingHistoryUpdatedEvent::ACTION_REMOVED,
+        );
     }
 
     /**
@@ -93,7 +97,7 @@ class BookingInvitationService
      */
     public function invite(string $code, int $hunterId, User $actor): BookingHunterInvitation
     {
-        return DB::transaction(function () use ($code, $hunterId, $actor): BookingHunterInvitation {
+        [$invitation, $booking, $hunter] = DB::transaction(function () use ($code, $hunterId, $actor): array {
             $booking = Booking::query()
                 ->where('code', $code)
                 ->lockForUpdate()
@@ -159,19 +163,22 @@ class BookingInvitationService
                 ],
             );
 
-            event(new BookingHistoryUpdatedEvent(
-                $booking,
-                $hunter->id,
-                BookingHistoryUpdatedEvent::ACTION_ADDED,
-            ));
-
-            return $invitation;
+            return [$invitation, $booking, $hunter];
         });
+
+        $this->bookingMailService->sendHunterInvitation($booking, $hunter);
+        BookingHistoryUpdatedEvent::dispatchSafely(
+            $booking,
+            $hunter->id,
+            BookingHistoryUpdatedEvent::ACTION_ADDED,
+        );
+
+        return $invitation;
     }
 
     public function replace(string $code, ReplaceHunterData $data, User $actor): ReplaceHunterResultData
     {
-        return DB::transaction(function () use ($code, $data, $actor): ReplaceHunterResultData {
+        [$result, $booking] = DB::transaction(function () use ($code, $data, $actor): array {
             $booking = Booking::query()
                 ->where('code', $code)
                 ->lockForUpdate()
@@ -185,16 +192,6 @@ class BookingInvitationService
             }
 
             $masterHunter = $this->ensureMasterHunter($booking, $actor);
-
-            if (!in_array($booking->status, [
-                Booking::FINISHED_COLLECTION,
-                Booking::PREPAYMENT_COLLECTION,
-            ], true)) {
-                throw new ConflictException(
-                    errorCode: 'booking_hunter_replace_not_allowed',
-                    domain: 'booking',
-                );
-            }
 
             if ($data->oldHunterId === (int) $masterHunter->invited_by) {
                 throw new ConflictException(
@@ -268,11 +265,18 @@ class BookingInvitationService
                 $this->bookingCollectionService->restartPaidTimer($booking);
             }
 
-            return new ReplaceHunterResultData(
-                invitation: $invitation,
-                hunter: $hunter,
-            );
+            return [
+                new ReplaceHunterResultData(
+                    invitation: $invitation,
+                    hunter: $hunter,
+                ),
+                $booking,
+            ];
         });
+
+        $this->bookingMailService->sendHunterInvitation($booking, $result->hunter);
+
+        return $result;
     }
 
     /**
@@ -280,11 +284,17 @@ class BookingInvitationService
      */
     public function accept(string $code, User $user): BookingHunterInvitation
     {
-        $invitation = $this->findInvitation($code, $user);
+        [$booking, $invitation] = $this->findInvitation($code, $user);
         $invitation->status = BookingHunterInvitation::STATUS_ACCEPTED;
         $invitation->accepted_at = now();
         $invitation->declined_at = null;
         $invitation->save();
+
+        BookingInvitationUpdatedEvent::dispatchSafely(
+            $booking,
+            $invitation,
+            BookingInvitationUpdatedEvent::ACTION_ACCEPTED,
+        );
 
         return $invitation;
     }
@@ -294,18 +304,26 @@ class BookingInvitationService
      */
     public function decline(string $code, User $user): BookingHunterInvitation
     {
-        $invitation = $this->findInvitation($code, $user);
+        [$booking, $invitation] = $this->findInvitation($code, $user);
         $invitation->status = BookingHunterInvitation::STATUS_DECLINED;
         $invitation->declined_at = now();
         $invitation->save();
+
+        BookingInvitationUpdatedEvent::dispatchSafely(
+            $booking,
+            $invitation,
+            BookingInvitationUpdatedEvent::ACTION_DECLINED,
+        );
 
         return $invitation;
     }
 
     /**
+     * @return array{0: Booking, 1: BookingHunterInvitation}
+     *
      * @throws NotFoundException
      */
-    private function findInvitation(string $code, User $user): BookingHunterInvitation
+    private function findInvitation(string $code, User $user): array
     {
         $booking = Booking::query()->where('code', $code)->first();
 
@@ -334,7 +352,7 @@ class BookingInvitationService
             );
         }
 
-        return $invitation;
+        return [$booking, $invitation];
     }
 
     /**

@@ -10,11 +10,12 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Modules\Booking\Models\Booking;
+use Modules\Booking\Models\BookingHunterInvitation;
 
-class BookingHistoryUpdatedEvent implements ShouldBroadcast, ShouldDispatchAfterCommit
+class BookingInvitationUpdatedEvent implements ShouldBroadcast, ShouldDispatchAfterCommit
 {
-    public const string ACTION_ADDED = 'added';
-    public const string ACTION_REMOVED = 'removed';
+    public const string ACTION_ACCEPTED = 'accepted';
+    public const string ACTION_DECLINED = 'declined';
 
     use Dispatchable;
     use InteractsWithSockets;
@@ -22,26 +23,34 @@ class BookingHistoryUpdatedEvent implements ShouldBroadcast, ShouldDispatchAfter
 
     private readonly int $bookingId;
     private readonly string $bookingCode;
+    private readonly int $invitationId;
+    private readonly int $hunterId;
+    private readonly string $status;
+    private readonly string $statusLabel;
 
     public function __construct(
         Booking $booking,
-        private readonly int $userId,
+        BookingHunterInvitation $invitation,
         private readonly string $action,
     ) {
         $this->bookingId = $booking->id;
         $this->bookingCode = $booking->code;
+        $this->invitationId = $invitation->id;
+        $this->hunterId = (int) $invitation->hunter_id;
+        $this->status = $invitation->status;
+        $this->statusLabel = __('statuses.invitation.' . $invitation->status);
     }
 
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel("booking-history.{$this->userId}"),
+            new PrivateChannel("bookings.{$this->bookingId}"),
         ];
     }
 
     public function broadcastAs(): string
     {
-        return 'booking.history.updated';
+        return 'booking.invitation.updated';
     }
 
     public function broadcastWith(): array
@@ -49,14 +58,22 @@ class BookingHistoryUpdatedEvent implements ShouldBroadcast, ShouldDispatchAfter
         return [
             'booking_id' => $this->bookingId,
             'code' => $this->bookingCode,
+            'invitation_id' => $this->invitationId,
+            'hunter_id' => $this->hunterId,
             'action' => $this->action,
+            'status' => $this->status,
+            'status_label' => $this->statusLabel,
+            'is_accepted' => $this->status === BookingHunterInvitation::STATUS_ACCEPTED,
         ];
     }
 
-    public static function dispatchSafely(Booking $booking, int $userId, string $action): void
-    {
+    public static function dispatchSafely(
+        Booking $booking,
+        BookingHunterInvitation $invitation,
+        string $action,
+    ): void {
         try {
-            event(new self($booking, $userId, $action));
+            event(new self($booking, $invitation, $action));
         } catch (\Throwable $e) {
             Log::warning('Booking broadcast failed', [
                 'booking_id' => $booking->id,

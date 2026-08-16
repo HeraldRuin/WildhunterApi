@@ -136,7 +136,7 @@ class BookingBedAllocatorService
                 'is_all_places_assigned' => true
             ]);
 
-            event(new BookingUpdatedEvent($booking));
+            BookingUpdatedEvent::dispatchSafely($booking);
         }
     }
 }

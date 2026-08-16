@@ -6,6 +6,7 @@ use App\Exceptions\ForbiddenException;
 use App\Exceptions\NotFoundException;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Modules\Booking\Events\BookingHistoryUpdatedEvent;
 use Modules\Booking\Models\Booking;
 
 class BookingCustomerService
@@ -23,7 +24,7 @@ class BookingCustomerService
             );
         }
 
-        return DB::transaction(function () use ($code, $userId, $actor): array {
+        $result = DB::transaction(function () use ($code, $userId, $actor): array {
             $booking = Booking::query()
                 ->where('code', $code)
                 ->lockForUpdate()
@@ -54,6 +55,13 @@ class BookingCustomerService
                 );
             }
 
+            $previousCustomerId = (int) (
+                $booking->create_user
+                ?? $booking->masterHunter?->invited_by
+                ?? $booking->customer_id
+            );
+            $newCustomerId = (int) $customer->id;
+
             $booking->changeCreator($customer);
             $booking->changeMasterHunterCreator($customer);
             Booking::query()
@@ -63,7 +71,34 @@ class BookingCustomerService
 
             return [
                 'code' => 'customer_changed',
+                'booking' => $booking,
+                'previous_customer_id' => $previousCustomerId,
+                'new_customer_id' => $newCustomerId,
             ];
         });
+
+        $booking = $result['booking'];
+        $previousCustomerId = $result['previous_customer_id'];
+        $newCustomerId = $result['new_customer_id'];
+
+        if ($previousCustomerId > 0 && $previousCustomerId !== $newCustomerId) {
+            BookingHistoryUpdatedEvent::dispatchSafely(
+                $booking,
+                $previousCustomerId,
+                BookingHistoryUpdatedEvent::ACTION_REMOVED,
+            );
+        }
+
+        if ($previousCustomerId !== $newCustomerId) {
+            BookingHistoryUpdatedEvent::dispatchSafely(
+                $booking,
+                $newCustomerId,
+                BookingHistoryUpdatedEvent::ACTION_ADDED,
+            );
+        }
+
+        return [
+            'code' => $result['code'],
+        ];
     }
 }
