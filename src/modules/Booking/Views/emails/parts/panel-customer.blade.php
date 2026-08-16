@@ -16,12 +16,9 @@
                 <td class="label">{{ __('booking.email.last_name') }}</td>
                 <td class="val">{{ $customerLastName }}</td>
             </tr>
-            @if(filled(trim((string) ($booking->customer_notes ?? ''))))
-                <tr>
-                    <td class="label">{{ __('booking.email.customer_notes') }}</td>
-                    <td class="val">{!! nl2br(e($booking->customer_notes)) !!}</td>
-                </tr>
-            @endif
         </table>
     </div>
+    @if(filled(trim((string) ($booking->customer_notes ?? ''))))
+        @include('Booking::emails.parts.notes-customer')
+    @endif
 </div>
