@@ -13,6 +13,7 @@ class BookingCancelService
 {
     public function __construct(
         private BookingStatusService $bookingStatusService,
+        private BookingMailService $bookingMailService,
     ) {
     }
 
@@ -42,6 +43,8 @@ class BookingCancelService
         $this->cleanupHunterInvitations($booking);
 
         $booking->status = Booking::CANCELLED;
+
+        $this->bookingMailService->sendCancelled($booking);
 
         return $booking;
     }
