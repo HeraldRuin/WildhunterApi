@@ -213,9 +213,7 @@
         </div>
 
         @if($emailType === 'admin')
-            @include('Booking::emails.parts.panel-customer', [
-                'showCustomerNotes' => empty($isStatusUpdate),
-            ])
+            @include('Booking::emails.parts.panel-customer')
         @endif
     </div>
 @endsection
