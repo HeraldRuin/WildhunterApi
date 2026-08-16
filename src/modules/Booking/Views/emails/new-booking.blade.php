@@ -27,8 +27,6 @@
         $bookingsUrl = $siteUrl.'/profile/bookings';
         $address = $hotel?->address ?: $hotel?->location?->name;
         $creator = $booking->creator;
-        $customerFirstName = $booking->first_name ?: $creator?->first_name;
-        $customerLastName = $booking->last_name ?: $creator?->last_name;
         $emailType = $emailType ?? 'admin';
         if (!isset($recipientName) || $recipientName === '') {
             $recipientUser = $emailType === 'customer'
@@ -47,7 +45,13 @@
     <div class="b-container">
         <div class="b-panel">
             <h3 class="email-headline"><strong>{{ __('booking.email.hello', ['name' => $recipientName]) }}</strong></h3>
-            @if($emailType === 'admin')
+            @if(!empty($isStatusUpdate))
+                @if($emailType === 'admin')
+                    <p>{{ __('booking.email.status_updated_admin_body') }}</p>
+                @else
+                    <p>{{ __('booking.email.status_updated_customer_body') }}</p>
+                @endif
+            @elseif($emailType === 'admin')
                 <p>{{ __('booking.email.new_booking_admin_body') }}</p>
             @else
                 <p>{{ __('booking.email.new_booking_customer_body') }}</p>
@@ -209,21 +213,7 @@
         </div>
 
         @if($emailType === 'admin')
-            <div class="b-panel">
-                <div class="b-panel-title">{{ __('booking.email.customer_information') }}</div>
-                <div class="b-table-wrap">
-                    <table class="b-table" cellspacing="0" cellpadding="0">
-                        <tr>
-                            <td class="label">{{ __('booking.email.first_name') }}</td>
-                            <td class="val">{{ $customerFirstName }}</td>
-                        </tr>
-                        <tr>
-                            <td class="label">{{ __('booking.email.last_name') }}</td>
-                            <td class="val">{{ $customerLastName }}</td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
+            @include('Booking::emails.parts.panel-customer')
         @endif
     </div>
 @endsection
