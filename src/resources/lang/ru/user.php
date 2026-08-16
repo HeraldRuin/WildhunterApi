@@ -55,5 +55,10 @@ return [
         'subscription_thanks' => 'Спасибо за подписку.',
         'subscription_already_subscribed' => 'Этот email уже подписан на рассылку.',
         'update_success' => 'Данные пользователя успешно сохранены',
-    ]
+    ],
+    'email' => [
+        'registered_subject' => ':name Вы зарегистрированы',
+        'registered_user_body' => '<h3>Здравствуйте, [first_name] [last_name]</h3><p>Спасибо за регистрацию на Wild Hunter.</p><p>Логин: [login]</p>',
+        'registered_admin_body' => '<h3>Новая регистрация</h3><p>Имя: [first_name] [last_name]</p><p>Email: [email]</p>',
+    ],
 ];
