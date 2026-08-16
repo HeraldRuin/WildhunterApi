@@ -56,6 +56,25 @@ function booking_status_to_text($status): string
     return $translated === $key ? ucfirst((string) ($status ?? '')) : $translated;
 }
 
+function format_money($price): string
+{
+    return number_format((float) $price, 0, ',', '.') . ' руб';
+}
+
+function format_money_main($price): string
+{
+    return format_money($price);
+}
+
+function display_date($date): string
+{
+    if (empty($date)) {
+        return '';
+    }
+
+    return \Carbon\Carbon::parse($date)->format('d.m.Y');
+}
+
 function get_bookable_services()
 {
 
