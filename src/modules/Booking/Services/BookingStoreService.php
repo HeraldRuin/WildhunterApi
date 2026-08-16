@@ -19,6 +19,7 @@ class BookingStoreService
     public function __construct(
         private RoomService $roomService,
         private BookingNumberService $bookingNumberService,
+        private BookingMailService $bookingMailService,
     ) {
     }
 
@@ -134,7 +135,7 @@ class BookingStoreService
             $startDateAnimal = $startDate->copy();
         }
 
-        return DB::transaction(function () use (
+        $booking = DB::transaction(function () use (
             $hotel,
             $userId,
             $startDate,
@@ -233,6 +234,10 @@ class BookingStoreService
 
             return $booking->fresh();
         });
+
+        $this->bookingMailService->sendNewBooking($booking);
+
+        return $booking;
     }
 
     private function applyDeposit(Hotel $hotel, Booking $booking, float $totalBeforeFees): void
