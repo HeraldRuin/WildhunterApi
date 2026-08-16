@@ -4,10 +4,15 @@
     {{-- @var string $emailType --}}
     {{-- @var string $recipientName --}}
     @php
-        $booking->loadMissing(['hotel.location', 'roomsBooking.room', 'creator']);
+        $booking->loadMissing(['hotel.location', 'roomsBooking.room', 'creator', 'animal']);
         $hotel = $booking->hotel;
+        $animal = $booking->animal;
         $showHotelDetails = $hotel && in_array($booking->type, [
             \Modules\Booking\Models\Booking::BookingTypeHotel,
+            \Modules\Booking\Models\Booking::BookingTypeHotelAnimal,
+        ], true);
+        $showAnimalDetails = $animal && in_array($booking->type, [
+            \Modules\Booking\Models\Booking::BookingTypeAnimal,
             \Modules\Booking\Models\Booking::BookingTypeHotelAnimal,
         ], true);
         $rooms = $showHotelDetails ? $booking->roomsBooking : collect();
@@ -126,6 +131,56 @@
                                         @endforeach
                                     </table>
                                 </td>
+                            </tr>
+                        @endif
+                        <tr>
+                            <td class="label fsz21">{{ __('booking.email.total') }}</td>
+                            <td class="val fsz21"><strong style="color: #FA5636">{{ format_money($total) }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="label fsz21">{{ __('booking.email.paid') }}</td>
+                            <td class="val fsz21"><strong style="color: #FA5636">{{ format_money($paid) }}</strong></td>
+                        </tr>
+                        @if($total > $paid)
+                            <tr>
+                                <td class="label fsz21">{{ __('booking.email.remain') }}</td>
+                                <td class="val fsz21"><strong style="color: #FA5636">{{ format_money($total - $paid) }}</strong></td>
+                            </tr>
+                        @endif
+                    </table>
+                </div>
+
+                @if($emailType === 'customer' && !$showAnimalDetails)
+                    <div class="text-center mt20">
+                        <a href="{{ $bookingsUrl }}" target="_blank" class="btn btn-primary">{{ __('booking.email.manage_bookings') }}</a>
+                    </div>
+                @endif
+            @endif
+
+            @if($showAnimalDetails)
+                <div class="b-panel-title">{{ __('booking.email.animal_details') }}</div>
+                <div class="b-table-wrap">
+                    <table class="b-table" cellspacing="0" cellpadding="0">
+                        <tr>
+                            <td class="label">{{ __('booking.email.animal') }}</td>
+                            <td class="val">{{ $animal->title }}</td>
+                        </tr>
+                        @if($booking->total_hunting)
+                            <tr>
+                                <td class="label">{{ __('booking.email.hunters_count') }}</td>
+                                <td class="val"><strong>{{ $booking->total_hunting }}</strong></td>
+                            </tr>
+                        @endif
+                        @if($booking->start_date_animal)
+                            <tr>
+                                <td class="label">{{ __('booking.email.hunting_date') }}</td>
+                                <td class="val">{{ display_date($booking->start_date_animal) }}</td>
+                            </tr>
+                        @endif
+                        @if($booking->amount_hunting)
+                            <tr>
+                                <td class="label">{{ __('booking.email.hunting_amount') }}</td>
+                                <td class="val"><strong>{{ format_money($booking->amount_hunting) }}</strong></td>
                             </tr>
                         @endif
                         <tr>
