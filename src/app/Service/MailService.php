@@ -18,6 +18,8 @@ class MailService
                 'to' => $to,
                 'trace_id' => $traceId,
                 'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
             ]);
         }
     }
