@@ -11,6 +11,11 @@ use Modules\Booking\Events\BookingUpdatedEvent;
 
 class BookingConfirmService
 {
+    public function __construct(
+        private readonly BookingMailService $bookingMailService,
+    ) {
+    }
+
     /**
      * @throws ForbiddenException
      * @throws NotFoundException
@@ -56,7 +61,8 @@ class BookingConfirmService
 
         $booking->status = Booking::CONFIRMED;
 
-        event(new BookingUpdatedEvent($booking));
+        $this->bookingMailService->sendStatusUpdated($booking);
+        BookingUpdatedEvent::dispatchSafely($booking);
 
         return $booking;
     }

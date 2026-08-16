@@ -11,6 +11,11 @@ use Modules\Booking\Models\Booking;
 
 class BookingMarkPaidService
 {
+    public function __construct(
+        private readonly BookingMailService $bookingMailService,
+    ) {
+    }
+
     /**
      * @throws ForbiddenException
      * @throws NotFoundException
@@ -60,7 +65,8 @@ class BookingMarkPaidService
         $booking->status = Booking::PAID;
         $booking->is_paid = true;
 
-        event(new BookingUpdatedEvent($booking));
+        $this->bookingMailService->sendStatusUpdated($booking);
+        BookingUpdatedEvent::dispatchSafely($booking);
 
         return $booking;
     }

@@ -4,6 +4,7 @@ namespace Modules\Booking\Services;
 
 use App\Models\User;
 use App\Service\MailService;
+use Illuminate\Support\Facades\Log;
 use Modules\Booking\Emails\HunterMessageEmail;
 use Modules\Booking\Emails\NewBookingEmail;
 use Modules\Booking\Emails\StatusFinishCollectionEmail;
@@ -50,25 +51,25 @@ class BookingMailService
             $adminEmail = setting_item('admin_email');
 
             if ($adminEmail && $adminEmail !== $baseAdminEmail) {
-                $this->mailService->send(
+                $this->sendSafely(
                     $adminEmail,
-                    new StatusUpdatedEmail($booking, 'admin', $customMessage),
+                    fn () => new StatusUpdatedEmail($booking, 'admin', $customMessage),
                 );
             }
 
             if ($baseAdminEmail) {
-                $this->mailService->send(
+                $this->sendSafely(
                     $baseAdminEmail,
-                    new StatusUpdatedEmail($booking, 'admin', $customMessage, $baseAdmin),
+                    fn () => new StatusUpdatedEmail($booking, 'admin', $customMessage, $baseAdmin),
                 );
             }
 
             $customerEmail = $this->creator($booking)?->email ?: $booking->email;
 
             if ($customerEmail) {
-                $this->mailService->send(
+                $this->sendSafely(
                     $customerEmail,
-                    new StatusUpdatedEmail($booking, 'customer', $customMessage),
+                    fn () => new StatusUpdatedEmail($booking, 'customer', $customMessage),
                 );
             }
         });
@@ -258,16 +259,33 @@ class BookingMailService
         return $user;
     }
 
+    private function sendSafely(string $to, \Closure $makeMailable): void
+    {
+        try {
+            $this->mailService->send($to, $makeMailable());
+        } catch (\Throwable $e) {
+            Log::warning('Mail send failed', [
+                'to' => $to,
+                'trace_id' => request()->attributes->get('trace_id'),
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+        }
+    }
+
     private function withLocale(Booking $booking, \Closure $callback): void
     {
         $old = app()->getLocale();
 
-        if ($locale = $booking->getMeta('locale')) {
-            app()->setLocale($locale);
+        try {
+            if ($locale = $booking->getMeta('locale')) {
+                app()->setLocale($locale);
+            }
+
+            $callback();
+        } finally {
+            app()->setLocale($old);
         }
-
-        $callback();
-
-        app()->setLocale($old);
     }
 }

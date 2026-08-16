@@ -11,6 +11,11 @@ use Modules\Booking\Models\Booking;
 
 class BookingCompleteService
 {
+    public function __construct(
+        private readonly BookingMailService $bookingMailService,
+    ) {
+    }
+
     /**
      * @throws ForbiddenException
      * @throws NotFoundException
@@ -56,7 +61,8 @@ class BookingCompleteService
 
         $booking->status = Booking::COMPLETED;
 
-        event(new BookingUpdatedEvent($booking));
+        $this->bookingMailService->sendStatusUpdated($booking);
+        BookingUpdatedEvent::dispatchSafely($booking);
 
         return $booking;
     }
