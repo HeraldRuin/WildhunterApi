@@ -75,7 +75,11 @@ class HotelService
      */
     public function checkAvailability(CheckAvailabilityData $dto): array
     {
-        $hotel = Hotel::published()->with('rooms')->find($dto->hotelId);
+        $hotel = Hotel::published()->with([
+            'rooms.terms.attribute',
+            'rooms.terms.translation',
+            'rooms.terms.attribute.translation',
+        ])->find($dto->hotelId);
 
         if (!$hotel) {
             throw new NotFoundException(
