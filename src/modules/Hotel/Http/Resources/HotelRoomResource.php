@@ -3,6 +3,7 @@
 namespace Modules\Hotel\Http\Resources;
 
 use App\Http\Resources\BaseJsonResource;
+use Modules\Attributes\Http\Resources\AttributesResource;
 use Modules\Hotel\Models\HotelRoom;
 
 class HotelRoomResource extends BaseJsonResource
@@ -25,7 +26,25 @@ class HotelRoomResource extends BaseJsonResource
             'number' => $room->available_number ?? $room->number,
             'image_url' => $room->getImageUrl() ?: asset('uploads/0000/1/2026/11/14/no_image.png'),
             'gallery' => $room->getGallery(),
+            'attributes' => $this->whenLoaded('terms', function () use ($room) {
+                return AttributesResource::collection($this->attributesByGroup($room));
+            }),
         ];
+    }
+
+    private function attributesByGroup(HotelRoom $room)
+    {
+        return $room->terms
+            ->groupBy('attr_id')
+            ->filter(fn ($terms) => $terms->first()?->attribute)
+            ->sortBy(fn ($terms) => $terms->first()->attribute->position ?? 0)
+            ->map(function ($terms) {
+                $attribute = clone $terms->first()->attribute;
+                $attribute->setRelation('terms', $terms->values());
+
+                return $attribute;
+            })
+            ->values();
     }
 }
 
