@@ -19,7 +19,7 @@ class SupportController
     {
         $data = $request->validated();
 
-        $this->mailService->send('wh.online@yandex.ru', new SupportMessageEmail(
+        $this->mailService->send((string) config('support.email'), new SupportMessageEmail(
             name: $data['name'],
             email: $data['email'],
             supportMessage: $data['message'],
