@@ -97,7 +97,7 @@ class RoomsPath
                                         required: [
                                             "id", "title", "price", "nights", "size", "beds",
                                             "adults", "children", "number_selected", "number",
-                                            "image_url", "gallery",
+                                            "image_url", "gallery", "attributes",
                                         ],
                                         properties: [
                                             new OA\Property(property: "id", type: "integer"),
@@ -120,6 +120,50 @@ class RoomsPath
                                                         new OA\Property(property: "large", type: "string", format: "uri"),
                                                         new OA\Property(property: "medium", type: "string", format: "uri"),
                                                         new OA\Property(property: "thumb", type: "string", format: "uri"),
+                                                    ],
+                                                    type: "object"
+                                                )
+                                            ),
+                                            new OA\Property(
+                                                property: "attributes",
+                                                type: "array",
+                                                items: new OA\Items(
+                                                    required: ["id", "name", "slug", "service", "position", "terms"],
+                                                    properties: [
+                                                        new OA\Property(property: "id", type: "integer"),
+                                                        new OA\Property(property: "name", type: "string", nullable: true),
+                                                        new OA\Property(property: "slug", type: "string", nullable: true),
+                                                        new OA\Property(property: "service", type: "string", nullable: true),
+                                                        new OA\Property(property: "position", type: "integer", nullable: true),
+                                                        new OA\Property(
+                                                            property: "terms",
+                                                            type: "array",
+                                                            items: new OA\Items(
+                                                                required: ["id", "name", "slug", "content", "icon", "image_url"],
+                                                                properties: [
+                                                                    new OA\Property(property: "id", type: "integer"),
+                                                                    new OA\Property(property: "name", type: "string", nullable: true),
+                                                                    new OA\Property(property: "slug", type: "string", nullable: true),
+                                                                    new OA\Property(property: "content", type: "string", nullable: true),
+                                                                    new OA\Property(property: "icon", type: "string", nullable: true),
+                                                                    new OA\Property(property: "image_url", type: "string"),
+                                                                    new OA\Property(
+                                                                        property: "translation",
+                                                                        required: ["id", "origin_id", "locale", "name", "content"],
+                                                                        properties: [
+                                                                            new OA\Property(property: "id", type: "integer"),
+                                                                            new OA\Property(property: "origin_id", type: "integer"),
+                                                                            new OA\Property(property: "locale", type: "string"),
+                                                                            new OA\Property(property: "name", type: "string", nullable: true),
+                                                                            new OA\Property(property: "content", type: "string", nullable: true),
+                                                                        ],
+                                                                        type: "object",
+                                                                        nullable: true
+                                                                    ),
+                                                                ],
+                                                                type: "object"
+                                                            )
+                                                        ),
                                                     ],
                                                     type: "object"
                                                 )
