@@ -18,17 +18,17 @@ class SupportRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'Укажите имя.',
-            'name.string' => 'Имя должно быть строкой.',
-            'name.max' => 'Имя не должно превышать 255 символов.',
+            'name.required' => __('support.validation.name_required'),
+            'name.string' => __('support.validation.name_string'),
+            'name.max' => __('support.validation.name_max'),
 
-            'email.required' => 'Укажите адрес электронной почты.',
-            'email.email' => 'Укажите корректный адрес электронной почты.',
-            'email.max' => 'Адрес электронной почты не должен превышать 255 символов.',
+            'email.required' => __('support.validation.email_required'),
+            'email.email' => __('support.validation.email_invalid'),
+            'email.max' => __('support.validation.email_max'),
 
-            'message.required' => 'Введите сообщение.',
-            'message.string' => 'Сообщение должно быть строкой.',
-            'message.max' => 'Сообщение не должно превышать 5000 символов.',
+            'message.required' => __('support.validation.message_required'),
+            'message.string' => __('support.validation.message_string'),
+            'message.max' => __('support.validation.message_max'),
         ];
     }
 }

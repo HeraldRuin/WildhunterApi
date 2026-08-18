@@ -25,6 +25,6 @@ class SupportController
             supportMessage: $data['message'],
         ));
 
-        return new SuccessResponse(message: 'Письмо успешно отправлено.');
+        return new SuccessResponse(code: 'email_sent_successfully', domain: 'support');
     }
 }
