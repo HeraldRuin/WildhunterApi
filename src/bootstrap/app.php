@@ -9,6 +9,7 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+ use Modules\Booking\Commands\ProcessExpiredBedsTimers;
 use Modules\Booking\Commands\ProcessPayments;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -22,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withCommands([
         ProcessPayments::class,
+        ProcessExpiredBedsTimers::class,
     ])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->api([
