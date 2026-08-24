@@ -32,7 +32,7 @@ class BookingCheckoutResource extends BaseJsonResource
             'booking_number' => $booking->booking_number,
             'created_at' => $booking->created_at,
             'status' => $booking->status,
-            'gateway' => $booking->gateway,
+            'gateway' => booking_gateway_to_text($booking->gateway),
             'type' => $booking->type,
             'check_in' => $booking->start_date,
             'check_out' => $booking->end_date,

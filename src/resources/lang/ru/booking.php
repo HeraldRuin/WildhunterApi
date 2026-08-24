@@ -85,6 +85,9 @@ return [
         'bed_collection' => 'Выбор койко-мест',
         'finish_bed_collection' => 'Койко-места выбраны',
     ],
+    'gateways' => [
+        'paykeeper' => 'Pay Keeper',
+    ],
     'validation' => [
         'hotel_id_required' => 'Укажите отель',
         'hotel_id_must_be_integer' => 'ID отеля должен быть числом',

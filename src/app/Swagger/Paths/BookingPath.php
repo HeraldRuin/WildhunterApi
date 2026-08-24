@@ -1319,7 +1319,7 @@ class BookingPath
                                 new OA\Property(property: "booking_number", type: "string", nullable: true),
                                 new OA\Property(property: "created_at", type: "string", format: "date-time", nullable: true),
                                 new OA\Property(property: "status", type: "string", nullable: true),
-                                new OA\Property(property: "gateway", type: "string", nullable: true),
+                                new OA\Property(property: "gateway", type: "string", nullable: true, example: "Pay Keeper"),
                                 new OA\Property(property: "type", type: "string", nullable: true),
                                 new OA\Property(property: "check_in", type: "string", format: "date", nullable: true),
                                 new OA\Property(property: "check_out", type: "string", format: "date", nullable: true),

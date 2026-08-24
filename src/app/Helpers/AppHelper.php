@@ -74,6 +74,18 @@ function booking_status_to_text($status): string
     return $translated === $key ? ucfirst((string) ($status ?? '')) : $translated;
 }
 
+function booking_gateway_to_text(?string $gateway): ?string
+{
+    if ($gateway === null || $gateway === '') {
+        return null;
+    }
+
+    $key = 'booking.gateways.' . $gateway;
+    $translated = __($key);
+
+    return $translated === $key ? $gateway : $translated;
+}
+
 function format_money($price): string
 {
     return number_format((float) $price, 0, ',', '.') . ' руб';
