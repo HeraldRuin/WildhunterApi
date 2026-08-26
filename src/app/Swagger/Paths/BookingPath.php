@@ -1313,7 +1313,7 @@ class BookingPath
                                 "booking_number", "created_at", "status", "gateway", "type",
                                 "check_in", "check_out", "start_date_animal", "location",
                                 "hotel", "animal", "total", "amount_hunting", "all_total",
-                                "deposit", "total_guests", "total_hunting", "rooms",
+                                "deposit", "total_guests", "total_hunting", "customer_notes", "rooms",
                             ],
                             properties: [
                                 new OA\Property(property: "booking_number", type: "string", nullable: true),
@@ -1366,6 +1366,13 @@ class BookingPath
                                 new OA\Property(property: "deposit", type: "number", format: "float"),
                                 new OA\Property(property: "total_guests", type: "integer", nullable: true),
                                 new OA\Property(property: "total_hunting", type: "integer", nullable: true),
+                                new OA\Property(
+                                    property: "customer_notes",
+                                    description: "Особые требования к бронированию",
+                                    type: "string",
+                                    example: "Нужен ранний заезд",
+                                    nullable: true
+                                ),
                                 new OA\Property(
                                     property: "rooms",
                                     type: "array",
