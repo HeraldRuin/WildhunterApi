@@ -3,8 +3,10 @@
 namespace Modules\Animals\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Hotel\Models\Hotel;
 use Modules\Media\Helpers\FileHelper;
 
 class Animal extends Model
@@ -49,6 +51,26 @@ class Animal extends Model
     public function preparations(): HasMany
     {
         return $this->hasMany(AnimalPreparation::class, 'animal_id', 'id');
+    }
+
+    public function periods(): HasMany
+    {
+        return $this->hasMany(AnimalPricePeriod::class);
+    }
+
+    public function hotels(): BelongsToMany
+    {
+        return $this->belongsToMany(Hotel::class, 'bc_hotel_animals', 'animal_id', 'hotel_id')
+            ->withPivot('status', 'hunters_count');
+    }
+
+    public function scopeForHotel($query, int $hotelId)
+    {
+        return $query->join('bc_hotel_animals as bha', function ($join) use ($hotelId) {
+            $join->on('bha.animal_id', '=', 'bc_animals.id')
+                ->where('bha.hotel_id', '=', $hotelId);
+        })
+            ->select('bc_animals.*', 'bha.status as animal_status');
     }
 
     public function scopeForHotelWithService($query, int $hotelId, string $relation)
