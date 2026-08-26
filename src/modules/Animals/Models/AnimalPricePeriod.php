@@ -3,6 +3,7 @@
 namespace Modules\Animals\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AnimalPricePeriod extends Model
 {
@@ -13,6 +14,12 @@ class AnimalPricePeriod extends Model
         'start_date',
         'end_date',
         'price',
+    ];
+
+    protected $casts = [
+        'start_date' => 'date:Y-m-d',
+        'end_date' => 'date:Y-m-d',
+        'price' => 'float',
     ];
 
     public function animal(): BelongsTo
