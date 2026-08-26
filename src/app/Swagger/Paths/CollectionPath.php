@@ -227,8 +227,8 @@ class CollectionPath
                                 new OA\Property(
                                     property: "status",
                                     type: "string",
-                                    enum: ["finished_collection", "prepayment_collection"],
-                                    example: "finished_collection"
+                                    example: "finished_collection",
+                                    enum: ["finished_collection", "prepayment_collection"]
                                 ),
                                 new OA\Property(
                                     property: "paid_start_at",
@@ -337,5 +337,157 @@ class CollectionPath
         ]
     )]
     public function ExpirePrepayment(): void
+    {}
+
+    #[OA\Get(
+        path: "/api/" . ApiConfig::VERSION . "/settings/timers/{type}",
+        description: "Типы: collection (сбор), beds (койко-места), prepayment (предоплата). Значение хранится в bc_hotels.",
+        summary: "Получить настройки таймера отеля",
+        security: [['bearerAuth' => []]],
+        tags: ["Collection"],
+        parameters: [
+            new OA\Parameter(
+                name: "type",
+                description: "Тип таймера",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(
+                    type: "string",
+                    example: "collection",
+                    enum: ["collection", "beds", "prepayment"]
+                )
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Настройки таймера",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            required: ["type", "timer_hours", "hotel_id"],
+                            properties: [
+                                new OA\Property(
+                                    property: "type",
+                                    type: "string",
+                                    example: "collection",
+                                    enum: ["collection", "beds", "prepayment"]
+                                ),
+                                new OA\Property(property: "timer_hours", type: "integer", example: 24),
+                                new OA\Property(property: "hotel_id", type: "integer", example: 1),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(
+                ref: "#/components/responses/AuthResponse",
+                response: 401
+            ),
+            new OA\Response(
+                response: 403,
+                description: "Нет прав baseAdmin или у пользователя нет отеля"
+            ),
+            new OA\Response(
+                ref: "#/components/responses/NotFoundResponse",
+                response: 404
+            ),
+        ]
+    )]
+    public function GetTimerSettings(): void
+    {}
+
+    #[OA\Put(
+        path: "/api/" . ApiConfig::VERSION . "/settings/timers/{type}",
+        description: "Типы: collection (сбор), beds (койко-места), prepayment (предоплата). Значение пишется в bc_hotels.",
+        summary: "Сохранить настройки таймера отеля",
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["timer_hours"],
+                properties: [
+                    new OA\Property(
+                        property: "timer_hours",
+                        description: "Размер таймера в часах",
+                        type: "integer",
+                        example: 24,
+                        minimum: 1
+                    ),
+                ],
+                type: "object"
+            )
+        ),
+        tags: ["Collection"],
+        parameters: [
+            new OA\Parameter(
+                name: "type",
+                description: "Тип таймера",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(
+                    type: "string",
+                    example: "collection",
+                    enum: ["collection", "beds", "prepayment"]
+                )
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Настройки сохранены",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(
+                            property: "message",
+                            type: "string",
+                            example: "Настройки таймера успешно сохранены"
+                        ),
+                        new OA\Property(
+                            property: "data",
+                            required: ["type", "timer_hours", "hotel_id"],
+                            properties: [
+                                new OA\Property(
+                                    property: "type",
+                                    type: "string",
+                                    example: "collection",
+                                    enum: ["collection", "beds", "prepayment"]
+                                ),
+                                new OA\Property(property: "timer_hours", type: "integer", example: 24),
+                                new OA\Property(property: "hotel_id", type: "integer", example: 1),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(
+                ref: "#/components/responses/AuthResponse",
+                response: 401
+            ),
+            new OA\Response(
+                response: 403,
+                description: "Нет прав baseAdmin или у пользователя нет отеля"
+            ),
+            new OA\Response(
+                ref: "#/components/responses/NotFoundResponse",
+                response: 404
+            ),
+            new OA\Response(
+                ref: "#/components/responses/ValidationError",
+                response: 422
+            ),
+        ]
+    )]
+    public function StoreTimerSettings(): void
     {}
 }
