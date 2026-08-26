@@ -32,6 +32,9 @@ class Hotel extends Bookable
         'content',
         'status',
         'has_food',
+        'collection_timer_hours',
+        'bed_timer_hours',
+        'paid_timer_hours',
     ];
 
     protected $casts = [
@@ -124,6 +127,7 @@ class Hotel extends Bookable
 
     public function animals(): BelongsToMany
     {
-        return $this->belongsToMany(Animal::class, 'bc_hotel_animals', 'hotel_id', 'animal_id')->withPivot('status');
+        return $this->belongsToMany(Animal::class, 'bc_hotel_animals', 'hotel_id', 'animal_id')
+            ->withPivot('status', 'hunters_count');
     }
 }
