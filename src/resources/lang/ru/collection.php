@@ -8,9 +8,10 @@ return [
         'collection_timer_not_expired' => 'Таймер сбора охотников ещё не истёк',
         'timer_settings_access_denied' => 'Недостаточно прав для управления настройками таймеров',
         'hotel_required' => 'Для настроек таймеров необходим отель',
-        'timer_type_not_found' => 'Тип таймера не найден',
     ],
     'validation' => [
+        'timer_type_required' => 'Укажите тип таймера',
+        'timer_type_invalid' => 'Недопустимый тип таймера',
         'timer_hours_required' => 'Укажите размер таймера в часах',
         'timer_hours_must_be_integer' => 'Размер таймера должен быть целым числом',
         'timer_hours_min_value' => 'Минимальный размер таймера — 1 час',
