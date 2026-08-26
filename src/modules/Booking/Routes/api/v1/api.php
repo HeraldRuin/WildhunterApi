@@ -2,8 +2,12 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\Booking\Controllers\BookingController;
+use Modules\Booking\Controllers\CollectionTimerController;
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/settings/timers/{type}', [CollectionTimerController::class, 'show']);
+    Route::put('/settings/timers/{type}', [CollectionTimerController::class, 'store']);
+
     Route::post('/bookings', [BookingController::class, 'store']);
 
     Route::get('/bookings/history', [BookingController::class, 'bookingHistory']);
