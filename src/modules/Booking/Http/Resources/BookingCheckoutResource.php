@@ -48,6 +48,7 @@ class BookingCheckoutResource extends BaseJsonResource
             'deposit' => (float) ($booking->deposit ?? 0),
             'total_guests' => (int) $booking->total_guests,
             'total_hunting' => $booking->total_hunting,
+            'customer_notes' => $booking->customer_notes,
 
             'rooms' => $roomBookings->map(static fn (HotelRoomBooking $roomBooking) => [
                 'room_id' => $roomBooking->room_id,
