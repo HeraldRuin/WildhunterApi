@@ -33,10 +33,11 @@ class ManageHotelService
         $this->assertBelongsToAdmin($hotel, $user);
 
         $id = $hotel->id;
-        $hotel->delete();
+        $hotel->admin_base = null;
+        $hotel->save();
 
         return [
-            'code' => 'hotel_deleted',
+            'code' => 'hotel_detached',
             'data' => [
                 'id' => $id,
             ],
