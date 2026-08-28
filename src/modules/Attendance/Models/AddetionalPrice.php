@@ -3,6 +3,7 @@
 namespace Modules\Attendance\Models;
 
 use App\Models\BaseModel;
+use Illuminate\Database\Eloquent\Builder;
 
 class AddetionalPrice extends BaseModel
 {
@@ -24,8 +25,8 @@ class AddetionalPrice extends BaseModel
     public const string PERSON = 'per_person';
 
     public const array CALCULATION_TYPES = [
-        self::PERSON => 'Кол-во людей',
-        self::INDIVIDUAL => 'Индивидуальный',
+        self::PERSON => 'На человека',
+        self::INDIVIDUAL => 'Индивидуально',
     ];
 
     public const string ADDETIONAL = 'addetional';
@@ -34,4 +35,23 @@ class AddetionalPrice extends BaseModel
     public const string PREPARATION = 'preparation';
     public const string PENALTY = 'penalty';
     public const string TROPHY = 'trophy';
+
+    public const string FOOD_NAME = 'Питание';
+
+    public function scopeForHotel(Builder $query, int $hotelId): Builder
+    {
+        return $query->where('hotel_id', $hotelId);
+    }
+
+    public function scopeAccessible(Builder $query, int $hotelId, int $userId): Builder
+    {
+        return $query
+            ->where('hotel_id', $hotelId)
+            ->where('user_id', $userId);
+    }
+
+    public function isFood(): bool
+    {
+        return $this->type === self::FOOD || $this->name === self::FOOD_NAME;
+    }
 }
