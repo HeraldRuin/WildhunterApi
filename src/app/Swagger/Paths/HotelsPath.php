@@ -502,8 +502,8 @@ class HotelsPath
 
     #[OA\Delete(
         path: "/api/" . ApiConfig::VERSION . "/hotels/manage/{hotel}",
-        description: "Доступно админу базы. Удаляет отель (базу), привязанный к текущему пользователю через admin_base. Аналог кнопки «Удалить» на странице «Управление базой».",
-        summary: "Удалить базу",
+        description: "Доступно админу базы. Открепляет текущего администратора от базы: поле admin_base обнуляется, сама запись отеля не удаляется. Аналог кнопки «Удалить» на странице «Управление базой».",
+        summary: "Открепить базу от администратора",
         security: [['bearerAuth' => []]],
         tags: ["Hotels"],
         parameters: [
@@ -518,12 +518,12 @@ class HotelsPath
         responses: [
             new OA\Response(
                 response: 200,
-                description: "База удалена",
+                description: "Администратор откреплён от базы",
                 content: new OA\JsonContent(
                     required: ["success", "message", "data"],
                     properties: [
                         new OA\Property(property: "success", type: "boolean", example: true),
-                        new OA\Property(property: "message", type: "string", example: "База удалена"),
+                        new OA\Property(property: "message", type: "string", example: "База удалена из управления"),
                         new OA\Property(
                             property: "data",
                             required: ["id"],
