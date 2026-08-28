@@ -12,6 +12,7 @@ Route::get('/hotels/{location}/{slug}', [HotelController::class, 'getHotel']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/hotels/manage', [HotelController::class, 'manageList']);
+    Route::delete('/hotels/manage/{hotel}', [HotelController::class, 'destroy']);
     Route::get('/rooms', [RoomAvailabilityController::class, 'index']);
     Route::get('/rooms/availability', [RoomAvailabilityController::class, 'loadDates']);
 });

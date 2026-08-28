@@ -3,9 +3,9 @@
 namespace Modules\Hotel\Controllers;
 
 use App\Exceptions\ForbiddenException;
+use App\Exceptions\NotFoundException;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
-use App\Exceptions\NotFoundException;
 use App\Exceptions\ValidationException;
 use Illuminate\Support\Facades\Auth;
 use Modules\Hotel\Dto\CheckAvailabilityData;
@@ -41,6 +41,21 @@ class HotelController extends Controller
 
         return new SuccessResponse(
             data: HotelManageListResource::collection($hotels),
+        );
+    }
+
+    /**
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     */
+    public function destroy(Hotel $hotel): JsonResponse
+    {
+        $result = $this->manageHotelService->delete($hotel, Auth::user());
+
+        return new SuccessResponse(
+            code: $result['code'],
+            domain: 'hotel',
+            data: $result['data'],
         );
     }
 
