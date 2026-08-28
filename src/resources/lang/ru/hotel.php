@@ -3,12 +3,27 @@ return [
     'name' => [
         'model_name' => 'Отели',
     ],
+    'statuses' => [
+        'publish' => 'Опубликован',
+        'draft' => 'Черновик',
+        'pending' => 'На модерации',
+        'trash' => 'Удалён',
+    ],
     'errors' => [
+        'hotels_access_denied' => 'Нет доступа к управлению базами',
         'hotel_not_found' => 'Отель не найден',
+        'room_not_found' => 'Номер не найден',
+        'rooms_access_denied' => 'Нет доступа к календарю номеров',
+        'hotel_required' => 'Чтобы управлять этим разделом нужно сначала создать базу',
         'max_booking_days' => 'Максимальный срок бронирования — 30 дней',
         'min_day_stays' => 'Необходимо забронировать минимум на :number дней',
         'min_day_before_booking' => 'Бронирование возможно минимум за :number дней',
     ],
+    'calendar' => [
+        'blocked' => 'не доступно',
+        'full_books' => 'Полная бронь',
+    ],
+
     'rules' => [
 
     ],
@@ -26,6 +41,13 @@ return [
 
         'hotel_id_required' => 'Укажите отель',
         'hotel_id_must_be_integer' => 'Поле "отель" должно быть числом',
+
+        'calendar_id_required' => 'Укажите ID номера или summary',
+        'start_required' => 'Укажите дату начала',
+        'start_must_be_date' => 'Дата начала должна быть корректной датой',
+        'end_required' => 'Укажите дату окончания',
+        'end_must_be_date' => 'Дата окончания должна быть корректной датой',
+        'end_after_or_equal_start' => 'Дата окончания не может быть раньше начала',
 
         'check_in_required' => 'Укажите дату заезда',
         'check_in_must_be_date' => 'Дата заезда должна быть корректной датой',
