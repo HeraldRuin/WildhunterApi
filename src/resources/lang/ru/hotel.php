@@ -82,6 +82,6 @@ return [
         'price_max_must_be_greater_than_min' => 'Максимальная цена должна быть больше или равна минимальной',
     ],
     'successes' => [
-        'hotel_deleted' => 'База удалена',
+        'hotel_detached' => 'База удалена из управления',
     ]
 ];
