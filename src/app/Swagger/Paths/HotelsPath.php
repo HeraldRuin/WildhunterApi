@@ -419,6 +419,88 @@ class HotelsPath
     {}
 
     #[OA\Get(
+        path: "/api/" . ApiConfig::VERSION . "/hotels/manage",
+        description: "Доступно админу базы. Возвращает все отели (базы), привязанные к текущему пользователю через admin_base. Аналог страницы «Управление базой».",
+        summary: "Список баз администратора",
+        security: [['bearerAuth' => []]],
+        tags: ["Hotels"],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Список баз",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            type: "array",
+                            items: new OA\Items(
+                                required: [
+                                    "id",
+                                    "title",
+                                    "slug",
+                                    "image_url",
+                                    "price",
+                                    "status",
+                                    "status_label",
+                                    "updated_at",
+                                    "location",
+                                ],
+                                properties: [
+                                    new OA\Property(property: "id", type: "integer", example: 27),
+                                    new OA\Property(property: "title", type: "string", example: "Хромой кабан-2"),
+                                    new OA\Property(property: "slug", type: "string", example: "khromoi-kaban-2"),
+                                    new OA\Property(property: "image_url", type: "string"),
+                                    new OA\Property(property: "price", type: "number", format: "float", example: 4000),
+                                    new OA\Property(
+                                        property: "status",
+                                        type: "string",
+                                        example: "publish",
+                                        enum: ["publish", "draft", "pending", "trash"]
+                                    ),
+                                    new OA\Property(property: "status_label", type: "string", example: "Опубликован"),
+                                    new OA\Property(
+                                        property: "updated_at",
+                                        type: "string",
+                                        format: "date-time",
+                                        example: "2026-08-04 09:45:00"
+                                    ),
+                                    new OA\Property(
+                                        property: "location",
+                                        required: ["id", "name", "slug"],
+                                        properties: [
+                                            new OA\Property(property: "id", type: "integer", example: 1),
+                                            new OA\Property(property: "name", type: "string", example: "Ярославская область"),
+                                            new OA\Property(property: "slug", type: "string", example: "iaroslavskaia-oblast"),
+                                        ],
+                                        type: "object",
+                                        nullable: true
+                                    ),
+                                ],
+                                type: "object"
+                            )
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(
+                ref: "#/components/responses/AuthResponse",
+                response: 401
+            ),
+            new OA\Response(
+                response: 403,
+                description: "Нет прав baseAdmin"
+            ),
+        ]
+    )]
+    public function manageList(): void
+    {
+    }
+
+    #[OA\Get(
         path: "/api/" . ApiConfig::VERSION . "/hotels/price-range",
         summary: "Получить минимальную и максимальную стоимость отелей",
         security: [['bearerAuth' => []]],
