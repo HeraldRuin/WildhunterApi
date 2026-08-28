@@ -500,6 +500,60 @@ class HotelsPath
     {
     }
 
+    #[OA\Delete(
+        path: "/api/" . ApiConfig::VERSION . "/hotels/manage/{hotel}",
+        description: "Доступно админу базы. Удаляет отель (базу), привязанный к текущему пользователю через admin_base. Аналог кнопки «Удалить» на странице «Управление базой».",
+        summary: "Удалить базу",
+        security: [['bearerAuth' => []]],
+        tags: ["Hotels"],
+        parameters: [
+            new OA\Parameter(
+                name: "hotel",
+                description: "ID базы",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(type: "integer", example: 27)
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "База удалена",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: "База удалена"),
+                        new OA\Property(
+                            property: "data",
+                            required: ["id"],
+                            properties: [
+                                new OA\Property(property: "id", type: "integer", example: 27),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(
+                ref: "#/components/responses/AuthResponse",
+                response: 401
+            ),
+            new OA\Response(
+                response: 403,
+                description: "Нет прав baseAdmin"
+            ),
+            new OA\Response(
+                ref: "#/components/responses/NotFoundResponse",
+                response: 404
+            ),
+        ]
+    )]
+    public function destroy(): void
+    {
+    }
+
     #[OA\Get(
         path: "/api/" . ApiConfig::VERSION . "/hotels/price-range",
         summary: "Получить минимальную и максимальную стоимость отелей",
