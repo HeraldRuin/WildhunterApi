@@ -2,10 +2,12 @@
 
 namespace Modules\Hotel\Controllers;
 
+use App\Exceptions\ForbiddenException;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Exceptions\NotFoundException;
 use App\Exceptions\ValidationException;
+use Illuminate\Support\Facades\Auth;
 use Modules\Hotel\Dto\CheckAvailabilityData;
 use Modules\Hotel\Dto\HotelFilterData;
 use Modules\Hotel\Dto\HotelSearchData;
@@ -19,13 +21,29 @@ use Modules\Hotel\Http\Request\HotelFilterRequest;
 use Modules\Hotel\Http\Request\HotelSearchRequest;
 use Modules\Hotel\Http\Resources\HotelOffersResource;
 use Modules\Hotel\Http\Resources\HotelRoomResource;
+use Modules\Hotel\Http\Resources\HotelManageListResource;
 use Modules\Hotel\Http\Resources\HotelSearchResource;
+use Modules\Hotel\Services\ManageHotelService;
 
 class HotelController extends Controller
 {
-    public function __construct(private HotelService $hotelService)
-    {
+    public function __construct(
+        private HotelService $hotelService,
+        private ManageHotelService $manageHotelService,
+    ) {
     }
+    /**
+     * @throws ForbiddenException
+     */
+    public function manageList(): JsonResponse
+    {
+        $hotels = $this->manageHotelService->list(Auth::user());
+
+        return new SuccessResponse(
+            data: HotelManageListResource::collection($hotels),
+        );
+    }
+
     public function getHotels(HotelFilterRequest $request): JsonResponse
     {
         $dto = HotelFilterData::fromRequest($request);
