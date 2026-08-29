@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\Hotel\Controllers\HotelController;
+use Modules\Hotel\Controllers\ManageRoomController;
 use Modules\Hotel\Controllers\RoomAvailabilityController;
 
 Route::post('/hotels/offers', [HotelController::class, 'getHotels']);
@@ -15,4 +16,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/hotels/manage/{hotel}', [HotelController::class, 'destroy']);
     Route::get('/rooms', [RoomAvailabilityController::class, 'index']);
     Route::get('/rooms/availability', [RoomAvailabilityController::class, 'loadDates']);
+    Route::post('/rooms/{room}/publish', [ManageRoomController::class, 'publish']);
+    Route::post('/rooms/{room}/hide', [ManageRoomController::class, 'hide']);
+    Route::delete('/rooms/{room}', [ManageRoomController::class, 'destroy']);
 });
