@@ -12,8 +12,9 @@ Route::post('/hotels/rooms/check-availability', [HotelController::class, 'checkA
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/hotels/manage', [HotelController::class, 'manageList']);
-    Route::get('/hotels/manage/{hotel}', [HotelController::class, 'show']);
-    Route::delete('/hotels/manage/{hotel}', [HotelController::class, 'destroy']);
+    Route::get('/hotels/manage/{hotel}', [HotelController::class, 'show'])->whereNumber('hotel');
+    Route::put('/hotels/manage/{hotel}', [HotelController::class, 'update'])->whereNumber('hotel');
+    Route::delete('/hotels/manage/{hotel}', [HotelController::class, 'destroy'])->whereNumber('hotel');
     Route::get('/rooms', [RoomAvailabilityController::class, 'index']);
     Route::get('/rooms/availability', [RoomAvailabilityController::class, 'loadDates']);
     Route::post('/rooms/{room}/publish', [ManageRoomController::class, 'publish']);
