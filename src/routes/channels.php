@@ -23,3 +23,7 @@ Broadcast::channel('bookings.{bookingId}', function (User $user, int $bookingId)
 Broadcast::channel('booking-history.{userId}', function (User $user, int $userId): bool {
     return (int) $user->id === $userId;
 }, ['guards' => ['sanctum']]);
+
+Broadcast::channel('notifications.{userId}', function (User $user, int $userId): bool {
+    return (int) $user->id === $userId;
+}, ['guards' => ['sanctum']]);
