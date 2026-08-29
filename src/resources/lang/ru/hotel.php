@@ -100,7 +100,7 @@ return [
     ],
     'successes' => [
         'hotel_detached' => 'База удалена из управления',
-        'hotel_updated' => 'База сохранена',
+        'hotel_updated' => 'Данные сохранены',
         'room_published' => 'Номер опубликован',
         'room_hidden' => 'Номер скрыт',
         'room_deleted' => 'Номер удалён',
