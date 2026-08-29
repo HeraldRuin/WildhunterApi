@@ -117,7 +117,6 @@ class RoomAvailabilityService
                     'price' => $price,
                     'number' => $number,
                     'active' => $isActive,
-                    'classNames' => $isActive ? ['available-event'] : ['blocked-event'],
                     'title' => $title,
                 ],
                 [
@@ -156,6 +155,7 @@ class RoomAvailabilityService
                 }
 
                 $day = &$allDates[$dateKey];
+                $isCheckout = $dateKey === $endDate;
 
                 $day['bookings'][] = [
                     'id' => $booking->id,
@@ -163,9 +163,10 @@ class RoomAvailabilityService
                     'code' => $booking->code,
                     'status' => $booking->status,
                     'statusName' => $booking->statusName,
+                    'is_checkout' => $isCheckout,
                 ];
 
-                if ($dateKey !== $endDate) {
+                if (!$isCheckout) {
                     $bookedRooms = (int) ($roomBooking->number ?? 0);
                     $day['occupiedRooms'] = ($day['occupiedRooms'] ?? 0) + $bookedRooms;
 
@@ -175,47 +176,18 @@ class RoomAvailabilityService
                     if ($freeRooms <= 0) {
                         $day['active'] = 1;
                         $day['number'] = 0;
-                        $day['classNames'] = ['full-book-event'];
                         $day['title'] = __('hotel.calendar.full_books');
                     } else {
                         $day['active'] = 1;
                         $day['number'] = $freeRooms;
-                        $day['classNames'] = ['available-event'];
                         $day['title'] = format_money_main($day['price']) . ' x ' . $day['number'];
                     }
                 } else {
-                    $day['classNames'] = ['checkout-day-event'];
+                    $day['is_checkout_day'] = true;
                     $day['title'] = format_money_main($day['price']) . ' x ' . $day['number'];
                 }
             }
         }
-
-        foreach ($allDates as &$day) {
-            if (empty($day['bookings'])) {
-                continue;
-            }
-
-            $bookingHtml = '<div class="calendar-bookings">';
-            foreach ($day['bookings'] as $b) {
-                $status = htmlspecialchars($b['status'] ?? '');
-                $label = htmlspecialchars($b['statusName'] ?? '');
-
-                $bookingHtml .= '<div class="booking-item booking-status-' . $status . '">'
-                    . '<span class="booking-id" data-id="' . (int) $b['id'] . '" data-code="' . e($b['code']) . '">'
-                    . 'Б' . htmlspecialchars((string) $b['booking_number']) .
-                    '</span>'
-                    . '<span class="booking-status">' . $label . '</span>';
-
-                if ($this->isCheckoutDay((int) $b['id'], $day['start'])) {
-                    $bookingHtml .= ' <span class="checkout-label">(В)</span>';
-                }
-                $bookingHtml .= '</div>';
-            }
-
-            $bookingHtml .= '</div>';
-            $day['bookings_html'] = $bookingHtml;
-        }
-        unset($day);
 
         return array_values($allDates);
     }
@@ -246,7 +218,6 @@ class RoomAvailabilityService
                 ],
                 'title' => '',
                 'bookings' => [],
-                'bookings_html' => '',
             ];
         }
 
@@ -290,13 +261,18 @@ class RoomAvailabilityService
                     $bookingEnd = Carbon::parse($rb->end_date)->format('Y-m-d');
 
                     if ($dateKey >= $bookingStart && $dateKey <= $bookingEnd) {
+                        $isCheckout = $dateKey === $bookingEnd;
                         $day['bookings'][$booking->id] = [
                             'id' => $booking->id,
                             'booking_number' => $booking->booking_number,
                             'code' => $booking->code,
                             'status' => $booking->status,
                             'statusName' => $booking->statusName,
+                            'is_checkout' => $isCheckout,
                         ];
+                        if ($isCheckout) {
+                            $day['is_checkout_day'] = true;
+                        }
                     }
                 }
             }
@@ -304,45 +280,13 @@ class RoomAvailabilityService
         }
 
         foreach ($allDates as &$day) {
-            if (empty($day['bookings'])) {
-                continue;
+            if (!empty($day['bookings'])) {
+                $day['bookings'] = array_values($day['bookings']);
             }
-
-            $day['bookings'] = array_values($day['bookings']);
-
-            $bookingHtml = '<div class="calendar-bookings">';
-            foreach ($day['bookings'] as $b) {
-                $code = htmlspecialchars($b['code'] ?? '');
-
-                $bookingHtml .= '<div class="booking-item">'
-                    . '<span class="booking-id" data-id="' . (int) $b['id'] . '" data-code="' . $code . '">'
-                    . 'Б' . htmlspecialchars((string) $b['booking_number']) .
-                    '</span>';
-
-                if ($this->isCheckoutDay((int) $b['id'], $day['start'])) {
-                    $bookingHtml .= ' <span class="checkout-label">(В)</span>';
-                }
-
-                $bookingHtml .= '</div>';
-            }
-            $bookingHtml .= '</div>';
-            $day['bookings_html'] = $bookingHtml;
         }
         unset($day);
 
         return array_values($allDates);
-    }
-
-    protected function isCheckoutDay(int $bookingId, string $date): bool
-    {
-        $booking = Booking::find($bookingId);
-        if (!$booking) {
-            return false;
-        }
-
-        $endDate = Carbon::parse($booking->end_date)->format('Y-m-d');
-
-        return $endDate === $date;
     }
 
     /**
