@@ -733,12 +733,12 @@ class HotelsPath
         responses: [
             new OA\Response(
                 response: 200,
-                description: "База сохранена",
+                description: "Данные сохранены",
                 content: new OA\JsonContent(
                     required: ["success", "message", "data"],
                     properties: [
                         new OA\Property(property: "success", type: "boolean", example: true),
-                        new OA\Property(property: "message", type: "string", example: "База сохранена"),
+                        new OA\Property(property: "message", type: "string", example: "Данные сохранены"),
                         new OA\Property(
                             property: "data",
                             required: [
