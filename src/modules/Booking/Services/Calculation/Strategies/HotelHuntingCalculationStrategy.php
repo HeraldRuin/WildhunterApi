@@ -1,0 +1,117 @@
+<?php
+
+namespace Modules\Booking\Services\Calculation\Strategies;
+
+use App\Exceptions\BusinessException;
+use Modules\Booking\Services\Calculation\BookingCalculator;
+use Modules\Booking\Services\Calculation\Contracts\BookingCalculationStrategy;
+
+class HotelHuntingCalculationStrategy implements BookingCalculationStrategy
+{
+    public function __construct(protected BookingCalculator $bookingCalculator){}
+
+    /**
+     * @throws BusinessException
+     */
+    public function calculate($booking, array $data, $user): array
+    {
+        $services = $data['services'];
+        $grouped = $services->groupBy('service_type');
+        $paidCount = $data['paidCount'];
+        $isBaseAdmin = $data['isBaseAdmin'];
+
+        if ($data['paidCount'] <= 0) {
+            return [
+                'success' => false,
+                'message' => 'no_paid_participants',
+            ];
+        }
+
+        // === Трофеи ===
+        $trophies = $this->bookingCalculator->calculateTrophies(collect($grouped['trophy'] ?? []), $paidCount);
+
+        // === Штрафы ===
+        $penalties = $this->bookingCalculator->calculatePenalties(collect($grouped['penalty'] ?? []), $user);
+
+        // === Дополнительные услуги ===
+        $addetionals = $this->bookingCalculator->calculateAdditional(collect($grouped['addetional'] ?? []), $user, $paidCount);
+
+        // === Питание ===
+        $meals = $this->bookingCalculator->calculateMeals(collect($grouped['food'] ?? []), $paidCount, $booking);
+
+        // === Разделка ===
+        $preparations = $this->bookingCalculator->calculatePreparations(collect($grouped['preparation'] ?? []), $paidCount);
+
+        $additionalServices = array_merge(
+            $meals,
+            $preparations,
+            $addetionals
+        );
+
+        // === Расходы охотников ===
+        $spendingData = $this->bookingCalculator->getSpendings(collect($grouped['spending'] ?? []), $user, $paidCount);
+
+        // === Подсчёты итогов ===
+        $organisationHunting = $this->bookingCalculator->getOrganisationHunting($booking, $paidCount);
+        $accommodation = $this->bookingCalculator->getAccommodation($booking, $user);
+        $prepaymentMade = $this->bookingCalculator->getPrepaymentMade($booking, $paidCount);
+        $balanceBase = $this->bookingCalculator->getBalanceBase($booking, $user, $services, $paidCount, $isBaseAdmin);
+        $paymentDisplayData = $this->bookingCalculator->getBookingTotal($booking, $services, $paidCount);
+
+        // === Формируем итоговые массивы ===
+        $allItems = [
+            [
+                'name' => $prepaymentMade['title_name'],
+                'total_cost' => $prepaymentMade['total_cost'],
+                'my_cost' => $prepaymentMade['my_cost'],
+            ],
+            [
+                'name' => $balanceBase['title_name'],
+                'total_cost' => $balanceBase['total_cost'],
+                'my_cost' => $balanceBase['my_cost'],
+            ]
+        ];
+
+        if (!is_baseAdmin()) {
+            $allItems[] = [
+                'name' => $spendingData['title_name'],
+                'total_cost' => $spendingData['total_cost'],
+                'my_cost' => $spendingData['my_cost'],
+            ];
+        }
+
+        return [
+            'success' => true,
+            'is_baseAdmin' => is_baseAdmin(),
+            'items' => [
+                [
+                    'name' => $accommodation['title_name'],
+                    'total_cost' => $accommodation['total_cost'],
+                    'my_cost' => $accommodation['my_cost'],
+                ],
+                [
+                    'name' => $organisationHunting['title_name'],
+                    'total_cost' => $organisationHunting['total_cost'],
+                    'my_cost' => $organisationHunting['my_cost'],
+                    'has_tooltip' => true,
+                ],
+            ],
+            'trophy_show' =>  !empty($trophies),
+            'trophies' => $trophies,
+            'penalties_show' => !empty($penalties),
+            'penalties' => $penalties,
+            'additional_services_show' => !empty($additionalServices),
+            'meals' => $meals,
+            'preparation' => $preparations,
+            'addetionals' => $addetionals,
+            'spendings_show' => !empty($spendingData['items']),
+            'spendings' => $spendingData['items'],
+            'all_items' => $allItems,
+
+            //Подсчет в историю бронирования в колонку оплата (админа базы)
+            'prepaid_total' => $paymentDisplayData['prepaid_total'] ?? 0,
+            'base_total' => $paymentDisplayData['base_total'] ?? 0,
+            'total' => $paymentDisplayData['total'] ?? 0,
+        ];
+    }
+}
