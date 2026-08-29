@@ -4,6 +4,7 @@ return [
     'errors' => [
         'hotel_not_found' => 'Отель не найден',
         'animal_not_found' => 'Животное не найдено',
+        'animal_not_published' => 'Нельзя добавить неопубликованное животное',
         'animal_not_available_at_hotel' => 'Это животное недоступно в выбранном отеле',
         'hunt_date_out_of_stay' => 'Дата охоты должна быть в пределах дат проживания',
         'animal_unavailable_on_date' => 'На эту дату охота на это животное недоступна',
