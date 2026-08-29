@@ -6,6 +6,8 @@ use App\Exceptions\ForbiddenException;
 use App\Exceptions\NotFoundException;
 use App\Models\User;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Modules\Hotel\Dto\UpdateHotelManageData;
 use Modules\Hotel\Models\Hotel;
 
 class ManageHotelService
@@ -35,6 +37,41 @@ class ManageHotelService
         $hotel->load(['location', 'terms']);
 
         return $hotel;
+    }
+
+    /**
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     */
+    public function update(Hotel $hotel, UpdateHotelManageData $data, User $user): array
+    {
+        $this->assertBaseAdmin();
+        $this->assertBelongsToAdmin($hotel, $user);
+
+        DB::transaction(function () use ($hotel, $data) {
+            foreach ($data->fields as $field => $value) {
+                $hotel->{$field} = $value;
+            }
+
+            if ($data->hasGallery) {
+                $hotel->gallery = $data->galleryIds === [] || $data->galleryIds === null
+                    ? null
+                    : implode(',', $data->galleryIds);
+            }
+
+            $hotel->save();
+
+            if ($data->hasTermIds) {
+                $hotel->terms()->sync($data->termIds ?? []);
+            }
+        });
+
+        $hotel->load(['location', 'terms']);
+
+        return [
+            'code' => 'hotel_updated',
+            'data' => $hotel,
+        ];
     }
 
     /**

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Modules\Hotel\Dto\CheckAvailabilityData;
 use Modules\Hotel\Dto\HotelFilterData;
 use Modules\Hotel\Dto\HotelSearchData;
+use Modules\Hotel\Dto\UpdateHotelManageData;
 use App\Http\Responses\SuccessResponse;
 use Modules\Hotel\Models\Hotel;
 use Modules\Hotel\Services\HotelService;
@@ -19,6 +20,7 @@ use Modules\Hotel\Http\Resources\HotelResource;
 use Modules\Hotel\Http\Request\CheckAvailabilityRequest;
 use Modules\Hotel\Http\Request\HotelFilterRequest;
 use Modules\Hotel\Http\Request\HotelSearchRequest;
+use Modules\Hotel\Http\Request\UpdateHotelManageRequest;
 use Modules\Hotel\Http\Resources\HotelOffersResource;
 use Modules\Hotel\Http\Resources\HotelRoomResource;
 use Modules\Hotel\Http\Resources\HotelManageEditResource;
@@ -55,6 +57,22 @@ class HotelController extends Controller
 
         return new SuccessResponse(
             data: new HotelManageEditResource($hotel),
+        );
+    }
+
+    /**
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     */
+    public function update(UpdateHotelManageRequest $request, Hotel $hotel): JsonResponse
+    {
+        $data = UpdateHotelManageData::fromRequest($request);
+        $result = $this->manageHotelService->update($hotel, $data, Auth::user());
+
+        return new SuccessResponse(
+            code: $result['code'],
+            domain: 'hotel',
+            data: new HotelManageEditResource($result['data']),
         );
     }
 
