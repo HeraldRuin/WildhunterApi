@@ -102,7 +102,7 @@ class RoomsPath
         responses: [
             new OA\Response(
                 response: 200,
-                description: "Дни календаря (FullCalendar events)",
+                description: "Дни календаря доступности",
                 content: new OA\JsonContent(
                     required: ["success", "message", "data"],
                     properties: [
@@ -122,15 +122,15 @@ class RoomsPath
                                     new OA\Property(property: "active", type: "integer", example: 1),
                                     new OA\Property(property: "title", type: "string", example: "5.000 руб x 2"),
                                     new OA\Property(
-                                        property: "classNames",
-                                        type: "array",
-                                        items: new OA\Items(type: "string"),
-                                        example: ["available-event"]
-                                    ),
-                                    new OA\Property(
                                         property: "occupiedRooms",
                                         type: "integer",
                                         example: 1,
+                                        nullable: true
+                                    ),
+                                    new OA\Property(
+                                        property: "is_checkout_day",
+                                        type: "boolean",
+                                        example: false,
                                         nullable: true
                                     ),
                                     new OA\Property(
@@ -148,21 +148,17 @@ class RoomsPath
                                         property: "bookings",
                                         type: "array",
                                         items: new OA\Items(
-                                            required: ["id", "booking_number", "code", "status", "statusName"],
+                                            required: ["id", "booking_number", "code", "status", "statusName", "is_checkout"],
                                             properties: [
                                                 new OA\Property(property: "id", type: "integer"),
                                                 new OA\Property(property: "booking_number", type: "string", nullable: true),
                                                 new OA\Property(property: "code", type: "string"),
                                                 new OA\Property(property: "status", type: "string"),
                                                 new OA\Property(property: "statusName", type: "string"),
+                                                new OA\Property(property: "is_checkout", type: "boolean", example: false),
                                             ],
                                             type: "object"
                                         )
-                                    ),
-                                    new OA\Property(
-                                        property: "bookings_html",
-                                        description: "HTML-разметка броней для совместимости с booking_core",
-                                        type: "string"
                                     ),
                                 ],
                                 type: "object"
