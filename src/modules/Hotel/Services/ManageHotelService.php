@@ -27,6 +27,20 @@ class ManageHotelService
      * @throws ForbiddenException
      * @throws NotFoundException
      */
+    public function show(Hotel $hotel, User $user): Hotel
+    {
+        $this->assertBaseAdmin();
+        $this->assertBelongsToAdmin($hotel, $user);
+
+        $hotel->load(['location', 'terms']);
+
+        return $hotel;
+    }
+
+    /**
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     */
     public function delete(Hotel $hotel, User $user): array
     {
         $this->assertBaseAdmin();

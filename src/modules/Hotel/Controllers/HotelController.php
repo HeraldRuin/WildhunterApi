@@ -21,6 +21,7 @@ use Modules\Hotel\Http\Request\HotelFilterRequest;
 use Modules\Hotel\Http\Request\HotelSearchRequest;
 use Modules\Hotel\Http\Resources\HotelOffersResource;
 use Modules\Hotel\Http\Resources\HotelRoomResource;
+use Modules\Hotel\Http\Resources\HotelManageEditResource;
 use Modules\Hotel\Http\Resources\HotelManageListResource;
 use Modules\Hotel\Http\Resources\HotelSearchResource;
 use Modules\Hotel\Services\ManageHotelService;
@@ -41,6 +42,19 @@ class HotelController extends Controller
 
         return new SuccessResponse(
             data: HotelManageListResource::collection($hotels),
+        );
+    }
+
+    /**
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     */
+    public function show(Hotel $hotel): JsonResponse
+    {
+        $hotel = $this->manageHotelService->show($hotel, Auth::user());
+
+        return new SuccessResponse(
+            data: new HotelManageEditResource($hotel),
         );
     }
 
