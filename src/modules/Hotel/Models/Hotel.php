@@ -7,6 +7,7 @@ use Modules\Animals\Models\Animal;
 use Modules\Review\Models\Review;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Modules\Terms\Models\Terms;
 use Modules\User\Models\UserWishList;
 use Modules\Booking\Models\Bookable;
 use Modules\Booking\Traits\HasDeposit;
@@ -129,5 +130,10 @@ class Hotel extends Bookable
     {
         return $this->belongsToMany(Animal::class, 'bc_hotel_animals', 'hotel_id', 'animal_id')
             ->withPivot('status', 'hunters_count');
+    }
+
+    public function terms(): BelongsToMany
+    {
+        return $this->belongsToMany(Terms::class, 'bc_hotel_term', 'target_id', 'term_id');
     }
 }
