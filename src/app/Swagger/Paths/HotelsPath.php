@@ -500,6 +500,157 @@ class HotelsPath
     {
     }
 
+    #[OA\Get(
+        path: "/api/" . ApiConfig::VERSION . "/hotels/manage/{hotel}",
+        description: "Доступно админу базы. Возвращает данные своей базы для формы редактирования (контент, политика, места, ценообразование, атрибуты). Аналог открытия базы на странице «Управление базой».",
+        summary: "Данные базы для редактирования",
+        security: [['bearerAuth' => []]],
+        tags: ["Hotels"],
+        parameters: [
+            new OA\Parameter(
+                name: "hotel",
+                description: "ID базы",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(type: "integer", example: 27)
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Данные базы для редактирования",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            required: [
+                                "id",
+                                "title",
+                                "slug",
+                                "content",
+                                "star_rate",
+                                "address",
+                                "image_id",
+                                "image_url",
+                                "gallery",
+                                "policy",
+                                "surrounding",
+                                "price",
+                                "extra_price",
+                                "service_fee",
+                                "map_lat",
+                                "map_lng",
+                                "location_id",
+                                "location",
+                                "status",
+                                "status_label",
+                                "has_food",
+                                "term_ids",
+                            ],
+                            properties: [
+                                new OA\Property(property: "id", type: "integer", example: 27),
+                                new OA\Property(property: "title", type: "string", example: "Хромой кабан-2", nullable: true),
+                                new OA\Property(property: "slug", type: "string", example: "khromoi-kaban-2", nullable: true),
+                                new OA\Property(property: "content", type: "string", nullable: true),
+                                new OA\Property(property: "star_rate", type: "integer", example: 4, nullable: true),
+                                new OA\Property(property: "address", type: "string", nullable: true),
+                                new OA\Property(property: "image_id", type: "integer", example: 120, nullable: true),
+                                new OA\Property(property: "image_url", type: "string"),
+                                new OA\Property(
+                                    property: "gallery",
+                                    type: "array",
+                                    items: new OA\Items(
+                                        required: ["id", "large", "medium", "thumb"],
+                                        properties: [
+                                            new OA\Property(property: "id", type: "integer", example: 121),
+                                            new OA\Property(property: "large", type: "string"),
+                                            new OA\Property(property: "medium", type: "string"),
+                                            new OA\Property(property: "thumb", type: "string"),
+                                        ],
+                                        type: "object"
+                                    )
+                                ),
+                                new OA\Property(
+                                    property: "policy",
+                                    type: "array",
+                                    items: new OA\Items(type: "object"),
+                                    nullable: true
+                                ),
+                                new OA\Property(
+                                    property: "surrounding",
+                                    type: "array",
+                                    items: new OA\Items(type: "object"),
+                                    nullable: true
+                                ),
+                                new OA\Property(property: "price", type: "number", format: "float", example: 4000, nullable: true),
+                                new OA\Property(
+                                    property: "extra_price",
+                                    type: "array",
+                                    items: new OA\Items(type: "object"),
+                                    nullable: true
+                                ),
+                                new OA\Property(
+                                    property: "service_fee",
+                                    type: "array",
+                                    items: new OA\Items(type: "object"),
+                                    nullable: true
+                                ),
+                                new OA\Property(property: "map_lat", type: "string", nullable: true),
+                                new OA\Property(property: "map_lng", type: "string", nullable: true),
+                                new OA\Property(property: "location_id", type: "integer", example: 1, nullable: true),
+                                new OA\Property(
+                                    property: "location",
+                                    required: ["id", "name", "slug"],
+                                    properties: [
+                                        new OA\Property(property: "id", type: "integer", example: 1),
+                                        new OA\Property(property: "name", type: "string", example: "Ярославская область"),
+                                        new OA\Property(property: "slug", type: "string", example: "iaroslavskaia-oblast"),
+                                    ],
+                                    type: "object",
+                                    nullable: true
+                                ),
+                                new OA\Property(
+                                    property: "status",
+                                    type: "string",
+                                    example: "publish",
+                                    enum: ["publish", "draft", "pending", "trash"]
+                                ),
+                                new OA\Property(property: "status_label", type: "string", example: "Опубликован"),
+                                new OA\Property(property: "has_food", type: "boolean", example: false),
+                                new OA\Property(
+                                    property: "term_ids",
+                                    type: "array",
+                                    items: new OA\Items(type: "integer"),
+                                    example: [1, 5, 12]
+                                ),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(
+                ref: "#/components/responses/AuthResponse",
+                response: 401
+            ),
+            new OA\Response(
+                response: 403,
+                description: "Нет прав baseAdmin"
+            ),
+            new OA\Response(
+                ref: "#/components/responses/NotFoundResponse",
+                response: 404
+            ),
+        ]
+    )]
+    public function manageShow(): void
+    {
+    }
+
     #[OA\Delete(
         path: "/api/" . ApiConfig::VERSION . "/hotels/manage/{hotel}",
         description: "Доступно админу базы. Открепляет текущего администратора от базы: поле admin_base обнуляется, сама запись отеля не удаляется. Аналог кнопки «Удалить» на странице «Управление базой».",
