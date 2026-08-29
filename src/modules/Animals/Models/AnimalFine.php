@@ -18,8 +18,22 @@ class AnimalFine extends Model
         'price',
     ];
 
+    public function scopeForHotel($query, int $hotelId)
+    {
+        return $query->whereHas('animal', function ($q) use ($hotelId) {
+            $q->whereHas('hotels', function ($q2) use ($hotelId) {
+                $q2->where('hotel_id', $hotelId);
+            });
+        });
+    }
+
     public function animal(): BelongsTo
     {
         return $this->belongsTo(Animal::class, 'animal_id');
+    }
+
+    public function hotelPriceForHotel($hotelId)
+    {
+        return $this->hotelPrices()->where('hotel_id', $hotelId)->first()?->price ?? null;
     }
 }
