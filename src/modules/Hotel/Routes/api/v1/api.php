@@ -9,10 +9,10 @@ Route::post('/hotels/offers', [HotelController::class, 'getHotels']);
 Route::post('/hotels/search', [HotelController::class, 'searchHotels']);
 Route::get('/hotels/price-range', [HotelController::class, 'priceRange']);
 Route::post('/hotels/rooms/check-availability', [HotelController::class, 'checkAvailability']);
-Route::get('/hotels/{location}/{slug}', [HotelController::class, 'getHotel']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/hotels/manage', [HotelController::class, 'manageList']);
+    Route::get('/hotels/manage/{hotel}', [HotelController::class, 'show']);
     Route::delete('/hotels/manage/{hotel}', [HotelController::class, 'destroy']);
     Route::get('/rooms', [RoomAvailabilityController::class, 'index']);
     Route::get('/rooms/availability', [RoomAvailabilityController::class, 'loadDates']);
@@ -20,3 +20,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/rooms/{room}/hide', [ManageRoomController::class, 'hide']);
     Route::delete('/rooms/{room}', [ManageRoomController::class, 'destroy']);
 });
+
+Route::get('/hotels/{location}/{slug}', [HotelController::class, 'getHotel']);
