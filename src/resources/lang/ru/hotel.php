@@ -83,5 +83,8 @@ return [
     ],
     'successes' => [
         'hotel_detached' => 'База удалена из управления',
+        'room_published' => 'Номер опубликован',
+        'room_hidden' => 'Номер скрыт',
+        'room_deleted' => 'Номер удалён',
     ]
 ];
