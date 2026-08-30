@@ -8,6 +8,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Responses\SuccessResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Modules\Hotel\Dto\UpdateRoomManageData;
+use Modules\Hotel\Http\Request\StoreRoomManageRequest;
+use Modules\Hotel\Http\Request\UpdateRoomManageRequest;
+use Modules\Hotel\Http\Resources\RoomManageEditResource;
 use Modules\Hotel\Models\HotelRoom;
 use Modules\Hotel\Services\ManageRoomService;
 
@@ -16,6 +20,56 @@ class ManageRoomController extends Controller
     public function __construct(
         private readonly ManageRoomService $manageRoomService,
     ) {
+    }
+
+    /**
+     * Данные номера для формы редактирования.
+     *
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     */
+    public function show(HotelRoom $room): JsonResponse
+    {
+        $room = $this->manageRoomService->show($room, Auth::user());
+
+        return new SuccessResponse(
+            data: new RoomManageEditResource($room),
+        );
+    }
+
+    /**
+     * Создать номер у отеля текущего админа базы.
+     *
+     * @throws ForbiddenException
+     */
+    public function store(StoreRoomManageRequest $request): JsonResponse
+    {
+        $data = UpdateRoomManageData::fromRequest($request);
+        $result = $this->manageRoomService->store($data, Auth::user());
+
+        return new SuccessResponse(
+            code: $result['code'],
+            domain: 'hotel',
+            data: new RoomManageEditResource($result['data']),
+        );
+    }
+
+    /**
+     * Сохранить редактирование номера.
+     *
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     */
+    public function update(UpdateRoomManageRequest $request, HotelRoom $room): JsonResponse
+    {
+        $data = UpdateRoomManageData::fromRequest($request);
+        $result = $this->manageRoomService->update($room, $data, Auth::user());
+
+        return new SuccessResponse(
+            code: $result['code'],
+            domain: 'hotel',
+            data: new RoomManageEditResource($result['data']),
+        );
     }
 
     /**
