@@ -18,9 +18,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/hotels/manage/{hotel}', [HotelController::class, 'destroy'])->whereNumber('hotel');
     Route::get('/rooms', [RoomAvailabilityController::class, 'index']);
     Route::get('/rooms/availability', [RoomAvailabilityController::class, 'loadDates']);
-    Route::post('/rooms/{room}/publish', [ManageRoomController::class, 'publish']);
-    Route::post('/rooms/{room}/hide', [ManageRoomController::class, 'hide']);
-    Route::delete('/rooms/{room}', [ManageRoomController::class, 'destroy']);
+    Route::post('/rooms', [ManageRoomController::class, 'store']);
+    Route::get('/rooms/{room}', [ManageRoomController::class, 'show'])->whereNumber('room');
+    Route::put('/rooms/{room}', [ManageRoomController::class, 'update'])->whereNumber('room');
+    Route::post('/rooms/{room}/publish', [ManageRoomController::class, 'publish'])->whereNumber('room');
+    Route::post('/rooms/{room}/hide', [ManageRoomController::class, 'hide'])->whereNumber('room');
+    Route::delete('/rooms/{room}', [ManageRoomController::class, 'destroy'])->whereNumber('room');
 });
 
 Route::get('/hotels/{location}/{slug}', [HotelController::class, 'getHotel']);
