@@ -5,6 +5,7 @@ namespace Modules\Booking\Services;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Modules\Booking\Events\BookingStartCollectionEvent;
+use Modules\Booking\Events\BookingUpdatedEvent;
 use Modules\Booking\Models\Booking;
 
 class BookingTimerService
@@ -157,6 +158,7 @@ class BookingTimerService
         $this->startTimer($booking->id, $timerHour, 'collection', ['collection', 'paid', 'beds']);
 
         event(new BookingStartCollectionEvent($booking));
+        BookingUpdatedEvent::dispatchSafely($booking);
 
         return [
             'code' => 'gathering_has_started',
@@ -169,6 +171,7 @@ class BookingTimerService
 
         $timerHour = $this->getTimerHours($booking, 'paid');
         $this->startTimer($booking->id, $timerHour, 'paid', ['collection', 'paid', 'beds']);
+        BookingUpdatedEvent::dispatchSafely($booking);
     }
     public function startBedTimer($booking): void
     {
@@ -177,6 +180,7 @@ class BookingTimerService
 
         $timerHour = $this->getTimerHours($booking, 'beds');
         $this->startTimer($booking->id, $timerHour, 'beds', ['collection', 'paid', 'beds']);
+        BookingUpdatedEvent::dispatchSafely($booking);
     }
 }
 

@@ -43,6 +43,7 @@ class BookingCollectionService
         });
 
         $this->bookingMailService->sendStartCollection($result['booking']);
+        BookingUpdatedEvent::dispatchSafely($result['booking']);
 
         return $result;
     }
@@ -52,7 +53,7 @@ class BookingCollectionService
      */
     public function extend(string $code, User $user): array
     {
-        return DB::transaction(function () use ($code, $user): array {
+        $result = DB::transaction(function () use ($code, $user): array {
             $booking = $this->findForUpdate($code);
             $this->ensureMasterHunter($booking, $user);
 
@@ -84,6 +85,10 @@ class BookingCollectionService
 
             return $this->restartCollectionTimer($booking);
         });
+
+        BookingUpdatedEvent::dispatchSafely($result['booking']);
+
+        return $result;
     }
 
     /**
@@ -144,7 +149,6 @@ class BookingCollectionService
             if ($booking->type === Booking::BookingTypeAnimal) {
                 $booking->status = Booking::FINISHED_COLLECTION;
                 $booking->save();
-                // event(new BookingUpdatedEvent($booking));
 
                 return ['booking' => $booking];
             }
@@ -152,7 +156,6 @@ class BookingCollectionService
             $booking->status = Booking::PREPAYMENT_COLLECTION;
             $booking->save();
             $timer = $this->startPaidTimer($booking);
-            // event(new BookingUpdatedEvent($booking));
 
             return [
                 'booking' => $booking,
@@ -161,6 +164,7 @@ class BookingCollectionService
         });
 
         $this->bookingMailService->sendFinishCollection($result['booking']);
+        BookingUpdatedEvent::dispatchSafely($result['booking']);
 
         return $result;
     }
@@ -452,6 +456,8 @@ class BookingCollectionService
                 'updated_at' => $now,
             ],
         ]);
+
+        BookingUpdatedEvent::dispatchSafely($booking);
 
         return [
             'start_at' => $startAt,

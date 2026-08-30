@@ -6,8 +6,10 @@ use App\Exceptions\ConflictException;
 use App\Exceptions\ForbiddenException;
 use App\Exceptions\NotFoundException;
 use App\Models\User;
+use Modules\Booking\Events\BookingUpdatedEvent;
 use Modules\Booking\Models\Booking;
 use Modules\Booking\Models\BookingHunterInvitation;
+use Modules\Hotel\Events\RoomAvailabilityUpdatedEvent;
 
 class BookingCancelService
 {
@@ -45,6 +47,10 @@ class BookingCancelService
         $booking->status = Booking::CANCELLED;
 
         $this->bookingMailService->sendCancelled($booking);
+        BookingUpdatedEvent::dispatchSafely(
+            $booking,
+            RoomAvailabilityUpdatedEvent::ACTION_CANCELLED,
+        );
 
         return $booking;
     }
