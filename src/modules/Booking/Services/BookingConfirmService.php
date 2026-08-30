@@ -13,6 +13,7 @@ class BookingConfirmService
 {
     public function __construct(
         private readonly BookingMailService $bookingMailService,
+        private readonly BookingNotificationService $bookingNotificationService,
     ) {
     }
 
@@ -62,6 +63,7 @@ class BookingConfirmService
         $booking->status = Booking::CONFIRMED;
 
         $this->bookingMailService->sendStatusUpdated($booking);
+        $this->bookingNotificationService->sendBookingConfirmed($booking);
         BookingUpdatedEvent::dispatchSafely($booking);
 
         return $booking;

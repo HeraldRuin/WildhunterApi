@@ -17,7 +17,7 @@ class BookingNotificationService
 
     public function sendNewBooking(Booking $booking): void
     {
-        $number = (string) ($booking->booking_number ?: $booking->code);
+        $number = $this->bookingNumber($booking);
         $link = $this->bookingLink($booking);
 
         $baseAdmin = $this->baseAdmin($booking);
@@ -40,25 +40,28 @@ class BookingNotificationService
             );
         }
 
-        $creator = $this->creator($booking);
+        $this->sendToCreator(
+            $booking,
+            title: __('booking.notifications.new_booking_customer_title'),
+            message: __('booking.notifications.new_booking_customer_message', [
+                'number' => $number,
+            ]),
+            event: 'booking.created',
+        );
+    }
 
-        if ($creator) {
-            $this->sendSafely(
-                $creator,
-                new NotificationPayloadData(
-                    title: __('booking.notifications.new_booking_customer_title'),
-                    message: __('booking.notifications.new_booking_customer_message', [
-                        'number' => $number,
-                    ]),
-                    link: $link,
-                    category: 'booking',
-                    entityType: 'booking',
-                    entityId: (int) $booking->id,
-                    event: 'booking.created',
-                ),
-                forAdmin: false,
-            );
-        }
+    public function sendBookingConfirmed(Booking $booking): void
+    {
+        $number = $this->bookingNumber($booking);
+
+        $this->sendToCreator(
+            $booking,
+            title: __('booking.notifications.booking_confirmed_title'),
+            message: __('booking.notifications.booking_confirmed_message', [
+                'number' => $number,
+            ]),
+            event: 'booking.confirmed',
+        );
     }
 
     private function baseAdmin(Booking $booking): ?User
@@ -72,11 +75,43 @@ class BookingNotificationService
         return User::query()->find($booking->hotel->admin_base);
     }
 
+    private function sendToCreator(
+        Booking $booking,
+        string $title,
+        string $message,
+        string $event,
+    ): void {
+        $creator = $this->creator($booking);
+
+        if (!$creator) {
+            return;
+        }
+
+        $this->sendSafely(
+            $creator,
+            new NotificationPayloadData(
+                title: $title,
+                message: $message,
+                link: $this->bookingLink($booking),
+                category: 'booking',
+                entityType: 'booking',
+                entityId: (int) $booking->id,
+                event: $event,
+            ),
+            forAdmin: false,
+        );
+    }
+
     private function creator(Booking $booking): ?User
     {
         $booking->loadMissing('creator');
 
         return $booking->creator;
+    }
+
+    private function bookingNumber(Booking $booking): string
+    {
+        return (string) ($booking->booking_number ?: $booking->code);
     }
 
     private function bookingLink(Booking $booking): string
