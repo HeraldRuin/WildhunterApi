@@ -6,6 +6,18 @@ use Modules\Booking\Models\Booking;
 use Modules\Role\Models\Role;
 
 Broadcast::channel('bookings.{bookingId}', function (User $user, int $bookingId): bool {
+    $booking = Booking::query()->whereKey($bookingId)->first();
+
+    if (!$booking) {
+        return false;
+    }
+
+    if ($user->hasRole(Role::ADMIN) && $booking->hotel_id) {
+        if ($user->hotels()->whereKey($booking->hotel_id)->exists()) {
+            return true;
+        }
+    }
+
     return Booking::query()
         ->whereKey($bookingId)
         ->where(function ($query) use ($user): void {
