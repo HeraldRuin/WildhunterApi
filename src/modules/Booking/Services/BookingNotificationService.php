@@ -65,61 +65,93 @@ class BookingNotificationService
         );
     }
 
-    public function sendBookingCancelled(Booking $booking): void
+    public function sendBookingCancelled(Booking $booking, User $actor): void
     {
         $number = $this->bookingNumber($booking);
-        $title = __('booking.notifications.booking_cancelled_title');
-        $message = __('booking.notifications.booking_cancelled_message', [
-            'number' => $number,
-        ]);
+        $payload = new NotificationPayloadData(
+            title: __('booking.notifications.booking_cancelled_title'),
+            message: __('booking.notifications.booking_cancelled_message', [
+                'number' => $number,
+            ]),
+            link: $this->bookingLink($booking),
+            category: 'booking',
+            entityType: 'booking',
+            entityId: (int) $booking->id,
+            event: 'booking.cancelled',
+        );
+
+        $masterHunter = $this->masterHunterUser($booking);
+        $hunters = $this->invitedHunters($booking);
+        $baseAdmin = $this->baseAdmin($booking);
 
         if (is_baseAdmin()) {
-            $this->sendToCreator(
-                $booking,
-                title: $title,
-                message: $message,
-                event: 'booking.cancelled',
-            );
+            if ($masterHunter) {
+                $this->sendSafely($masterHunter, $payload, forAdmin: false);
+            }
+
+            foreach ($hunters as $hunter) {
+                if ($masterHunter && (int) $hunter->id === (int) $masterHunter->id) {
+                    continue;
+                }
+
+                $this->sendSafely($hunter, $payload, forAdmin: false);
+            }
 
             return;
         }
 
-        $baseAdmin = $this->baseAdmin($booking);
-
         if ($baseAdmin) {
-            $this->sendSafely(
-                $baseAdmin,
-                new NotificationPayloadData(
-                    title: $title,
-                    message: $message,
-                    link: $this->bookingLink($booking),
-                    category: 'booking',
-                    entityType: 'booking',
-                    entityId: (int) $booking->id,
-                    event: 'booking.cancelled',
-                ),
-                forAdmin: true,
-            );
+            $this->sendSafely($baseAdmin, $payload, forAdmin: true);
         }
 
-        $creator = $this->creator($booking);
+        $masterId = $masterHunter?->id ?? (int) $actor->id;
 
-        if ($creator && (!$baseAdmin || (int) $creator->id !== (int) $baseAdmin->id)) {
-            $this->sendToCreator(
-                $booking,
-                title: $title,
-                message: $message,
-                event: 'booking.cancelled',
-            );
+        foreach ($hunters as $hunter) {
+            if ((int) $hunter->id === (int) $masterId) {
+                continue;
+            }
+
+            if ($baseAdmin && (int) $hunter->id === (int) $baseAdmin->id) {
+                continue;
+            }
+
+            $this->sendSafely($hunter, $payload, forAdmin: false);
         }
     }
 
     public function sendCollectionStarted(Booking $booking): void
     {
+        $baseAdmin = $this->baseAdmin($booking);
+
+        if (!$baseAdmin) {
+            return;
+        }
+
+        $number = $this->bookingNumber($booking);
+
+        $this->sendSafely(
+            $baseAdmin,
+            new NotificationPayloadData(
+                title: __('booking.notifications.collection_started_title'),
+                message: __('booking.notifications.collection_started_message', [
+                    'number' => $number,
+                ]),
+                link: $this->bookingLink($booking),
+                category: 'booking',
+                entityType: 'booking',
+                entityId: (int) $booking->id,
+                event: 'booking.collection_started',
+            ),
+            forAdmin: true,
+        );
+    }
+
+    public function sendCollectionFinished(Booking $booking): void
+    {
         $number = $this->bookingNumber($booking);
         $link = $this->bookingLink($booking);
-        $title = __('booking.notifications.collection_started_title');
-        $message = __('booking.notifications.collection_started_message', [
+        $title = __('booking.notifications.collection_finished_title');
+        $message = __('booking.notifications.collection_finished_message', [
             'number' => $number,
         ]);
         $payload = new NotificationPayloadData(
@@ -129,7 +161,7 @@ class BookingNotificationService
             category: 'booking',
             entityType: 'booking',
             entityId: (int) $booking->id,
-            event: 'booking.collection_started',
+            event: 'booking.collection_finished',
         );
 
         $baseAdmin = $this->baseAdmin($booking);
@@ -138,7 +170,7 @@ class BookingNotificationService
             $this->sendSafely($baseAdmin, $payload, forAdmin: true);
         }
 
-        foreach ($this->invitedHunters($booking) as $hunter) {
+        foreach ($this->acceptedHunters($booking) as $hunter) {
             if ($baseAdmin && (int) $hunter->id === (int) $baseAdmin->id) {
                 continue;
             }
@@ -192,26 +224,68 @@ class BookingNotificationService
         return $booking->creator;
     }
 
+    private function masterHunterUser(Booking $booking): ?User
+    {
+        $masterId = $booking->master_hunter_id;
+
+        if (!$masterId) {
+            return $this->creator($booking);
+        }
+
+        return User::query()->find($masterId);
+    }
+
     /**
      * @return list<User>
      */
     private function invitedHunters(Booking $booking): array
     {
+        return $this->huntersFromInvitations(
+            $booking,
+            statuses: null,
+            excludeStatuses: [
+                BookingHunterInvitation::STATUS_DECLINED,
+                'removed',
+            ],
+        );
+    }
+
+    /**
+     * @return list<User>
+     */
+    private function acceptedHunters(Booking $booking): array
+    {
+        return $this->huntersFromInvitations(
+            $booking,
+            statuses: [BookingHunterInvitation::STATUS_ACCEPTED],
+        );
+    }
+
+    /**
+     * @param  list<string>|null  $statuses
+     * @param  list<string>  $excludeStatuses
+     * @return list<User>
+     */
+    private function huntersFromInvitations(
+        Booking $booking,
+        ?array $statuses = null,
+        array $excludeStatuses = [],
+    ): array {
         $hunters = [];
         $seen = [];
 
-        $invitations = $booking->invitationsQuery()
-            ->whereNotNull('hunter_id')
-            ->where(function ($query): void {
-                $query->whereNull('status')
-                    ->orWhereNotIn('status', [
-                        BookingHunterInvitation::STATUS_DECLINED,
-                        'removed',
-                    ]);
-            })
-            ->get();
+        $query = $booking->invitationsQuery()->whereNotNull('hunter_id');
 
-        foreach ($invitations as $invitation) {
+        if ($statuses !== null) {
+            $query->whereIn('status', $statuses);
+        } elseif ($excludeStatuses !== []) {
+            $query->where(function ($q) use ($excludeStatuses): void {
+                $q->whereNull('status')
+                    ->orWhereNotIn('status', $excludeStatuses);
+            });
+        }
+
+        foreach ($query->get() as $invitation) {
             $hunter = $invitation->hunter;
 
             if (!$hunter || isset($seen[$hunter->id])) {
