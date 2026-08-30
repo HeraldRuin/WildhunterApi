@@ -7,6 +7,7 @@ use App\Exceptions\NotFoundException;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Modules\Hotel\Dto\UpdateHotelManageData;
 use Modules\Hotel\Models\Hotel;
 
@@ -37,6 +38,54 @@ class ManageHotelService
         $hotel->load(['location', 'terms']);
 
         return $hotel;
+    }
+
+    /**
+     * @throws ForbiddenException
+     */
+    public function store(UpdateHotelManageData $data, User $user): array
+    {
+        $this->assertBaseAdmin();
+
+        $hotel = DB::transaction(function () use ($data, $user) {
+            $hotel = new Hotel();
+
+            foreach ($data->fields as $field => $value) {
+                $hotel->{$field} = $value;
+            }
+
+            if ($data->hasGallery) {
+                $hotel->gallery = $data->galleryIds === [] || $data->galleryIds === null
+                    ? null
+                    : implode(',', $data->galleryIds);
+            }
+
+            $title = (string) ($hotel->title ?? '');
+            $slug = $hotel->slug ?? null;
+            $hotel->slug = $this->uniqueSlug($title, is_string($slug) ? $slug : null);
+
+            if (empty($hotel->status)) {
+                $hotel->status = 'draft';
+            }
+
+            $hotel->admin_base = $user->id;
+            $hotel->author_id = $user->id;
+            $hotel->create_user = $user->id;
+            $hotel->save();
+
+            if ($data->hasTermIds) {
+                $hotel->terms()->sync($data->termIds ?? []);
+            }
+
+            return $hotel;
+        });
+
+        $hotel->load(['location', 'terms']);
+
+        return [
+            'code' => 'hotel_created',
+            'data' => $hotel,
+        ];
     }
 
     /**
@@ -119,5 +168,26 @@ class ManageHotelService
                 domain: 'hotel',
             );
         }
+    }
+
+    private function uniqueSlug(string $title, ?string $slug = null): string
+    {
+        $base = $slug !== null && $slug !== ''
+            ? Str::slug($slug)
+            : Str::slug($title);
+
+        if ($base === '') {
+            $base = 'hotel';
+        }
+
+        $candidate = $base;
+        $i = 1;
+
+        while (Hotel::withTrashed()->where('slug', $candidate)->exists()) {
+            $candidate = $base . '-' . $i;
+            $i++;
+        }
+
+        return $candidate;
     }
 }
