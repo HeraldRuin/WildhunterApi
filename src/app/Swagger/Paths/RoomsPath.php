@@ -65,7 +65,7 @@ class RoomsPath
 
     #[OA\Get(
         path: "/api/" . ApiConfig::VERSION . "/rooms/availability",
-        description: "Аналог loadDates в booking_core (user/hotel/{id}/availability/loadDates). id=summary — сводный календарь, иначе ID номера.",
+        description: "Аналог loadDates в booking_core. id=summary — сводный календарь, иначе ID номера. Realtime: private channel hotel.{hotel_id}.room-availability, event .room.availability.updated (создана/отменена бронь с номерами) — после события перезапросить этот endpoint.",
         summary: "Календарь доступности номеров",
         security: [['bearerAuth' => []]],
         tags: ["Rooms"],
@@ -345,6 +345,298 @@ class RoomsPath
         ]
     )]
     public function checkAvailability(): void
+    {
+    }
+
+    #[OA\Post(
+        path: "/api/" . ApiConfig::VERSION . "/rooms",
+        description: "Доступно админу базы. Создаёт номер у отеля текущего пользователя (parent_id). Обязательно только title. Статус по умолчанию — draft. В ответе — данные номера в формате формы редактирования.",
+        summary: "Создать номер",
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["title"],
+                properties: [
+                    new OA\Property(property: "title", type: "string", example: "Люкс", maxLength: 255),
+                    new OA\Property(property: "content", type: "string", nullable: true),
+                    new OA\Property(property: "image_id", type: "integer", example: 120, nullable: true),
+                    new OA\Property(
+                        property: "gallery",
+                        description: "Массив ID файлов из media_files",
+                        type: "array",
+                        items: new OA\Items(type: "integer", example: 121),
+                        nullable: true
+                    ),
+                    new OA\Property(property: "price", type: "number", format: "float", example: 4500, nullable: true, minimum: 0),
+                    new OA\Property(property: "number", type: "integer", example: 3, nullable: true, minimum: 1, description: "Количество экземпляров этого типа номера"),
+                    new OA\Property(property: "beds", type: "integer", example: 2, nullable: true, minimum: 0),
+                    new OA\Property(property: "size", type: "integer", example: 28, nullable: true, minimum: 0, description: "Площадь, м²"),
+                    new OA\Property(property: "adults", type: "integer", example: 2, nullable: true, minimum: 1),
+                    new OA\Property(property: "children", type: "integer", example: 1, nullable: true, minimum: 0),
+                    new OA\Property(
+                        property: "status",
+                        type: "string",
+                        example: "draft",
+                        nullable: true,
+                        enum: ["publish", "draft", "pending"]
+                    ),
+                    new OA\Property(property: "min_day_stays", type: "integer", example: 1, nullable: true, minimum: 1),
+                    new OA\Property(property: "ical_import_url", type: "string", nullable: true, maxLength: 255),
+                    new OA\Property(property: "video", type: "string", nullable: true, maxLength: 255, description: "URL видео (YouTube и т.п.)"),
+                    new OA\Property(
+                        property: "term_ids",
+                        type: "array",
+                        items: new OA\Items(type: "integer"),
+                        example: [1, 5, 12],
+                        nullable: true
+                    ),
+                ]
+            )
+        ),
+        tags: ["Rooms"],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Номер создан",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: "Номер создан"),
+                        new OA\Property(
+                            property: "data",
+                            description: "Те же поля, что у GET /rooms/{room}",
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(
+                ref: "#/components/responses/AuthResponse",
+                response: 401
+            ),
+            new OA\Response(
+                response: 403,
+                description: "Нет прав baseAdmin или у пользователя нет отеля"
+            ),
+            new OA\Response(
+                ref: "#/components/responses/ValidationError",
+                response: 422
+            ),
+        ]
+    )]
+    public function manageStore(): void
+    {
+    }
+
+    #[OA\Get(
+        path: "/api/" . ApiConfig::VERSION . "/rooms/{room}",
+        description: "Доступно админу базы. Возвращает данные своего номера для формы редактирования. Номер должен принадлежать отелю текущего пользователя.",
+        summary: "Данные номера для редактирования",
+        security: [['bearerAuth' => []]],
+        tags: ["Rooms"],
+        parameters: [
+            new OA\Parameter(
+                name: "room",
+                description: "ID номера",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(type: "integer", example: 12)
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Данные номера для редактирования",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            required: [
+                                "id",
+                                "title",
+                                "content",
+                                "image_id",
+                                "image_url",
+                                "gallery",
+                                "price",
+                                "number",
+                                "beds",
+                                "size",
+                                "adults",
+                                "children",
+                                "status",
+                                "status_label",
+                                "min_day_stays",
+                                "ical_import_url",
+                                "video",
+                                "term_ids",
+                            ],
+                            properties: [
+                                new OA\Property(property: "id", type: "integer", example: 12),
+                                new OA\Property(property: "title", type: "string", example: "Люкс", nullable: true),
+                                new OA\Property(property: "content", type: "string", nullable: true),
+                                new OA\Property(property: "image_id", type: "integer", example: 120, nullable: true),
+                                new OA\Property(property: "image_url", type: "string"),
+                                new OA\Property(
+                                    property: "gallery",
+                                    type: "array",
+                                    items: new OA\Items(
+                                        required: ["id", "large", "medium", "thumb"],
+                                        properties: [
+                                            new OA\Property(property: "id", type: "integer", example: 121),
+                                            new OA\Property(property: "large", type: "string"),
+                                            new OA\Property(property: "medium", type: "string"),
+                                            new OA\Property(property: "thumb", type: "string"),
+                                        ],
+                                        type: "object"
+                                    )
+                                ),
+                                new OA\Property(property: "price", type: "number", format: "float", example: 4500, nullable: true),
+                                new OA\Property(property: "number", type: "integer", example: 3, nullable: true),
+                                new OA\Property(property: "beds", type: "integer", example: 2, nullable: true),
+                                new OA\Property(property: "size", type: "integer", example: 28, nullable: true),
+                                new OA\Property(property: "adults", type: "integer", example: 2, nullable: true),
+                                new OA\Property(property: "children", type: "integer", example: 1, nullable: true),
+                                new OA\Property(
+                                    property: "status",
+                                    type: "string",
+                                    example: "publish",
+                                    enum: ["publish", "draft", "pending", "trash"]
+                                ),
+                                new OA\Property(property: "status_label", type: "string", example: "Опубликован"),
+                                new OA\Property(property: "min_day_stays", type: "integer", example: 1, nullable: true),
+                                new OA\Property(property: "ical_import_url", type: "string", nullable: true),
+                                new OA\Property(property: "video", type: "string", nullable: true),
+                                new OA\Property(
+                                    property: "term_ids",
+                                    type: "array",
+                                    items: new OA\Items(type: "integer"),
+                                    example: [1, 5, 12]
+                                ),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(
+                ref: "#/components/responses/AuthResponse",
+                response: 401
+            ),
+            new OA\Response(
+                response: 403,
+                description: "Нет прав baseAdmin или у пользователя нет отеля"
+            ),
+            new OA\Response(
+                ref: "#/components/responses/NotFoundResponse",
+                response: 404
+            ),
+        ]
+    )]
+    public function manageShow(): void
+    {
+    }
+
+    #[OA\Put(
+        path: "/api/" . ApiConfig::VERSION . "/rooms/{room}",
+        description: "Доступно админу базы. Сохраняет данные своего номера из формы редактирования. В ответе — актуальные данные номера в том же формате, что и GET.",
+        summary: "Сохранить номер",
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["title"],
+                properties: [
+                    new OA\Property(property: "title", type: "string", example: "Люкс", maxLength: 255),
+                    new OA\Property(property: "content", type: "string", nullable: true),
+                    new OA\Property(property: "image_id", type: "integer", example: 120, nullable: true),
+                    new OA\Property(
+                        property: "gallery",
+                        description: "Массив ID файлов из media_files",
+                        type: "array",
+                        items: new OA\Items(type: "integer", example: 121),
+                        nullable: true
+                    ),
+                    new OA\Property(property: "price", type: "number", format: "float", example: 4500, nullable: true, minimum: 0),
+                    new OA\Property(property: "number", type: "integer", example: 3, nullable: true, minimum: 1),
+                    new OA\Property(property: "beds", type: "integer", example: 2, nullable: true, minimum: 0),
+                    new OA\Property(property: "size", type: "integer", example: 28, nullable: true, minimum: 0),
+                    new OA\Property(property: "adults", type: "integer", example: 2, nullable: true, minimum: 1),
+                    new OA\Property(property: "children", type: "integer", example: 1, nullable: true, minimum: 0),
+                    new OA\Property(
+                        property: "status",
+                        type: "string",
+                        example: "publish",
+                        nullable: true,
+                        enum: ["publish", "draft", "pending"]
+                    ),
+                    new OA\Property(property: "min_day_stays", type: "integer", example: 1, nullable: true, minimum: 1),
+                    new OA\Property(property: "ical_import_url", type: "string", nullable: true, maxLength: 255),
+                    new OA\Property(property: "video", type: "string", nullable: true, maxLength: 255),
+                    new OA\Property(
+                        property: "term_ids",
+                        type: "array",
+                        items: new OA\Items(type: "integer"),
+                        example: [1, 5, 12],
+                        nullable: true
+                    ),
+                ]
+            )
+        ),
+        tags: ["Rooms"],
+        parameters: [
+            new OA\Parameter(
+                name: "room",
+                description: "ID номера",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(type: "integer", example: 12)
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Данные номера сохранены",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: "Данные номера сохранены"),
+                        new OA\Property(
+                            property: "data",
+                            description: "Те же поля, что у GET /rooms/{room}",
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(
+                ref: "#/components/responses/AuthResponse",
+                response: 401
+            ),
+            new OA\Response(
+                response: 403,
+                description: "Нет прав baseAdmin или у пользователя нет отеля"
+            ),
+            new OA\Response(
+                ref: "#/components/responses/NotFoundResponse",
+                response: 404
+            ),
+            new OA\Response(
+                ref: "#/components/responses/ValidationError",
+                response: 422
+            ),
+        ]
+    )]
+    public function manageUpdate(): void
     {
     }
 
