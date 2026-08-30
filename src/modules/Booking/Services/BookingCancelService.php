@@ -43,12 +43,12 @@ class BookingCancelService
             ->whereKey($booking->id)
             ->update(['status' => Booking::CANCELLED]);
 
-        $this->cleanupHunterInvitations($booking);
-
         $booking->status = Booking::CANCELLED;
 
+        $this->bookingNotificationService->sendBookingCancelled($booking, $user);
+        $this->cleanupHunterInvitations($booking);
+
         $this->bookingMailService->sendCancelled($booking);
-        $this->bookingNotificationService->sendBookingCancelled($booking);
         BookingUpdatedEvent::dispatchSafely(
             $booking,
             RoomAvailabilityUpdatedEvent::ACTION_CANCELLED,
