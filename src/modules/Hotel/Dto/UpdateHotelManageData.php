@@ -2,7 +2,7 @@
 
 namespace Modules\Hotel\Dto;
 
-use Modules\Hotel\Http\Request\UpdateHotelManageRequest;
+use Illuminate\Foundation\Http\FormRequest;
 
 readonly class UpdateHotelManageData
 {
@@ -20,10 +20,16 @@ readonly class UpdateHotelManageData
     ) {
     }
 
-    public static function fromRequest(UpdateHotelManageRequest $request): self
+    public static function fromRequest(FormRequest $request): self
     {
-        $data = $request->validated();
+        return self::fromValidated($request->validated());
+    }
 
+    /**
+     * @param array<string, mixed> $data
+     */
+    public static function fromValidated(array $data): self
+    {
         $hasGallery = array_key_exists('gallery', $data);
         $galleryIds = null;
 
