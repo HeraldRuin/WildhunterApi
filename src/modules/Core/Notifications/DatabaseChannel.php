@@ -3,14 +3,15 @@
 namespace Modules\Core\Notifications;
 
 use Illuminate\Notifications\Notification;
+use Modules\Core\Models\NotificationPush;
 
 class DatabaseChannel
 {
-    public function send(object $notifiable, Notification $notification): mixed
+    public function send(object $notifiable, Notification $notification): NotificationPush
     {
         $data = $notification->toDatabase($notifiable);
 
-        return $notifiable->routeNotificationFor('database')->create([
+        return NotificationPush::query()->create([
             'id' => $notification->id,
             'for_admin' => (bool) ($data['for_admin'] ?? false),
             'notifiable_id' => $notifiable->getKey(),

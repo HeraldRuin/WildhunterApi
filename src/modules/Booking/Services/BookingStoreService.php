@@ -9,6 +9,7 @@ use Modules\Animals\Models\AnimalPricePeriod;
 use Modules\Booking\Dto\CreateBookingData;
 use Modules\Booking\Models\BookedDay;
 use Modules\Booking\Models\Booking;
+use Modules\Hotel\Events\RoomAvailabilityUpdatedEvent;
 use Modules\Hotel\Models\Hotel;
 use Modules\Hotel\Models\HotelRoom;
 use Modules\Hotel\Models\HotelRoomBooking;
@@ -20,6 +21,7 @@ class BookingStoreService
         private RoomService $roomService,
         private BookingNumberService $bookingNumberService,
         private BookingMailService $bookingMailService,
+        private BookingNotificationService $bookingNotificationService,
     ) {
     }
 
@@ -236,6 +238,18 @@ class BookingStoreService
         });
 
         $this->bookingMailService->sendNewBooking($booking);
+        $this->bookingNotificationService->sendNewBooking($booking);
+
+        if (!empty($selectedRooms)) {
+            RoomAvailabilityUpdatedEvent::dispatchSafely(
+                $booking,
+                RoomAvailabilityUpdatedEvent::ACTION_CREATED,
+                array_map(
+                    static fn (array $selected): int => (int) $selected['room']->id,
+                    $selectedRooms,
+                ),
+            );
+        }
 
         return $booking;
     }
