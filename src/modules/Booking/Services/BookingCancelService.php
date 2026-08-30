@@ -16,6 +16,7 @@ class BookingCancelService
     public function __construct(
         private BookingStatusService $bookingStatusService,
         private BookingMailService $bookingMailService,
+        private BookingNotificationService $bookingNotificationService,
     ) {
     }
 
@@ -47,6 +48,7 @@ class BookingCancelService
         $booking->status = Booking::CANCELLED;
 
         $this->bookingMailService->sendCancelled($booking);
+        $this->bookingNotificationService->sendBookingCancelled($booking);
         BookingUpdatedEvent::dispatchSafely(
             $booking,
             RoomAvailabilityUpdatedEvent::ACTION_CANCELLED,

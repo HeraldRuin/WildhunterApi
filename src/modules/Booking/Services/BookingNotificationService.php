@@ -64,6 +64,55 @@ class BookingNotificationService
         );
     }
 
+    public function sendBookingCancelled(Booking $booking): void
+    {
+        $number = $this->bookingNumber($booking);
+        $title = __('booking.notifications.booking_cancelled_title');
+        $message = __('booking.notifications.booking_cancelled_message', [
+            'number' => $number,
+        ]);
+
+        if (is_baseAdmin()) {
+            $this->sendToCreator(
+                $booking,
+                title: $title,
+                message: $message,
+                event: 'booking.cancelled',
+            );
+
+            return;
+        }
+
+        $baseAdmin = $this->baseAdmin($booking);
+
+        if ($baseAdmin) {
+            $this->sendSafely(
+                $baseAdmin,
+                new NotificationPayloadData(
+                    title: $title,
+                    message: $message,
+                    link: $this->bookingLink($booking),
+                    category: 'booking',
+                    entityType: 'booking',
+                    entityId: (int) $booking->id,
+                    event: 'booking.cancelled',
+                ),
+                forAdmin: true,
+            );
+        }
+
+        $creator = $this->creator($booking);
+
+        if ($creator && (!$baseAdmin || (int) $creator->id !== (int) $baseAdmin->id)) {
+            $this->sendToCreator(
+                $booking,
+                title: $title,
+                message: $message,
+                event: 'booking.cancelled',
+            );
+        }
+    }
+
     private function baseAdmin(Booking $booking): ?User
     {
         $booking->loadMissing('hotel');
