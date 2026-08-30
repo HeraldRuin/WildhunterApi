@@ -192,6 +192,8 @@ return [
         'booking_cancelled_message' => 'Бронирование №:number отменено',
         'collection_started_title' => 'Начался сбор охотников',
         'collection_started_message' => 'По бронированию №:number начался сбор охотников',
+        'collection_finished_title' => 'Сбор охотников завершён',
+        'collection_finished_message' => 'По бронированию №:number сбор охотников завершён',
     ],
     'email' => [
         'hello' => 'Здравствуйте, :name',
