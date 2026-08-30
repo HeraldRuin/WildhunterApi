@@ -43,9 +43,9 @@ class NotificationService
             ->count();
     }
 
-    public function markAsRead(string $notificationId, User $user): bool
+    public function markAsRead(string $notificationId, User $user, bool $forAdmin = false): bool
     {
-        return (bool) $this->baseQuery($user)
+        return (bool) $this->baseQuery($user, $forAdmin)
             ->whereKey($notificationId)
             ->whereNull('read_at')
             ->update(['read_at' => now()]);

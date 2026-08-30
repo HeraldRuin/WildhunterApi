@@ -21,16 +21,18 @@ class NotificationController
         $user = Auth::user();
         assert($user instanceof User);
 
+        $forAdmin = $this->forAdmin();
         $type = $request->string('type')->toString();
         $filterType = $type === 'all' ? null : $type;
         $paginator = $this->notificationService->listForUser(
             $user,
             $filterType,
             $request->integer('per_page', 20),
+            $forAdmin,
         );
 
         return new SuccessResponse(data: [
-            'unread_count' => $this->notificationService->unreadCount($user),
+            'unread_count' => $this->notificationService->unreadCount($user, $forAdmin),
             'notifications' => NotificationResource::collection($paginator->items()),
             'pagination' => [
                 'current_page' => $paginator->currentPage(),
@@ -47,7 +49,7 @@ class NotificationController
         assert($user instanceof User);
 
         return new SuccessResponse(data: [
-            'unread_count' => $this->notificationService->unreadCount($user),
+            'unread_count' => $this->notificationService->unreadCount($user, $this->forAdmin()),
         ]);
     }
 
@@ -56,13 +58,14 @@ class NotificationController
         $user = Auth::user();
         assert($user instanceof User);
 
-        $this->notificationService->markAsRead($notificationId, $user);
+        $forAdmin = $this->forAdmin();
+        $this->notificationService->markAsRead($notificationId, $user, $forAdmin);
 
         return new SuccessResponse(
             code: 'marked_read',
             domain: 'notification',
             data: [
-                'unread_count' => $this->notificationService->unreadCount($user),
+                'unread_count' => $this->notificationService->unreadCount($user, $forAdmin),
             ],
         );
     }
@@ -72,7 +75,8 @@ class NotificationController
         $user = Auth::user();
         assert($user instanceof User);
 
-        $this->notificationService->markAllAsRead($user);
+        $forAdmin = $this->forAdmin();
+        $this->notificationService->markAllAsRead($user, $forAdmin);
 
         return new SuccessResponse(
             code: 'marked_all_read',
@@ -81,5 +85,10 @@ class NotificationController
                 'unread_count' => 0,
             ],
         );
+    }
+
+    private function forAdmin(): bool
+    {
+        return is_baseAdmin();
     }
 }

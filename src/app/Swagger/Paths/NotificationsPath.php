@@ -69,7 +69,7 @@ class NotificationsPath
                                             new OA\Property(
                                                 property: 'link',
                                                 type: 'string',
-                                                example: '/profile/bookings/1247',
+                                                example: '/profile/bookings?booking_id=1247',
                                                 nullable: true
                                             ),
                                             new OA\Property(
