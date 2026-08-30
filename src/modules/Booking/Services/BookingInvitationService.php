@@ -147,21 +147,25 @@ class BookingInvitationService
                 );
             }
 
-            $invitation = BookingHunterInvitation::query()->updateOrCreate(
-                [
-                    'booking_hunter_id' => $masterHunter->id,
-                    'hunter_id' => $hunter->id,
-                ],
-                [
-                    'email' => $hunter->email,
-                    'invited' => true,
-                    'status' => BookingHunterInvitation::STATUS_PENDING,
-                    'invited_at' => now(),
-                    'accepted_at' => null,
-                    'declined_at' => null,
-                    'invitation_token' => "{$booking->code}-{$hunter->id}",
-                ],
-            );
+            $invitation = BookingHunterInvitation::withTrashed()->firstOrNew([
+                'booking_hunter_id' => $masterHunter->id,
+                'hunter_id' => $hunter->id,
+            ]);
+
+            if ($invitation->trashed()) {
+                $invitation->restore();
+            }
+
+            $invitation->fill([
+                'email' => $hunter->email,
+                'invited' => true,
+                'status' => BookingHunterInvitation::STATUS_PENDING,
+                'invited_at' => now(),
+                'accepted_at' => null,
+                'declined_at' => null,
+                'invitation_token' => "{$booking->code}-{$hunter->id}",
+            ]);
+            $invitation->save();
 
             return [$invitation, $booking, $hunter];
         });

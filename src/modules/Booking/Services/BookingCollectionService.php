@@ -166,6 +166,7 @@ class BookingCollectionService
         });
 
         $this->bookingMailService->sendFinishCollection($result['booking']);
+        $this->bookingNotificationService->sendCollectionFinished($result['booking']);
         BookingUpdatedEvent::dispatchSafely($result['booking']);
 
         return $result;
@@ -265,7 +266,7 @@ class BookingCollectionService
                     $query->where('hunter_id', '!=', $masterHunter->invited_by)
                         ->orWhereNull('hunter_id');
                 })
-                ->delete();
+                ->forceDelete();
 
             $booking->status = Booking::CONFIRMED;
 
@@ -273,6 +274,7 @@ class BookingCollectionService
         });
 
         $this->bookingMailService->sendCollectionCancelled($booking, $invitations);
+        $this->bookingNotificationService->sendCollectionCancelled($booking, $invitations);
         BookingUpdatedEvent::dispatchSafely($booking);
 
         return $booking;
