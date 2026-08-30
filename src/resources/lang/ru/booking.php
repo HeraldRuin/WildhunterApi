@@ -188,6 +188,8 @@ return [
         'new_booking_customer_message' => 'Ваше бронирование №:number создано и ожидает подтверждения базой',
         'booking_confirmed_title' => 'Бронь подтверждена',
         'booking_confirmed_message' => 'Ваше бронирование №:number подтверждено базой',
+        'booking_cancelled_title' => 'Бронь отменена',
+        'booking_cancelled_message' => 'Бронирование №:number отменено',
     ],
     'email' => [
         'hello' => 'Здравствуйте, :name',
