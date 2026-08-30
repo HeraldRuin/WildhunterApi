@@ -5,6 +5,7 @@ namespace Modules\Booking\Services;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Modules\Booking\Models\Booking;
+use Modules\Booking\Models\BookingHunterInvitation;
 use Modules\Core\Dto\NotificationPayloadData;
 use Modules\Core\Services\NotificationService;
 
@@ -113,6 +114,39 @@ class BookingNotificationService
         }
     }
 
+    public function sendCollectionStarted(Booking $booking): void
+    {
+        $number = $this->bookingNumber($booking);
+        $link = $this->bookingLink($booking);
+        $title = __('booking.notifications.collection_started_title');
+        $message = __('booking.notifications.collection_started_message', [
+            'number' => $number,
+        ]);
+        $payload = new NotificationPayloadData(
+            title: $title,
+            message: $message,
+            link: $link,
+            category: 'booking',
+            entityType: 'booking',
+            entityId: (int) $booking->id,
+            event: 'booking.collection_started',
+        );
+
+        $baseAdmin = $this->baseAdmin($booking);
+
+        if ($baseAdmin) {
+            $this->sendSafely($baseAdmin, $payload, forAdmin: true);
+        }
+
+        foreach ($this->invitedHunters($booking) as $hunter) {
+            if ($baseAdmin && (int) $hunter->id === (int) $baseAdmin->id) {
+                continue;
+            }
+
+            $this->sendSafely($hunter, $payload, forAdmin: false);
+        }
+    }
+
     private function baseAdmin(Booking $booking): ?User
     {
         $booking->loadMissing('hotel');
@@ -156,6 +190,39 @@ class BookingNotificationService
         $booking->loadMissing('creator');
 
         return $booking->creator;
+    }
+
+    /**
+     * @return list<User>
+     */
+    private function invitedHunters(Booking $booking): array
+    {
+        $hunters = [];
+        $seen = [];
+
+        $invitations = $booking->invitationsQuery()
+            ->whereNotNull('hunter_id')
+            ->where(function ($query): void {
+                $query->whereNull('status')
+                    ->orWhereNotIn('status', [
+                        BookingHunterInvitation::STATUS_DECLINED,
+                        'removed',
+                    ]);
+            })
+            ->get();
+
+        foreach ($invitations as $invitation) {
+            $hunter = $invitation->hunter;
+
+            if (!$hunter || isset($seen[$hunter->id])) {
+                continue;
+            }
+
+            $seen[$hunter->id] = true;
+            $hunters[] = $hunter;
+        }
+
+        return $hunters;
     }
 
     private function bookingNumber(Booking $booking): string

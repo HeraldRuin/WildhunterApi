@@ -19,6 +19,7 @@ class BookingCollectionService
 
     public function __construct(
         private readonly BookingMailService $bookingMailService,
+        private readonly BookingNotificationService $bookingNotificationService,
     ) {
     }
 
@@ -43,6 +44,7 @@ class BookingCollectionService
         });
 
         $this->bookingMailService->sendStartCollection($result['booking']);
+        $this->bookingNotificationService->sendCollectionStarted($result['booking']);
         BookingUpdatedEvent::dispatchSafely($result['booking']);
 
         return $result;
