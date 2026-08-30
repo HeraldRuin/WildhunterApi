@@ -186,6 +186,8 @@ return [
         'new_booking_admin_message' => 'Создано новое бронирование №:number',
         'new_booking_customer_title' => 'Бронирование создано',
         'new_booking_customer_message' => 'Ваше бронирование №:number создано и ожидает подтверждения базой',
+        'booking_confirmed_title' => 'Бронь подтверждена',
+        'booking_confirmed_message' => 'Ваше бронирование №:number подтверждено базой',
     ],
     'email' => [
         'hello' => 'Здравствуйте, :name',
