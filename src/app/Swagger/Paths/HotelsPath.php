@@ -500,6 +500,112 @@ class HotelsPath
     {
     }
 
+    #[OA\Post(
+        path: "/api/" . ApiConfig::VERSION . "/hotels/manage",
+        description: "Доступно админу базы. Создаёт новую базу и привязывает её к текущему пользователю (admin_base). Обязательно только title. Если slug не передан — генерируется из названия. Статус по умолчанию — draft. В ответе — данные базы в формате формы редактирования.",
+        summary: "Создать базу",
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["title"],
+                properties: [
+                    new OA\Property(property: "title", type: "string", example: "Хромой кабан-2", maxLength: 255),
+                    new OA\Property(property: "slug", type: "string", example: "khromoi-kaban-2", nullable: true, maxLength: 255),
+                    new OA\Property(property: "content", type: "string", nullable: true),
+                    new OA\Property(property: "star_rate", type: "integer", example: 4, nullable: true, maximum: 5, minimum: 0),
+                    new OA\Property(property: "address", type: "string", nullable: true, maxLength: 255),
+                    new OA\Property(property: "image_id", type: "integer", example: 120, nullable: true),
+                    new OA\Property(
+                        property: "gallery",
+                        description: "Массив ID файлов из media_files",
+                        type: "array",
+                        items: new OA\Items(type: "integer", example: 121),
+                        nullable: true
+                    ),
+                    new OA\Property(
+                        property: "policy",
+                        type: "array",
+                        items: new OA\Items(type: "object"),
+                        nullable: true
+                    ),
+                    new OA\Property(
+                        property: "surrounding",
+                        type: "array",
+                        items: new OA\Items(type: "object"),
+                        nullable: true
+                    ),
+                    new OA\Property(property: "price", type: "number", format: "float", example: 4000, nullable: true, minimum: 0),
+                    new OA\Property(
+                        property: "extra_price",
+                        type: "array",
+                        items: new OA\Items(type: "object"),
+                        nullable: true
+                    ),
+                    new OA\Property(
+                        property: "service_fee",
+                        type: "array",
+                        items: new OA\Items(type: "object"),
+                        nullable: true
+                    ),
+                    new OA\Property(property: "map_lat", type: "string", nullable: true),
+                    new OA\Property(property: "map_lng", type: "string", nullable: true),
+                    new OA\Property(property: "location_id", type: "integer", example: 1, nullable: true),
+                    new OA\Property(
+                        property: "status",
+                        type: "string",
+                        example: "draft",
+                        nullable: true,
+                        enum: ["publish", "draft", "pending"]
+                    ),
+                    new OA\Property(property: "has_food", type: "boolean", example: false, nullable: true),
+                    new OA\Property(
+                        property: "term_ids",
+                        type: "array",
+                        items: new OA\Items(type: "integer"),
+                        example: [1, 5, 12],
+                        nullable: true
+                    ),
+                ]
+            )
+        ),
+        tags: ["Hotels"],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "База создана",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: "База создана"),
+                        new OA\Property(
+                            property: "data",
+                            description: "Те же поля, что у GET /hotels/manage/{hotel}",
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(
+                ref: "#/components/responses/AuthResponse",
+                response: 401
+            ),
+            new OA\Response(
+                response: 403,
+                description: "Нет прав baseAdmin"
+            ),
+            new OA\Response(
+                ref: "#/components/responses/ValidationError",
+                response: 422
+            ),
+        ]
+    )]
+    public function manageStore(): void
+    {
+    }
+
     #[OA\Get(
         path: "/api/" . ApiConfig::VERSION . "/hotels/manage/{hotel}",
         description: "Доступно админу базы. Возвращает данные своей базы для формы редактирования (контент, политика, места, ценообразование, атрибуты). Аналог открытия базы на странице «Управление базой».",
