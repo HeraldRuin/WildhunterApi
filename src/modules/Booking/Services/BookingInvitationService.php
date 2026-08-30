@@ -20,6 +20,7 @@ class BookingInvitationService
     public function __construct(
         private readonly BookingCollectionService $bookingCollectionService,
         private readonly BookingMailService $bookingMailService,
+        private readonly BookingNotificationService $bookingNotificationService,
     ) {
     }
 
@@ -171,6 +172,7 @@ class BookingInvitationService
         });
 
         $this->bookingMailService->sendHunterInvitation($booking, $hunter);
+        $this->bookingNotificationService->sendHunterInvited($booking, $hunter);
         BookingHistoryUpdatedEvent::dispatchSafely(
             $booking,
             $hunter->id,
@@ -279,6 +281,7 @@ class BookingInvitationService
         });
 
         $this->bookingMailService->sendHunterInvitation($booking, $result->hunter);
+        $this->bookingNotificationService->sendHunterInvited($booking, $result->hunter);
 
         return $result;
     }
@@ -294,6 +297,7 @@ class BookingInvitationService
         $invitation->declined_at = null;
         $invitation->save();
 
+        $this->bookingNotificationService->sendInvitationAccepted($booking, $user);
         BookingInvitationUpdatedEvent::dispatchSafely(
             $booking,
             $invitation,
@@ -313,6 +317,7 @@ class BookingInvitationService
         $invitation->declined_at = now();
         $invitation->save();
 
+        $this->bookingNotificationService->sendInvitationDeclined($booking, $user);
         BookingInvitationUpdatedEvent::dispatchSafely(
             $booking,
             $invitation,

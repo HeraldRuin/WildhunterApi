@@ -233,6 +233,89 @@ class BookingNotificationService
         }
     }
 
+    public function sendHunterInvited(Booking $booking, User $hunter): void
+    {
+        if ((int) $hunter->id === (int) $booking->create_user) {
+            return;
+        }
+
+        $number = $this->bookingNumber($booking);
+        $inviterName = $this->displayName($this->masterHunterUser($booking) ?? $this->creator($booking));
+
+        $this->sendSafely(
+            $hunter,
+            new NotificationPayloadData(
+                title: __('booking.notifications.hunter_invited_title'),
+                message: __('booking.notifications.hunter_invited_message', [
+                    'number' => $number,
+                    'name' => $inviterName,
+                ]),
+                link: $this->bookingLink($booking),
+                category: 'booking',
+                entityType: 'booking',
+                entityId: (int) $booking->id,
+                event: 'booking.hunter_invited',
+            ),
+            forAdmin: false,
+        );
+    }
+
+    public function sendInvitationAccepted(Booking $booking, User $hunter): void
+    {
+        $this->notifyMasterAboutInvitationResponse(
+            $booking,
+            $hunter,
+            title: __('booking.notifications.invitation_accepted_title'),
+            message: __('booking.notifications.invitation_accepted_message', [
+                'number' => $this->bookingNumber($booking),
+                'name' => $this->displayName($hunter),
+            ]),
+            event: 'booking.invitation_accepted',
+        );
+    }
+
+    public function sendInvitationDeclined(Booking $booking, User $hunter): void
+    {
+        $this->notifyMasterAboutInvitationResponse(
+            $booking,
+            $hunter,
+            title: __('booking.notifications.invitation_declined_title'),
+            message: __('booking.notifications.invitation_declined_message', [
+                'number' => $this->bookingNumber($booking),
+                'name' => $this->displayName($hunter),
+            ]),
+            event: 'booking.invitation_declined',
+        );
+    }
+
+    private function notifyMasterAboutInvitationResponse(
+        Booking $booking,
+        User $hunter,
+        string $title,
+        string $message,
+        string $event,
+    ): void {
+        $masterHunter = $this->masterHunterUser($booking);
+
+        if (!$masterHunter || (int) $masterHunter->id === (int) $hunter->id) {
+            return;
+        }
+
+        $this->sendSafely(
+            $masterHunter,
+            new NotificationPayloadData(
+                title: $title,
+                message: $message,
+                link: $this->bookingLink($booking),
+                category: 'booking',
+                entityType: 'booking',
+                entityId: (int) $booking->id,
+                event: $event,
+            ),
+            forAdmin: false,
+        );
+    }
+
     private function baseAdmin(Booking $booking): ?User
     {
         $booking->loadMissing('hotel');
@@ -361,6 +444,17 @@ class BookingNotificationService
     private function bookingLink(Booking $booking): string
     {
         return '/profile/bookings?booking_id=' . (int) $booking->id;
+    }
+
+    private function displayName(?User $user): string
+    {
+        if (!$user) {
+            return '';
+        }
+
+        $name = trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? ''));
+
+        return $name !== '' ? $name : (string) ($user->user_name ?: $user->email ?: '');
     }
 
     private function sendSafely(User $user, NotificationPayloadData $payload, bool $forAdmin): void
