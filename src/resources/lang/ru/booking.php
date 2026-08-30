@@ -181,6 +181,12 @@ return [
         'spending_comment_must_be_string' => 'Комментарий должен быть строкой',
         'spending_comment_max' => 'Комментарий не должен превышать 5000 символов',
     ],
+    'notifications' => [
+        'new_booking_admin_title' => 'Новое бронирование',
+        'new_booking_admin_message' => 'Создано новое бронирование №:number',
+        'new_booking_customer_title' => 'Бронирование создано',
+        'new_booking_customer_message' => 'Ваше бронирование №:number создано и ожидает подтверждения базой',
+    ],
     'email' => [
         'hello' => 'Здравствуйте, :name',
         'hunter' => 'Охотник',
