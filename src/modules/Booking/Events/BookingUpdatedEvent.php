@@ -9,6 +9,8 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Modules\Booking\Models\Booking;
+use Modules\Hotel\Events\RoomAvailabilityUpdatedEvent;
+use Modules\Hotel\Models\HotelRoomBooking;
 
 class BookingUpdatedEvent implements ShouldBroadcast
 {
@@ -49,8 +51,13 @@ class BookingUpdatedEvent implements ShouldBroadcast
         ];
     }
 
-    public static function dispatchSafely(Booking $booking): void
-    {
+    /**
+     * @param string|null $roomAvailabilityAction null — не трогать календарь номеров
+     */
+    public static function dispatchSafely(
+        Booking $booking,
+        ?string $roomAvailabilityAction = RoomAvailabilityUpdatedEvent::ACTION_STATUS_UPDATED,
+    ): void {
         try {
             event(new self($booking));
         } catch (\Throwable $e) {
@@ -59,5 +66,23 @@ class BookingUpdatedEvent implements ShouldBroadcast
                 'error' => $e->getMessage(),
             ]);
         }
+
+        if ($roomAvailabilityAction === null) {
+            return;
+        }
+
+        $roomIds = HotelRoomBooking::query()
+            ->where('booking_id', $booking->id)
+            ->pluck('room_id')
+            ->map(static fn ($id): int => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($roomIds === []) {
+            return;
+        }
+
+        RoomAvailabilityUpdatedEvent::dispatchSafely($booking, $roomAvailabilityAction, $roomIds);
     }
 }
