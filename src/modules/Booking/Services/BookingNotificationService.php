@@ -179,6 +179,60 @@ class BookingNotificationService
         }
     }
 
+    /**
+     * @param  iterable<BookingHunterInvitation>  $invitations
+     */
+    public function sendCollectionCancelled(Booking $booking, iterable $invitations): void
+    {
+        $number = $this->bookingNumber($booking);
+        $payload = new NotificationPayloadData(
+            title: __('booking.notifications.collection_cancelled_title'),
+            message: __('booking.notifications.collection_cancelled_message', [
+                'number' => $number,
+            ]),
+            link: $this->bookingLink($booking),
+            category: 'booking',
+            entityType: 'booking',
+            entityId: (int) $booking->id,
+            event: 'booking.collection_cancelled',
+        );
+
+        $masterHunter = $this->masterHunterUser($booking);
+        $masterId = (int) ($masterHunter?->id ?? 0);
+        $baseAdmin = $this->baseAdmin($booking);
+        $notified = [];
+
+        if ($masterHunter) {
+            $this->sendSafely($masterHunter, $payload, forAdmin: false);
+            $notified[$masterId] = true;
+        }
+
+        foreach ($invitations as $invitation) {
+            $hunter = $invitation->hunter;
+
+            if (!$hunter) {
+                continue;
+            }
+
+            $hunterId = (int) $hunter->id;
+
+            if (isset($notified[$hunterId])) {
+                continue;
+            }
+
+            if ($baseAdmin && $hunterId === (int) $baseAdmin->id) {
+                continue;
+            }
+
+            $this->sendSafely($hunter, $payload, forAdmin: false);
+            $notified[$hunterId] = true;
+        }
+
+        if ($baseAdmin && !isset($notified[(int) $baseAdmin->id])) {
+            $this->sendSafely($baseAdmin, $payload, forAdmin: true);
+        }
+    }
+
     private function baseAdmin(Booking $booking): ?User
     {
         $booking->loadMissing('hotel');
