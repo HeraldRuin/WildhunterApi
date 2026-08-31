@@ -85,26 +85,7 @@ class BookingHistoryResource extends BaseJsonResource
                 'phone' => $booking->creator->phone,
             ] : null,
 
-            'details' => [
-                'start_date' => $booking->start_date,
-                'end_date' => $booking->end_date,
-                'duration_days' => (int) $booking->duration_days,
-                'total_guests' => (int) $booking->total_guests,
-                'amount_accommodation' => $this->resolveAccommodationTotal($booking),
-                'amount_accommodation_per_person' => $this->resolveAccommodationPricePerPerson($booking),
-                'start_date_animal' => $booking->start_date_animal,
-                'total_hunting' => $booking->total_hunting,
-                'amount_hunting' => $this->resolveHuntingTotal($booking),
-                'amount_hunting_per_person' => $this->resolveHuntingPricePerPerson($booking),
-                'animal' => $booking->animal ? [
-                    'id' => $booking->animal->id,
-                    'title' => $booking->animal->title,
-                    'price_total' => $this->resolveHuntingTotal($booking),
-                    'price_per_person' => $this->resolveHuntingPricePerPerson($booking),
-                    'price' => $this->resolveHuntingPricePerPerson($booking),
-                ] : null,
-                'rooms' => $this->mapRooms($booking),
-            ],
+            'details' => $this->buildDetails($booking),
 
             'collection' => [
                 'accepted_count' => $acceptedCount,
@@ -127,6 +108,33 @@ class BookingHistoryResource extends BaseJsonResource
         ];
     }
 
+    private function buildDetails(Booking $booking): array
+    {
+        $rooms = $this->mapRooms($booking);
+
+        return [
+            'start_date' => $booking->start_date,
+            'end_date' => $booking->end_date,
+            'duration_days' => (int) $booking->duration_days,
+            'total_guests' => (int) $booking->total_guests,
+            'total_sleeping_places' => $this->resolveTotalSleepingPlaces($booking, $rooms),
+            'amount_accommodation' => $this->resolveAccommodationTotal($booking),
+            'amount_accommodation_per_person' => $this->resolveAccommodationPricePerPerson($booking),
+            'start_date_animal' => $booking->start_date_animal,
+            'total_hunting' => $booking->total_hunting,
+            'amount_hunting' => $this->resolveHuntingTotal($booking),
+            'amount_hunting_per_person' => $this->resolveHuntingPricePerPerson($booking),
+            'animal' => $booking->animal ? [
+                'id' => $booking->animal->id,
+                'title' => $booking->animal->title,
+                'price_total' => $this->resolveHuntingTotal($booking),
+                'price_per_person' => $this->resolveHuntingPricePerPerson($booking),
+                'price' => $this->resolveHuntingPricePerPerson($booking),
+            ] : null,
+            'rooms' => $rooms,
+        ];
+    }
+
     private function mapRooms(Booking $booking): array
     {
         $rooms = $booking->relationLoaded('roomsBooking')
@@ -136,18 +144,51 @@ class BookingHistoryResource extends BaseJsonResource
         $totalGuests = (int) $booking->total_guests;
 
         return $rooms->map(function (HotelRoomBooking $roomBooking) use ($totalGuests) {
-            $priceTotal = (float) $roomBooking->price * (int) $roomBooking->number;
+            $room = $roomBooking->room;
+            $number = (int) $roomBooking->number;
+            $placesPerRoom = $this->placesPerRoom($room);
+            $priceTotal = (float) $roomBooking->price * $number;
 
             return [
                 'room_id' => $roomBooking->room_id,
-                'title' => $roomBooking->room?->title,
-                'number' => (int) $roomBooking->number,
+                'title' => $room?->title,
+                'number' => $number,
                 'price' => (float) $roomBooking->price,
                 'price_total' => $priceTotal,
                 'price_per_person' => $this->resolvePricePerPerson($priceTotal, $totalGuests),
-                'adults' => (int) ($roomBooking->room?->adults ?? 0),
+                'adults' => (int) ($room?->adults ?? 0),
+                'beds' => (int) ($room?->beds ?? 0),
+                'places_per_room' => $placesPerRoom,
+                'total_places' => $placesPerRoom * $number,
             ];
         })->values()->all();
+    }
+
+    /**
+     * Вместимость одного экземпляра комнаты — число койко-мест.
+     * Берём adults (как автораздача), иначе beds.
+     */
+    private function placesPerRoom(?object $room): int
+    {
+        if (!$room) {
+            return 0;
+        }
+
+        $adults = (int) ($room->adults ?? 0);
+        if ($adults > 0) {
+            return $adults;
+        }
+
+        return max(0, (int) ($room->beds ?? 0));
+    }
+
+    private function resolveTotalSleepingPlaces(Booking $booking, array $rooms): ?int
+    {
+        if (!$this->hasAccommodation($booking)) {
+            return null;
+        }
+
+        return (int) array_sum(array_column($rooms, 'total_places'));
     }
 
     private function hasAccommodation(Booking $booking): bool
