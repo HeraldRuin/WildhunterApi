@@ -18,6 +18,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/hotels/manage/{hotel}', [HotelController::class, 'destroy'])->whereNumber('hotel');
     Route::get('/rooms', [RoomAvailabilityController::class, 'index']);
     Route::get('/rooms/availability', [RoomAvailabilityController::class, 'loadDates']);
+    Route::post('/rooms/{room}/availability', [RoomAvailabilityController::class, 'store'])->whereNumber('room');
     Route::post('/rooms', [ManageRoomController::class, 'store']);
     Route::get('/rooms/{room}', [ManageRoomController::class, 'show'])->whereNumber('room');
     Route::put('/rooms/{room}', [ManageRoomController::class, 'update'])->whereNumber('room');
