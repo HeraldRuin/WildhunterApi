@@ -7,7 +7,9 @@ use App\Exceptions\NotFoundException;
 use App\Models\User;
 use Carbon\Carbon;
 use Modules\Booking\Models\Booking;
+use Illuminate\Support\Facades\DB;
 use Modules\Hotel\Dto\RoomCalendarData;
+use Modules\Hotel\Dto\StoreRoomAvailabilityData;
 use Modules\Hotel\Models\Hotel;
 use Modules\Hotel\Models\HotelRoom;
 use Modules\Hotel\Models\HotelRoomDate;
@@ -53,6 +55,64 @@ class RoomAvailabilityService
         }
 
         return $this->getRoomCalendar($room, $dto);
+    }
+
+    /**
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     */
+    public function storeDates(
+        HotelRoom $room,
+        StoreRoomAvailabilityData $data,
+        User $user,
+    ): array {
+        $hotel = $this->resolveHotel($user);
+        $this->assertRoomBelongsToHotel($room, $hotel);
+
+        $updatedCount = DB::transaction(function () use ($room, $data): int {
+            $count = 0;
+            $period = periodDate($data->startDate, $data->endDate);
+
+            foreach ($period as $dt) {
+                $dateKey = $dt->format('Y-m-d');
+
+                if ($data->dayOfWeekSelect !== []
+                    && !in_array((int) date('N', strtotime($dateKey)), $data->dayOfWeekSelect, true)
+                ) {
+                    continue;
+                }
+
+                $row = HotelRoomDate::query()
+                    ->where('target_id', $room->id)
+                    ->whereDate('start_date', $dateKey)
+                    ->first();
+
+                if (!$row) {
+                    $row = new HotelRoomDate();
+                    $row->target_id = $room->id;
+                }
+
+                $row->start_date = $dateKey . ' 00:00:00';
+                $row->end_date = $dateKey . ' 00:00:00';
+                $row->price = $data->price ?? $room->price;
+                $row->number = $data->number;
+                $row->active = $data->active ? 1 : 0;
+                $row->is_instant = $data->isInstant ? 1 : 0;
+                $row->save();
+
+                $count++;
+            }
+
+            return $count;
+        });
+
+        return [
+            'code' => 'room_availability_updated',
+            'data' => [
+                'room_id' => $room->id,
+                'updated_days' => $updatedCount,
+            ],
+        ];
     }
 
     public function getRoomCalendar(HotelRoom $room, RoomCalendarData $data): array
@@ -311,5 +371,18 @@ class RoomAvailabilityService
         }
 
         return $hotel;
+    }
+
+    /**
+     * @throws NotFoundException
+     */
+    private function assertRoomBelongsToHotel(HotelRoom $room, Hotel $hotel): void
+    {
+        if ((int) $room->parent_id !== (int) $hotel->id) {
+            throw new NotFoundException(
+                errorCode: 'room_not_found',
+                domain: 'hotel',
+            );
+        }
     }
 }

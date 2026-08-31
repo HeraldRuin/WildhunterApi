@@ -9,8 +9,11 @@ use App\Http\Responses\SuccessResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Modules\Hotel\Dto\RoomCalendarData;
+use Modules\Hotel\Dto\StoreRoomAvailabilityData;
 use Modules\Hotel\Http\Request\LoadRoomAvailabilityRequest;
+use Modules\Hotel\Http\Request\StoreRoomAvailabilityRequest;
 use Modules\Hotel\Http\Resources\RoomCalendarListResource;
+use Modules\Hotel\Models\HotelRoom;
 use Modules\Hotel\Services\RoomAvailabilityService;
 
 class RoomAvailabilityController extends Controller
@@ -47,5 +50,25 @@ class RoomAvailabilityController extends Controller
         $dates = $this->roomAvailabilityService->loadDates($dto, Auth::user());
 
         return new SuccessResponse(data: $dates);
+    }
+
+    /**
+     * Сохранение параметров доступности по дням (аналог store в booking_core).
+     *
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     */
+    public function store(
+        StoreRoomAvailabilityRequest $request,
+        HotelRoom $room,
+    ): JsonResponse {
+        $dto = StoreRoomAvailabilityData::fromRequest($request);
+        $result = $this->roomAvailabilityService->storeDates($room, $dto, Auth::user());
+
+        return new SuccessResponse(
+            code: $result['code'],
+            domain: 'hotel',
+            data: $result['data'],
+        );
     }
 }
