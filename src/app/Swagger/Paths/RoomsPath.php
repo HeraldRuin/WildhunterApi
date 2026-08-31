@@ -191,6 +191,125 @@ class RoomsPath
     }
 
     #[OA\Post(
+        path: "/api/" . ApiConfig::VERSION . "/rooms/{room}/availability",
+        description: "Аналог store в booking_core (модалка «Информация о дате»). Сохраняет переопределения цены, количества и доступности по дням в bc_hotel_room_dates. Диапазон разворачивается в отдельные записи на каждый день; day_of_week_select (1=пн … 7=вс) ограничивает, какие дни в диапазоне обновляются. После сохранения перезапросить GET /rooms/availability.",
+        summary: "Сохранить доступность номера по датам",
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["start_date", "end_date", "active"],
+                properties: [
+                    new OA\Property(
+                        property: "start_date",
+                        description: "Начало диапазона",
+                        type: "string",
+                        format: "date",
+                        example: "2026-08-13"
+                    ),
+                    new OA\Property(
+                        property: "end_date",
+                        description: "Конец диапазона (включительно)",
+                        type: "string",
+                        format: "date",
+                        example: "2026-08-13"
+                    ),
+                    new OA\Property(
+                        property: "active",
+                        description: "Доступно для бронирования (1/true — да, 0/false — заблокировано)",
+                        type: "boolean",
+                        example: true
+                    ),
+                    new OA\Property(
+                        property: "price",
+                        description: "Цена за ночь; если не указана — берётся дефолт номера",
+                        type: "number",
+                        format: "float",
+                        example: 3000,
+                        nullable: true,
+                        minimum: 0
+                    ),
+                    new OA\Property(
+                        property: "number",
+                        description: "Количество комнат на день; при active=true — от 1 до max номера",
+                        type: "integer",
+                        example: 3,
+                        nullable: true,
+                        minimum: 0
+                    ),
+                    new OA\Property(
+                        property: "day_of_week_select",
+                        description: "Фильтр по дням недели (ISO: 1=понедельник … 7=воскресенье). Пустой массив — все дни диапазона",
+                        type: "array",
+                        items: new OA\Items(type: "integer", minimum: 1, maximum: 7),
+                        example: [1, 2, 3, 4, 5],
+                        nullable: true
+                    ),
+                    new OA\Property(
+                        property: "is_instant",
+                        description: "Мгновенное бронирование",
+                        type: "boolean",
+                        example: false,
+                        nullable: true
+                    ),
+                ]
+            )
+        ),
+        tags: ["Rooms"],
+        parameters: [
+            new OA\Parameter(
+                name: "room",
+                description: "ID номера",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(type: "integer", example: 65)
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Доступность обновлена",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: "Доступность номера обновлена"),
+                        new OA\Property(
+                            property: "data",
+                            required: ["room_id", "updated_days"],
+                            properties: [
+                                new OA\Property(property: "room_id", type: "integer", example: 65),
+                                new OA\Property(property: "updated_days", type: "integer", example: 1),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(
+                ref: "#/components/responses/AuthResponse",
+                response: 401
+            ),
+            new OA\Response(
+                response: 403,
+                description: "Нет прав baseAdmin или у пользователя нет отеля"
+            ),
+            new OA\Response(
+                ref: "#/components/responses/NotFoundResponse",
+                response: 404
+            ),
+            new OA\Response(
+                ref: "#/components/responses/ValidationError",
+                response: 422
+            ),
+        ]
+    )]
+    public function storeAvailability(): void
+    {
+    }
+
+    #[OA\Post(
         path: "/api/" . ApiConfig::VERSION . "/hotels/rooms/check-availability",
         description: "Поиск свободных номеров по датам и числу гостей (карточка отеля / бронирование). Не календарь кабинета.",
         summary: "Проверка доступности номеров отеля",
