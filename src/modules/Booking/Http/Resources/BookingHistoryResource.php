@@ -92,9 +92,13 @@ class BookingHistoryResource extends BaseJsonResource
                 'total_guests' => (int) $booking->total_guests,
                 'start_date_animal' => $booking->start_date_animal,
                 'total_hunting' => $booking->total_hunting,
+                'amount_hunting' => $booking->amount_hunting !== null
+                    ? (float) $booking->amount_hunting
+                    : null,
                 'animal' => $booking->animal ? [
                     'id' => $booking->animal->id,
                     'title' => $booking->animal->title,
+                    'price' => $this->resolveAnimalPrice($booking),
                 ] : null,
                 'rooms' => $this->mapRooms($booking),
             ],
@@ -133,5 +137,17 @@ class BookingHistoryResource extends BaseJsonResource
             'price' => (float) $roomBooking->price,
             'adults' => (int) ($roomBooking->room?->adults ?? 0),
         ])->values()->all();
+    }
+
+    private function resolveAnimalPrice(Booking $booking): ?float
+    {
+        $amountHunting = $booking->amount_hunting;
+        $totalHunting = $booking->total_hunting;
+
+        if ($amountHunting === null || !$totalHunting) {
+            return null;
+        }
+
+        return (float) round((float) $amountHunting / (int) $totalHunting, 2);
     }
 }
