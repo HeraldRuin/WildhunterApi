@@ -90,15 +90,18 @@ class BookingHistoryResource extends BaseJsonResource
                 'end_date' => $booking->end_date,
                 'duration_days' => (int) $booking->duration_days,
                 'total_guests' => (int) $booking->total_guests,
+                'amount_accommodation' => $this->resolveAccommodationTotal($booking),
+                'amount_accommodation_per_person' => $this->resolveAccommodationPricePerPerson($booking),
                 'start_date_animal' => $booking->start_date_animal,
                 'total_hunting' => $booking->total_hunting,
-                'amount_hunting' => $booking->amount_hunting !== null
-                    ? (float) $booking->amount_hunting
-                    : null,
+                'amount_hunting' => $this->resolveHuntingTotal($booking),
+                'amount_hunting_per_person' => $this->resolveHuntingPricePerPerson($booking),
                 'animal' => $booking->animal ? [
                     'id' => $booking->animal->id,
                     'title' => $booking->animal->title,
-                    'price' => $this->resolveAnimalPrice($booking),
+                    'price_total' => $this->resolveHuntingTotal($booking),
+                    'price_per_person' => $this->resolveHuntingPricePerPerson($booking),
+                    'price' => $this->resolveHuntingPricePerPerson($booking),
                 ] : null,
                 'rooms' => $this->mapRooms($booking),
             ],
@@ -130,16 +133,68 @@ class BookingHistoryResource extends BaseJsonResource
             ? $booking->roomsBooking
             : $booking->roomsBooking()->with('room')->get();
 
-        return $rooms->map(static fn (HotelRoomBooking $roomBooking) => [
-            'room_id' => $roomBooking->room_id,
-            'title' => $roomBooking->room?->title,
-            'number' => (int) $roomBooking->number,
-            'price' => (float) $roomBooking->price,
-            'adults' => (int) ($roomBooking->room?->adults ?? 0),
-        ])->values()->all();
+        $totalGuests = (int) $booking->total_guests;
+
+        return $rooms->map(function (HotelRoomBooking $roomBooking) use ($totalGuests) {
+            $priceTotal = (float) $roomBooking->price * (int) $roomBooking->number;
+
+            return [
+                'room_id' => $roomBooking->room_id,
+                'title' => $roomBooking->room?->title,
+                'number' => (int) $roomBooking->number,
+                'price' => (float) $roomBooking->price,
+                'price_total' => $priceTotal,
+                'price_per_person' => $this->resolvePricePerPerson($priceTotal, $totalGuests),
+                'adults' => (int) ($roomBooking->room?->adults ?? 0),
+            ];
+        })->values()->all();
     }
 
-    private function resolveAnimalPrice(Booking $booking): ?float
+    private function hasAccommodation(Booking $booking): bool
+    {
+        return in_array($booking->type, [
+            Booking::BookingTypeHotel,
+            Booking::BookingTypeHotelAnimal,
+        ], true);
+    }
+
+    private function resolveAccommodationTotal(Booking $booking): ?float
+    {
+        if (!$this->hasAccommodation($booking) || $booking->total === null) {
+            return null;
+        }
+
+        return (float) $booking->total;
+    }
+
+    private function resolveAccommodationPricePerPerson(Booking $booking): ?float
+    {
+        if (!$this->hasAccommodation($booking) || $booking->total === null) {
+            return null;
+        }
+
+        return $this->resolvePricePerPerson((float) $booking->total, (int) $booking->total_guests);
+    }
+
+    private function resolvePricePerPerson(float $total, int $personCount): ?float
+    {
+        if ($personCount <= 0) {
+            return null;
+        }
+
+        return (float) round($total / $personCount, 2);
+    }
+
+    private function resolveHuntingTotal(Booking $booking): ?float
+    {
+        if ($booking->amount_hunting === null) {
+            return null;
+        }
+
+        return (float) $booking->amount_hunting;
+    }
+
+    private function resolveHuntingPricePerPerson(Booking $booking): ?float
     {
         $amountHunting = $booking->amount_hunting;
         $totalHunting = $booking->total_hunting;
@@ -148,6 +203,6 @@ class BookingHistoryResource extends BaseJsonResource
             return null;
         }
 
-        return (float) round((float) $amountHunting / (int) $totalHunting, 2);
+        return $this->resolvePricePerPerson((float) $amountHunting, (int) $totalHunting);
     }
 }
