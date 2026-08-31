@@ -179,6 +179,42 @@ class BookingNotificationService
         }
     }
 
+    public function sendPrepaymentCollectionStarted(Booking $booking): void
+    {
+        $number = $this->bookingNumber($booking);
+        $payload = new NotificationPayloadData(
+            title: __('booking.notifications.prepayment_started_title'),
+            message: __('booking.notifications.prepayment_started_message', [
+                'number' => $number,
+            ]),
+            link: $this->bookingLink($booking),
+            category: 'booking',
+            entityType: 'booking',
+            entityId: (int) $booking->id,
+            event: 'booking.prepayment_started',
+        );
+
+        $baseAdmin = $this->baseAdmin($booking);
+        $masterHunter = $this->masterHunterUser($booking);
+        $masterId = (int) ($masterHunter?->id ?? 0);
+
+        if ($baseAdmin) {
+            $this->sendSafely($baseAdmin, $payload, forAdmin: true);
+        }
+
+        foreach ($this->acceptedHunters($booking) as $hunter) {
+            if ((int) $hunter->id === $masterId) {
+                continue;
+            }
+
+            if ($baseAdmin && (int) $hunter->id === (int) $baseAdmin->id) {
+                continue;
+            }
+
+            $this->sendSafely($hunter, $payload, forAdmin: false);
+        }
+    }
+
     /**
      * @param  iterable<BookingHunterInvitation>  $invitations
      */

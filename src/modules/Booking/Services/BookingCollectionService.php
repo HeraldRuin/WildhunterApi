@@ -166,7 +166,13 @@ class BookingCollectionService
         });
 
         $this->bookingMailService->sendFinishCollection($result['booking']);
-        $this->bookingNotificationService->sendCollectionFinished($result['booking']);
+
+        if ($result['booking']->status === Booking::PREPAYMENT_COLLECTION) {
+            $this->bookingNotificationService->sendPrepaymentCollectionStarted($result['booking']);
+        } else {
+            $this->bookingNotificationService->sendCollectionFinished($result['booking']);
+        }
+
         BookingUpdatedEvent::dispatchSafely($result['booking']);
 
         return $result;
