@@ -108,6 +108,21 @@ return [
         'price_max_must_be_numeric' => 'Максимальная цена должна быть числом',
         'price_must_be_positive' => 'Цена не может быть отрицательной',
         'price_max_must_be_greater_than_min' => 'Максимальная цена должна быть больше или равна минимальной',
+
+        'room_availability_start_required' => 'Укажите дату начала',
+        'room_availability_start_must_be_date' => 'Дата начала должна быть корректной датой',
+        'room_availability_end_required' => 'Укажите дату окончания',
+        'room_availability_end_must_be_date' => 'Дата окончания должна быть корректной датой',
+        'room_availability_end_after_or_equal_start' => 'Дата окончания не может быть раньше начала',
+        'room_availability_active_required' => 'Укажите статус доступности',
+        'room_availability_active_must_be_boolean' => 'Статус доступности должен быть true или false',
+        'room_availability_number_min' => 'Количество комнат не может быть отрицательным',
+        'room_availability_number_min_when_active' => 'Для доступных дней количество комнат должно быть не меньше 1',
+        'room_availability_number_max' => 'Количество комнат не может превышать :max',
+        'room_availability_days_must_be_array' => 'Дни недели должны быть массивом',
+        'room_availability_day_must_be_integer' => 'День недели должен быть числом',
+        'room_availability_day_invalid' => 'День недели должен быть от 1 (понедельник) до 7 (воскресенье)',
+        'room_availability_is_instant_must_be_boolean' => 'Поле мгновенного бронирования должно быть true или false',
     ],
     'successes' => [
         'hotel_detached' => 'База удалена из управления',
@@ -118,5 +133,6 @@ return [
         'room_published' => 'Номер опубликован',
         'room_hidden' => 'Номер скрыт',
         'room_deleted' => 'Номер удалён',
+        'room_availability_updated' => 'Доступность номера обновлена',
     ]
 ];
