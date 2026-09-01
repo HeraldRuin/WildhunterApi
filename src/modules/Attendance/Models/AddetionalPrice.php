@@ -17,8 +17,13 @@ class AddetionalPrice extends BaseModel
         'end_date',
         'price',
         'type',
+        'is_system',
         'calculation_type',
         'count',
+    ];
+
+    protected $casts = [
+        'is_system' => 'boolean',
     ];
 
     public const string INDIVIDUAL = 'individual';
@@ -43,11 +48,31 @@ class AddetionalPrice extends BaseModel
         return $query->where('hotel_id', $hotelId);
     }
 
+    public function scopeAdditional(Builder $query): Builder
+    {
+        return $query->where('is_system', false);
+    }
+
+    public function scopeSystem(Builder $query): Builder
+    {
+        return $query->where('is_system', true);
+    }
+
     public function scopeAccessible(Builder $query, int $hotelId, int $userId): Builder
     {
         return $query
             ->where('hotel_id', $hotelId)
             ->where('user_id', $userId);
+    }
+
+    public function isSystem(): bool
+    {
+        return (bool) $this->is_system;
+    }
+
+    public function isAdditional(): bool
+    {
+        return !$this->isSystem();
     }
 
     public function isFood(): bool
