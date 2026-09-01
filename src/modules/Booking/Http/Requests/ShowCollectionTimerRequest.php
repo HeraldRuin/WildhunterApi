@@ -8,6 +8,11 @@ use Modules\Booking\Services\CollectionTimerSettingsService;
 
 class ShowCollectionTimerRequest extends FormRequest
 {
+    public function authorize(): bool
+    {
+        return true;
+    }
+
     public function rules(): array
     {
         return [

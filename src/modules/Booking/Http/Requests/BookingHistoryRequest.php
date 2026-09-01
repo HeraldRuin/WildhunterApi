@@ -7,6 +7,11 @@ use Illuminate\Validation\Rule;
 
 class BookingHistoryRequest extends FormRequest
 {
+    public function authorize(): bool
+    {
+        return true;
+    }
+
     public function rules(): array
     {
         $statuses = array_merge(config('booking.statuses', []), [

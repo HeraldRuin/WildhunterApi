@@ -6,6 +6,11 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class LocationFilterRequest extends FormRequest
 {
+    public function authorize(): bool
+    {
+        return true;
+    }
+
     public function rules(): array
     {
         return [

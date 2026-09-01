@@ -10,6 +10,11 @@ use Modules\User\Models\UserAvatarHistory;
 
 class ProfileUpdateRequest extends FormRequest
 {
+    public function authorize(): bool
+    {
+        return true;
+    }
+
     public function rules(): array
     {
         return [

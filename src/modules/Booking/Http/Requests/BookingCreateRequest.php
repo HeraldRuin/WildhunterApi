@@ -7,6 +7,11 @@ use Illuminate\Validation\Rule;
 
 class BookingCreateRequest extends FormRequest
 {
+    public function authorize(): bool
+    {
+        return true;
+    }
+
     public function rules(): array
     {
         return [
