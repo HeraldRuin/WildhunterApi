@@ -18,6 +18,13 @@ return [
         'count_min' => 'Количество не может быть отрицательным',
         'calculation_type_required' => 'Поле «тип расчёта» обязательно для заполнения',
         'calculation_type_invalid' => 'Некорректный тип расчёта',
+        'is_system_required' => 'Поле «системная услуга» обязательно для заполнения',
+        'is_system_must_be_boolean' => 'Поле «системная услуга» должно быть булевым',
+        'is_additional_required' => 'Поле «дополнительная услуга» обязательно для заполнения',
+        'is_additional_must_be_boolean' => 'Поле «дополнительная услуга» должно быть булевым',
+        'service_type_invalid' => 'Услуга должна быть либо системной, либо дополнительной',
+        'service_type_cannot_change' => 'Тип услуги нельзя изменить',
+        'system_service_cannot_create' => 'Системные услуги нельзя создавать вручную',
     ],
     'successes' => [
         'additional_saved' => 'Услуга сохранена',
