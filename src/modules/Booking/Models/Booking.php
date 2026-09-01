@@ -11,6 +11,7 @@ use Eluceo\iCal\Component\Event;
 use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -739,8 +740,17 @@ class Booking extends BaseModel
         return $list_booking->paginate(10);
     }
 
-    public static function getBookingHistoryForAdminBase($hotel_id, $booking_status = false, $booking_id = false)
-    {
+    public static function getBookingHistoryForAdminBase(
+        User $user,
+        $booking_status = false,
+        $booking_id = false
+    ) {
+        $hotelIds = $user->hotels()->pluck('id');
+
+        if ($hotelIds->isEmpty()) {
+            return parent::query()->whereRaw('0 = 1')->paginate(10);
+        }
+
         $list_booking = parent::query()
             ->with([
                 'animal',
@@ -751,16 +761,23 @@ class Booking extends BaseModel
                 'bookingHunters:id,booking_id,invited_by,is_master',
             ])
             ->where('status', '!=', 'draft')
+            ->whereIn('hotel_id', $hotelIds)
+            ->whereHas('hotel', static function ($query) use ($user) {
+                $query->where('admin_base', $user->id);
+            })
             ->orderBy('id', 'desc');
 
-        if ($hotel_id !== null) {
-            $list_booking->where('hotel_id', $hotel_id);
-        } else {
-            return $list_booking->whereRaw('0 = 1')->paginate(10);
-        }
-
         if (!empty($booking_status)) {
-            $list_booking->where('status', $booking_status);
+            if ($booking_status === self::PREPAYMENT_COLLECTION) {
+                $list_booking->whereIn('status', [
+                    self::PREPAYMENT_COLLECTION,
+                    self::FINISHED_PREPAYMENT,
+                    self::BED_COLLECTION,
+                    self::FINISHED_BED,
+                ]);
+            } else {
+                $list_booking->where('status', $booking_status);
+            }
         }
 
         if (!empty($booking_id)) {
@@ -1531,6 +1548,18 @@ class Booking extends BaseModel
     public function bookingHunters(): HasMany
     {
         return $this->hasMany(BookingHunter::class, 'booking_id', 'id');
+    }
+
+    public function hunterInvitations(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            BookingHunterInvitation::class,
+            BookingHunter::class,
+            'booking_id',
+            'booking_hunter_id',
+            'id',
+            'id',
+        )->orderByDesc('bc_booking_hunter_invitations.invited_at');
     }
 
     public function masterHunter(): HasOne

@@ -5,6 +5,7 @@ namespace Modules\Booking\Services;
 use App\Exceptions\NotFoundException;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Modules\Booking\Dto\BookingHistoryData;
 use Modules\Booking\Models\Booking;
 use Modules\Booking\Models\BookingHunterInvitation;
@@ -13,9 +14,16 @@ use Modules\Role\Models\Role;
 
 class BookingHistoryService
 {
+    private const array TIMER_META_KEYS = [
+        'collection_end_at',
+        'paid_end_at',
+        'beds_end_at',
+    ];
+
     public function __construct(
         private BookingCalculatingService $bookingCalculatingService,
         private BookingStatusService $bookingStatusService,
+        private BookingHistoryItemPresenter $bookingHistoryItemPresenter,
     ) {
     }
 
@@ -27,9 +35,10 @@ class BookingHistoryService
         $this->handleInvitationCode($data->code, $user);
 
         if (is_baseAdmin()) {
-            $hotel = $user->hotels()->first();
-            $bookings = Booking::getBookingHistoryForAdminBase($hotel?->id, $data->status, $data->bookingId);
+            $hotel = $user->hotels()->with('location')->first();
+            $bookings = Booking::getBookingHistoryForAdminBase($user, $data->status, $data->bookingId);
             $bookings = $this->attachCalculations($bookings, $user);
+            $bookings = $this->attachPresentation($bookings, $user, Role::ADMIN);
 
             return [
                 'role' => Role::ADMIN,
@@ -49,6 +58,7 @@ class BookingHistoryService
 
         $bookings = Booking::getBookingHistory($data->status, $user->id, false, false, false, $data->bookingId);
         $bookings = $this->attachCalculations($bookings, $user);
+        $bookings = $this->attachPresentation($bookings, $user, Role::CUSTOMER);
 
         return [
             'role' => Role::CUSTOMER,
@@ -104,5 +114,61 @@ class BookingHistoryService
         });
 
         return $bookings;
+    }
+
+    private function attachPresentation(
+        LengthAwarePaginator $bookings,
+        User $user,
+        string $role,
+    ): LengthAwarePaginator {
+        $collection = $bookings->getCollection();
+
+        if ($collection->isEmpty()) {
+            return $bookings;
+        }
+
+        $collection->load([
+            'hunterInvitations.hunter',
+            'hunterInvitations.bookingHunter',
+        ]);
+
+        $timerMetaByBooking = $this->loadTimerMeta($collection->pluck('id')->all());
+
+        $bookings->setCollection(
+            $collection->map(function (Booking $booking) use ($user, $role, $timerMetaByBooking) {
+                return $this->bookingHistoryItemPresenter->present(
+                    $booking,
+                    $user,
+                    $role,
+                    $timerMetaByBooking[$booking->id] ?? [],
+                );
+            }),
+        );
+
+        return $bookings;
+    }
+
+    /**
+     * @param list<int> $bookingIds
+     * @return array<int, array<string, string>>
+     */
+    private function loadTimerMeta(array $bookingIds): array
+    {
+        if ($bookingIds === []) {
+            return [];
+        }
+
+        $rows = DB::table('bc_booking_meta')
+            ->whereIn('booking_id', $bookingIds)
+            ->whereIn('name', self::TIMER_META_KEYS)
+            ->get(['booking_id', 'name', 'val']);
+
+        $metaByBooking = [];
+
+        foreach ($rows as $row) {
+            $metaByBooking[(int) $row->booking_id][$row->name] = $row->val;
+        }
+
+        return $metaByBooking;
     }
 }
