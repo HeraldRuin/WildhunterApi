@@ -26,6 +26,10 @@ class UpdateAdditionalRequest extends FormRequest
 
     public function rules(): array
     {
+        /** @var AddetionalPrice|null $additional */
+        $additional = $this->route('additional');
+        $isSystem = (bool) $additional?->isSystem();
+
         return [
             'name' => ['required', 'string', 'max:255'],
             'price' => ['required', 'numeric', 'min:0'],
@@ -35,6 +39,8 @@ class UpdateAdditionalRequest extends FormRequest
                 'string',
                 Rule::in([AddetionalPrice::INDIVIDUAL, AddetionalPrice::PERSON]),
             ],
+            'is_system' => ['required', 'boolean', Rule::in([$isSystem])],
+            'is_additional' => ['required', 'boolean', Rule::in([!$isSystem])],
         ];
     }
 
@@ -50,6 +56,12 @@ class UpdateAdditionalRequest extends FormRequest
             'count.integer' => __('additional.validation.count_must_be_integer'),
             'count.min' => __('additional.validation.count_min'),
             'calculation_type.in' => __('additional.validation.calculation_type_invalid'),
+            'is_system.required' => __('additional.validation.is_system_required'),
+            'is_system.boolean' => __('additional.validation.is_system_must_be_boolean'),
+            'is_system.in' => __('additional.validation.service_type_cannot_change'),
+            'is_additional.required' => __('additional.validation.is_additional_required'),
+            'is_additional.boolean' => __('additional.validation.is_additional_must_be_boolean'),
+            'is_additional.in' => __('additional.validation.service_type_cannot_change'),
         ];
     }
 }
