@@ -14,6 +14,7 @@ use Modules\Attendance\Dto\UpdateAdditionalData;
 use Modules\Attendance\Http\Requests\StoreAdditionalRequest;
 use Modules\Attendance\Http\Requests\UpdateAdditionalRequest;
 use Modules\Attendance\Http\Resources\AdditionalResource;
+use Modules\Attendance\Http\Resources\SystemServiceResource;
 use Modules\Attendance\Models\AddetionalPrice;
 use Modules\Attendance\Services\AdditionalService;
 
@@ -32,6 +33,16 @@ class AdditionalController extends Controller
         $additionals = $this->additionalService->list(Auth::user());
 
         return new SuccessResponse(data: AdditionalResource::collection($additionals));
+    }
+
+    /**
+     * @throws ForbiddenException
+     */
+    public function systemIndex(): JsonResponse
+    {
+        $services = $this->additionalService->listSystem(Auth::user());
+
+        return new SuccessResponse(data: SystemServiceResource::collection($services));
     }
 
     /**
