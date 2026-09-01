@@ -79,16 +79,22 @@ class ServicesPath
 
     #[OA\Post(
         path: "/api/" . ApiConfig::VERSION . "/services/additionals",
-        description: "Создаёт дополнительную услугу каталога. Доступно админу базы. is_system на бэке всегда false; is_additional в ответе вычисляется автоматически.",
+        description: "Создаёт дополнительную услугу каталога. Доступно админу базы. Обязательно передать is_system=false.",
         summary: "Добавить дополнительную услугу",
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ["name", "price"],
+                required: ["name", "price", "is_system"],
                 properties: [
                     new OA\Property(property: "name", type: "string", example: "Администратор отеля", maxLength: 255),
                     new OA\Property(property: "price", type: "number", format: "float", example: 0, minimum: 0),
+                    new OA\Property(
+                        property: "is_system",
+                        description: "Тип услуги. При создании всегда false",
+                        type: "boolean",
+                        example: false
+                    ),
                 ]
             )
         ),
