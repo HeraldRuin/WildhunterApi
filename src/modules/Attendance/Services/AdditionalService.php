@@ -40,7 +40,7 @@ class AdditionalService
             'price' => $data->price,
             'hotel_id' => $hotel->id,
             'user_id' => $user->id,
-            'is_system' => $data->isSystem,
+            'is_system' => false,
         ]);
 
         return [
