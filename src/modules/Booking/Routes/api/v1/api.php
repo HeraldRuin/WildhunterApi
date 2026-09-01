@@ -30,7 +30,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/bookings/{code}/change-user', [BookingController::class, 'changeCustomer']);
 
     Route::get('/bookings/{code}/checkout', [BookingController::class, 'checkout']);
-    Route::post('/bookings/{code}/checkout', [BookingController::class, 'doCheckout']);
     Route::put('/bookings/customer-notes', [BookingController::class, 'updateCustomerNotes']);
 
     Route::get('/bookings/{code}/places', [BookingController::class, 'places']);
