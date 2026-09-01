@@ -9,6 +9,7 @@ readonly class StoreAdditionalData
     public function __construct(
         public string $name,
         public float $price,
+        public bool $isSystem,
     ) {}
 
     public static function fromRequest(StoreAdditionalRequest $request): self
@@ -18,6 +19,7 @@ readonly class StoreAdditionalData
         return new self(
             name: (string) $data['name'],
             price: (float) $data['price'],
+            isSystem: (bool) $data['is_system'],
         );
     }
 }
