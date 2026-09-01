@@ -9,7 +9,7 @@ class ServicesPath
 {
     #[OA\Get(
         path: "/api/" . ApiConfig::VERSION . "/services/additionals",
-        description: "Доступно админу базы. Возвращает услуги отеля пользователя (включая «Питание»).",
+        description: "Доступно админу базы. Возвращает дополнительные услуги отеля (is_system = false).",
         summary: "Список дополнительных услуг базы",
         security: [['bearerAuth' => []]],
         tags: ["Services"],
@@ -34,7 +34,6 @@ class ServicesPath
                                     "price",
                                     "type",
                                     "is_system",
-                                    "is_additional",
                                     "can_delete",
                                     "can_edit_name",
                                 ],
@@ -52,7 +51,6 @@ class ServicesPath
                                     new OA\Property(property: "price", type: "number", format: "float", example: 0),
                                     new OA\Property(property: "type", type: "string", example: null, nullable: true),
                                     new OA\Property(property: "is_system", type: "boolean", example: false),
-                                    new OA\Property(property: "is_additional", type: "boolean", example: true),
                                     new OA\Property(property: "can_delete", type: "boolean", example: true),
                                     new OA\Property(property: "can_edit_name", type: "boolean", example: true),
                                 ],
@@ -74,6 +72,51 @@ class ServicesPath
         ]
     )]
     public function index(): void
+    {
+    }
+
+    #[OA\Get(
+        path: "/api/" . ApiConfig::VERSION . "/services/system",
+        description: "Доступно админу базы. Возвращает системные услуги отеля (is_system = true), например «Питание».",
+        summary: "Список системных услуг базы",
+        security: [['bearerAuth' => []]],
+        tags: ["Services"],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Список системных услуг",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            type: "array",
+                            items: new OA\Items(
+                                required: ["id", "name"],
+                                properties: [
+                                    new OA\Property(property: "id", type: "integer", example: 2),
+                                    new OA\Property(property: "name", type: "string", example: "Питание"),
+                                ],
+                                type: "object"
+                            )
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(
+                ref: "#/components/responses/AuthResponse",
+                response: 401
+            ),
+            new OA\Response(
+                response: 403,
+                description: "Нет прав baseAdmin или у пользователя нет отеля"
+            ),
+        ]
+    )]
+    public function systemIndex(): void
     {
     }
 
@@ -122,7 +165,6 @@ class ServicesPath
                                         "price",
                                         "type",
                                         "is_system",
-                                        "is_additional",
                                         "can_delete",
                                         "can_edit_name",
                                     ],
@@ -134,7 +176,6 @@ class ServicesPath
                                         new OA\Property(property: "price", type: "number", format: "float", example: 0),
                                         new OA\Property(property: "type", type: "string", example: null, nullable: true),
                                         new OA\Property(property: "is_system", type: "boolean", example: false),
-                                        new OA\Property(property: "is_additional", type: "boolean", example: true),
                                         new OA\Property(property: "can_delete", type: "boolean", example: true),
                                         new OA\Property(property: "can_edit_name", type: "boolean", example: true),
                                     ],
@@ -167,7 +208,7 @@ class ServicesPath
 
     #[OA\Put(
         path: "/api/" . ApiConfig::VERSION . "/services/additionals/{additional}",
-        description: "Обновляет название, количество, тип расчёта и стоимость. Для «Питание» меняется только цена. Обязательно передать is_system — значение как в GET (тип услуги менять нельзя). is_additional в запросе не нужен.",
+        description: "Обновляет название, количество, тип расчёта и стоимость. Для «Питание» меняется только цена. Обязательно передать is_system — значение как в GET (тип услуги менять нельзя).",
         summary: "Сохранить дополнительную услугу",
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
@@ -227,7 +268,6 @@ class ServicesPath
                                         "price",
                                         "type",
                                         "is_system",
-                                        "is_additional",
                                         "can_delete",
                                         "can_edit_name",
                                     ],
@@ -245,7 +285,6 @@ class ServicesPath
                                         new OA\Property(property: "price", type: "number", format: "float", example: 1500),
                                         new OA\Property(property: "type", type: "string", example: null, nullable: true),
                                         new OA\Property(property: "is_system", type: "boolean", example: false),
-                                        new OA\Property(property: "is_additional", type: "boolean", example: true),
                                         new OA\Property(property: "can_delete", type: "boolean", example: true),
                                         new OA\Property(property: "can_edit_name", type: "boolean", example: true),
                                     ],
