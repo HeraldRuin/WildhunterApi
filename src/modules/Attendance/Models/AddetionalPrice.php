@@ -50,12 +50,16 @@ class AddetionalPrice extends BaseModel
 
     public function scopeAdditional(Builder $query): Builder
     {
-        return $query->where('is_system', false);
+        return $query
+            ->where('is_system', false);
     }
 
     public function scopeSystem(Builder $query): Builder
     {
-        return $query->where('is_system', true);
+        return $query->where(function (Builder $query) {
+            $query
+                ->where('is_system', true);
+        });
     }
 
     public function scopeAccessible(Builder $query, int $hotelId, int $userId): Builder

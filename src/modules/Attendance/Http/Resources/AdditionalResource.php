@@ -20,7 +20,6 @@ class AdditionalResource extends BaseJsonResource
                 : 0.0,
             'type' => $this->resource->type,
             'is_system' => $this->resource->isSystem(),
-            'is_additional' => $this->resource->isAdditional(),
             'can_delete' => !$this->resource->isFood(),
             'can_edit_name' => !$this->resource->isFood(),
         ];

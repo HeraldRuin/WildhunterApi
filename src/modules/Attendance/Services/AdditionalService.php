@@ -23,7 +23,20 @@ class AdditionalService
 
         return AddetionalPrice::query()
             ->forHotel($hotel->id)
-            ->orderByRaw("name = ? DESC", [AddetionalPrice::FOOD_NAME])
+            ->additional()
+            ->orderBy('id')
+            ->get();
+    }
+
+    /**
+     * @throws ForbiddenException
+     */
+    public function listSystem(User $user): Collection
+    {
+        $hotel = $this->resolveHotel($user);
+
+        return AddetionalPrice::query()
+            ->system()
             ->orderBy('id')
             ->get();
     }
