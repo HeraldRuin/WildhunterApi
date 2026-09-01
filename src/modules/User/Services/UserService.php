@@ -407,11 +407,6 @@ class UserService
             );
         }
 
-//        $allServices = get_bookable_services();
-//        if (empty($allServices[$object_model])) {
-////            return $this->sendError(__('Service type not found'));
-//        }
-
         $wishList = UserWishList::where("object_id", $hotel->id)
             ->where("object_model", $object_model)
             ->where("user_id", $user->id)

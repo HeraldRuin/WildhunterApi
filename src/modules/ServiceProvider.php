@@ -38,7 +38,6 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         }
     }
 
-
     public static function getModules(){
         return array_keys(static::getActivatedModules());
     }
@@ -64,7 +63,6 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
             return $res;
         }
 
-        // API: нет themes/*/ThemeProvider — берём установленные модули
         foreach (static::getInstalledModules() as $module => $moduleClass) {
             if (class_exists($moduleClass)) {
                 $res[$module] = [
@@ -96,21 +94,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         return $res;
     }
     public static function getThemeModules(){
-//        $res = [];
-//
-//        $class = \Modules\Theme\ThemeManager::currentProvider();
-//        if(class_exists($class)){
-//            foreach ($class::getThemeModules() as $module=>$class){
-//                if(class_exists($class)) {
-//                    $res[$module] = [
-//                        'id'=>$module,
-//                        'class'=>$class
-//                    ];
-//                }
-//            }
-//        }
-//
-//        return $res;
+
     }
 
     public static function getInstalledModules(): array

@@ -48,5 +48,3 @@ class HotelRoomResource extends BaseJsonResource
     }
 }
 
-
-

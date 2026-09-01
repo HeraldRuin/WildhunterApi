@@ -9,5 +9,4 @@ Route::get('/locations/{id}/hotels', [LocationController::class, 'getLocationHot
 
 Route::middleware('auth:sanctum')->group(function () {
 
-
  });

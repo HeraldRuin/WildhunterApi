@@ -17,15 +17,7 @@ class ModuleProvider extends ModuleServiceProvider
 
             $sitemapHelper->add("hotel",[app()->make(Hotel::class),'getForSitemap']);
         }
-//        PermissionHelper::add([
-//            // Hotel
-//            'hotel_view',
-//            'hotel_create',
-//            'hotel_update',
-//            'hotel_delete',
-//            'hotel_manage_others',
-//            'hotel_manage_attributes',
-//        ]);
+
     }
     /**
      * Register bindings in the container.

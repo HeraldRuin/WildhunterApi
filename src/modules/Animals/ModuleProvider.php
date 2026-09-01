@@ -20,15 +20,6 @@ class ModuleProvider extends ModuleServiceProvider
             $sitemapHelper->add("animal",[app()->make(Animal::class),'getForSitemap']);
         }
 
-//        PermissionHelper::add([
-//            // animal
-//            'animal_view',
-//            'animal_create',
-//            'animal_update',
-//            'animal_delete',
-//            'animal_manage_others',
-//            'animal_manage_attributes',
-//        ]);
     }
     /**
      * Register bindings in the container.

@@ -17,7 +17,6 @@ use Modules\User\Http\Requests\SendCodeResetPasswordRequest;
 use Modules\User\Services\Auth\PasswordService;
 use Random\RandomException;
 
-
 class PasswordController
 {
     public function __construct(private PasswordService $passwordService, protected MailService $mailService,)

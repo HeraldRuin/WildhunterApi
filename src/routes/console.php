@@ -17,4 +17,3 @@ Schedule::command('beds:process-expired')->everyMinute()
     ->withoutOverlapping()
     ->timezone('Europe/Moscow');
 
-

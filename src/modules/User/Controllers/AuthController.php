@@ -12,7 +12,7 @@ use Illuminate\Http\Response;
 use Modules\User\Dto\Auth\LoginData;
 use Modules\User\Dto\Auth\RegisterData;
 use Modules\User\Http\Requests\Auth\LoginRequest;
-//use Modules\User\Http\Requests\Auth\RefreshTokenRequest;
+
 use Modules\User\Http\Requests\Auth\RegisterRequest;
 use Modules\User\Services\Auth\AuthService;
 
@@ -68,8 +68,4 @@ class AuthController
             );
         }
 
-//    public function refreshToken(RefreshTokenRequest $request)
-//    {
-//
-//    }
 }

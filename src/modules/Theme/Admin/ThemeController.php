@@ -42,7 +42,6 @@ class ThemeController extends AdminController
         return view('Theme::admin.upload',$data);
     }
 
-
     public function activate($theme){
         if(is_demo_mode()){
             return back()->with('error',__("Disable for demo mode"));

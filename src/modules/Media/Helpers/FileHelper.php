@@ -26,7 +26,6 @@ class FileHelper
         ],
     ];
 
-
     public static function list_size(): array
     {
         $sizes = [];

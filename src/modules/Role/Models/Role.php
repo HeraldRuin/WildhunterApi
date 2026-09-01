@@ -6,10 +6,9 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Model;
-//use Modules\User\Helpers\PermissionHelper;
+
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-//TODO убрать ненужные методы и избавиться от базовой модели
 class Role extends Model
 {
     const int SUPERADMIN_ID = 1;
@@ -50,44 +49,6 @@ class Role extends Model
      *
      * @param string|array $permissions
      */
-//    public function givePermission($permissions = []){
-//        if(is_string($permissions)) $permissions = [$permissions];
-//
-//        foreach ($permissions as $item){
-//            RolePermission::firstOrCreate([
-//                'role_id'=>$this->id,
-//                'permission'=>$item
-//            ]);
-//        }
-//
-//        $this->clearCachePermissions($permissions);
-//    }
-
-//    public function syncPermissions($permissions = []){
-//        if(is_string($permissions)) $permissions = [$permissions];
-//
-//        $ids = [];
-//        foreach ($permissions as $item){
-//            $rp = RolePermission::firstOrCreate([
-//                'role_id'=>$this->id,
-//                'permission'=>$item
-//            ]);
-//
-//            $ids[] = $rp->id;
-//        }
-//
-//        RolePermission::query()->where('role_id',$this->id)->whereNotIn('id',$ids)->delete();
-//
-//        $this->clearCachePermissions();
-//    }
-
-//    public function clearCachePermissions($permissions = []){
-//        if(empty($permissions)) $permissions = PermissionHelper::all();
-//
-//        foreach ($permissions as $p){
-//            Cache::forget('role_'.$this->id.'_'.$p);
-//        }
-//    }
 
     public function permissions(): HasMany
     {

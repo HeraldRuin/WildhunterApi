@@ -32,7 +32,7 @@ class MediaImageController extends Controller
         } catch (NotFoundHttpException $e) {
             throw $e;
         } catch (\Throwable) {
-            // Fallback to original if resize fails for any reason.
+
             $original = $this->mediaImageService->absoluteOriginalPath($file);
 
             if (!is_file($original)) {

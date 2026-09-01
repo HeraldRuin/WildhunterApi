@@ -13,7 +13,6 @@ use Modules\Location\Http\Request\LocationFilterRequest;
 use Modules\Location\Http\Resources\BestLocationResource;
 use Modules\Location\Http\Resources\LocationHotelResource;
 
-
 class LocationController extends Controller
 {
     public function __construct(protected LocationService $locationService)

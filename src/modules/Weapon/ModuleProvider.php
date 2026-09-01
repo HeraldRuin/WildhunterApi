@@ -13,10 +13,6 @@ class ModuleProvider extends ModuleServiceProvider
     {
         $this->loadMigrationsFrom(__DIR__ . '/Migrations');
 
-//        if(is_installed() and WeaponType::isEnable()){
-//
-//            $sitemapHelper->add("weapon",[app()->make(WeaponType::class),'getForSitemap']);
-//        }
     }
     /**
      * Register bindings in the container.

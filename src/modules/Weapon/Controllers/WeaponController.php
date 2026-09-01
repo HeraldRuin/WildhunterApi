@@ -38,7 +38,7 @@ class WeaponController extends Controller
     {
         $user = Auth::user();
         $weapons = $this->weaponService->getUserWeapons((int) $user->id);
-        // После POST билет уже в БД, но Auth::user() в памяти может быть устаревшим
+
         $hunterBilletNumber = User::query()
             ->whereKey($user->id)
             ->value('hunter_billet_number');

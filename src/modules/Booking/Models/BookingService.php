@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\Animals\Models\Animal;
 
-
 class BookingService extends Model
 {
     protected $table = 'bc_booking_services';

@@ -110,7 +110,6 @@ function get_bookable_services()
 
     $all = [];
 
-    // Modules
     $custom_modules = \Modules\ServiceProvider::getActivatedModules();
     if (!empty($custom_modules)) {
         foreach ($custom_modules as $moduleData) {

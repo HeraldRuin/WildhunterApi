@@ -132,7 +132,6 @@ class BookingPlaceService
                 );
             }
 
-            // Как в bc-cms: клик по месту 2/3/4 — сажаем на первое свободное в этом экземпляре комнаты
             $occupiedPlaceNumbers = BookingRoomPlace::query()
                 ->where('booking_id', $booking->id)
                 ->where('room_id', $data->roomId)

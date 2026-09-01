@@ -39,10 +39,7 @@ class RouterServiceProvider extends ServiceProvider
      */
     protected function mapAdminRoutes()
     {
-//        Route::middleware(['web','dashboard'])
-//            ->namespace($this->adminModuleNamespace)
-//            ->prefix(config('admin.admin_route_prefix').'/module/user')
-//            ->group(__DIR__ . '/Routes/admin.php');
+
     }
 
     /**

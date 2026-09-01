@@ -117,7 +117,6 @@ class HotelController extends Controller
         );
     }
 
-
     /**
      * @throws NotFoundException
      */

@@ -11,16 +11,12 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout']);
 
-//Подписка на рассылку
 Route::post('/user/newsletter/subscribe',[UserController::class, 'subscribe']);
 
-//Сброс пароля
 Route::post('/password/email', [PasswordController::class, 'sendResetCode']);
 Route::post('/password/reset', [PasswordController::class, 'resetPassword']);
 
-//Избранное
 Route::post('/services/{hotel}/favorite', [UserWishListController::class, 'addFavorite']);
-
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users', [UserController::class, 'searchUsers']);
@@ -39,7 +35,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/{user}', [UserController::class, 'searchUser'])->whereNumber('user');
     Route::post('/user', [UserController::class, 'profileUpdate']);
 
-    //Избранное
     Route::post('/services/favorites', [UserWishListController::class, 'getFavorites']);
     Route::post('/services/{hotel}/favorites', [UserWishListController::class, 'checkFavorite']);
     Route::delete('/services/{hotel}/favorite', [UserWishListController::class, 'removeFavorite']);

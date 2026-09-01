@@ -53,7 +53,6 @@ class BookingTimerService
 
         DB::transaction(function () use ($bookingId, $hours, $startAt, $endAt, $prefix, $clearPrefixes) {
 
-            // Удаляем старые значения этого таймера или предыдущего
             foreach ($clearPrefixes as $clearPrefix) {
                 $this->clearTimer($bookingId, $clearPrefix);
             }
@@ -118,7 +117,7 @@ class BookingTimerService
 
     protected function handleBooking(Booking $booking): void
     {
-        // Распределения охотников
+
         $this->allocatorBedsService->allocateBeds($booking);
     }
 

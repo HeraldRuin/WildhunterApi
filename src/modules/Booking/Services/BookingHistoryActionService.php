@@ -65,7 +65,6 @@ class BookingHistoryActionService
             return $actions;
         }
 
-        // hotel / hotel_animal
         if (in_array($status, [
             Booking::PROCESSING,
             Booking::CONFIRMED,
@@ -181,7 +180,6 @@ class BookingHistoryActionService
             return $actions;
         }
 
-        // hotel / hotel_animal
         if (in_array($status, [
             Booking::PREPAYMENT_COLLECTION,
             Booking::FINISHED_PREPAYMENT,

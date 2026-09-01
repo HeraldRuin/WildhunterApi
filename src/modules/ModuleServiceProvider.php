@@ -13,7 +13,6 @@ class ModuleServiceProvider extends \Illuminate\Support\ServiceProvider
     public static $core_compatible = [];
     public static $isPro = false;
 
-
     /**
      * @return array
      */
@@ -108,7 +107,6 @@ class ModuleServiceProvider extends \Illuminate\Support\ServiceProvider
         }
     }
 
-
     /**
      * Merge the given configuration with the existing configuration.
      *
@@ -121,7 +119,6 @@ class ModuleServiceProvider extends \Illuminate\Support\ServiceProvider
         if (! ($this->app instanceof CachesConfiguration && $this->app->configurationIsCached())) {
             $config = $this->app->make('config');
 
-            // Allow to overwrite config
             $config->set($key, array_merge(
                 $config->get($key, []),require $path,
             ));

@@ -153,7 +153,6 @@ class HotelService
             $hotelsCollection = collect(Hotel::query()->get());
         }
 
-
         $perPage = $limit;
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
 

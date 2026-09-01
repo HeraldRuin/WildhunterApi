@@ -40,7 +40,6 @@ class RouterServiceProvider extends ServiceProvider
         $this->mapAdminRoutes();
     }
 
-
     /**
      * Define the "admin" routes for the application.
      *

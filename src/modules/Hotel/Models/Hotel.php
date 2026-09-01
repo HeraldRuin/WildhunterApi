@@ -23,7 +23,6 @@ class Hotel extends Bookable
     use SoftDeletes;
     use Notifiable;
     use HasDeposit;
-//    use CapturesService;
 
     protected $translation_class = HotelTranslation::class;
     protected $table                              = 'bc_hotels';
