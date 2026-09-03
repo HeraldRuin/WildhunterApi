@@ -1312,7 +1312,8 @@ class BookingPath
                             required: [
                                 "booking_number", "created_at", "status", "gateway", "type",
                                 "check_in", "check_out", "start_date_animal", "location",
-                                "hotel", "animal", "total", "amount_hunting", "all_total",
+                                "hotel", "animal", "total", "amount_accommodation_per_person",
+                                "amount_hunting", "amount_hunting_per_person", "all_total",
                                 "deposit", "total_guests", "total_hunting", "customer_notes", "rooms",
                             ],
                             properties: [
@@ -1356,12 +1357,30 @@ class BookingPath
                                         new OA\Property(property: "slug", type: "string", nullable: true),
                                         new OA\Property(property: "image_url", type: "string"),
                                         new OA\Property(property: "content", type: "string", nullable: true),
+                                        new OA\Property(property: "price_total", type: "number", format: "float", nullable: true),
+                                        new OA\Property(property: "price_per_person", type: "number", format: "float", nullable: true),
                                     ],
                                     type: "object",
                                     nullable: true
                                 ),
                                 new OA\Property(property: "total", type: "number", format: "float"),
+                                new OA\Property(
+                                    property: "amount_accommodation_per_person",
+                                    description: "Сумма проживания на человека (total / total_guests)",
+                                    type: "number",
+                                    format: "float",
+                                    example: 2500,
+                                    nullable: true
+                                ),
                                 new OA\Property(property: "amount_hunting", type: "number", format: "float"),
+                                new OA\Property(
+                                    property: "amount_hunting_per_person",
+                                    description: "Сумма охоты на человека (amount_hunting / total_hunting)",
+                                    type: "number",
+                                    format: "float",
+                                    example: 30000,
+                                    nullable: true
+                                ),
                                 new OA\Property(property: "all_total", type: "number", format: "float"),
                                 new OA\Property(property: "deposit", type: "number", format: "float"),
                                 new OA\Property(property: "total_guests", type: "integer", nullable: true),
@@ -1383,6 +1402,13 @@ class BookingPath
                                             new OA\Property(property: "title", type: "string", nullable: true),
                                             new OA\Property(property: "number", type: "integer"),
                                             new OA\Property(property: "price", type: "number", format: "float"),
+                                            new OA\Property(property: "price_total", type: "number", format: "float"),
+                                            new OA\Property(
+                                                property: "price_per_person",
+                                                type: "number",
+                                                format: "float",
+                                                nullable: true
+                                            ),
                                         ],
                                         type: "object"
                                     )
