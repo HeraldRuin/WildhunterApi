@@ -215,7 +215,7 @@ return [
         'new_booking_customer_subject' => 'Спасибо за бронирование',
         'new_booking_admin_body' => 'Сделано новое бронирование',
         'new_booking_customer_body' => 'Спасибо за бронирование у нас. Вот информация о вашем бронировании:',
-        'hotel_details' => 'Детали Жилья',
+        'hotel_details' => 'Детали проживания',
         'animal_details' => 'Детали Охоты',
         'animal' => 'Животное',
         'hunters_count' => 'Количество охотников',

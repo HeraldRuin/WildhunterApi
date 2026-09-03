@@ -1,5 +1,5 @@
 @php
-$main_color = setting_item('style_main_color','#5291fa')
+$header_color = '#52714f';
 @endphp
 <!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -23,8 +23,8 @@ $main_color = setting_item('style_main_color','#5291fa')
                 margin: 0px;
             }
             .b-header{
-                background: {{$main_color}};
-                background-color: {{$main_color}} !important;
+                background: {{$header_color}};
+                background-color: {{$header_color}} !important;
                 padding: 30px;
                 color: #ffffff !important;
             }
