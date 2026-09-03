@@ -173,7 +173,7 @@ $header_color = '#52714f';
             }
             .btn.btn-primary{
 
-                background: #5191FA;
+                background: #52714f;
                 color: white;
             }
             .mt20{
