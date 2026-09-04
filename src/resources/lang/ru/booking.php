@@ -221,7 +221,7 @@ return [
         'hunters_count' => 'Количество охотников',
         'hunting_date' => 'Дата охоты',
         'hunting_amount' => 'Сумма по охоте',
-        'per_person' => 'на человека',
+        'cost_per_person' => 'Стоимость на одного человека',
         'payment_method' => 'Способ оплаты',
         'payment_method_value' => 'Предварительное бронирование (Банковская карта или QR-код)',
         'hotel_name' => 'Название базы',

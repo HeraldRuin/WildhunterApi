@@ -79,23 +79,21 @@
                     <td class="val">
                         <table class="pricing-list" width="100%">
                             @foreach($rooms as $room)
-                                @php
-                                    $roomTotal = (float) $room->price * (int) $room->number;
-                                @endphp
                                 <tr>
                                     <td class="label">{{ $room->room?->title }} * {{ $room->number }} :</td>
                                     <td class="val no-r-padding">
-                                        <strong>{{ format_money($roomTotal) }}</strong>
-                                        @if($guestCount > 1)
-                                            <div style="font-weight:normal;font-size:12px;color:#6c757d;">
-                                                {{ format_money(round($roomTotal / $guestCount, 2)) }} {{ __('booking.email.per_person') }}
-                                            </div>
-                                        @endif
+                                        <strong>{{ format_money((float) $room->price * (int) $room->number) }}</strong>
                                     </td>
                                 </tr>
                             @endforeach
                         </table>
                     </td>
+                </tr>
+            @endif
+            @if($guestCount > 1)
+                <tr>
+                    <td class="label">{{ __('booking.email.cost_per_person') }}</td>
+                    <td class="val"><strong>{{ format_money(round($total / $guestCount, 2)) }}</strong></td>
                 </tr>
             @endif
             <tr>
@@ -139,14 +137,13 @@
             @if($booking->amount_hunting)
                 <tr>
                     <td class="label">{{ __('booking.email.hunting_amount') }}</td>
-                    <td class="val">
-                        <strong>{{ format_money($booking->amount_hunting) }}</strong>
-                        @if($huntersCount > 1)
-                            <div style="font-weight:normal;font-size:12px;color:#6c757d;">
-                                {{ format_money(round((float) $booking->amount_hunting / $huntersCount, 2)) }} {{ __('booking.email.per_person') }}
-                            </div>
-                        @endif
-                    </td>
+                    <td class="val"><strong>{{ format_money($booking->amount_hunting) }}</strong></td>
+                </tr>
+            @endif
+            @if($huntersCount > 1 && $booking->amount_hunting)
+                <tr>
+                    <td class="label">{{ __('booking.email.cost_per_person') }}</td>
+                    <td class="val"><strong>{{ format_money(round((float) $booking->amount_hunting / $huntersCount, 2)) }}</strong></td>
                 </tr>
             @endif
             <tr>
