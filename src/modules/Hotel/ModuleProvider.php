@@ -5,7 +5,6 @@ namespace Modules\Hotel;
 use Modules\Hotel\Models\Hotel;
 use Modules\ModuleServiceProvider;
 use Modules\Core\Helpers\SitemapHelper;
-use Modules\User\Helpers\PermissionHelper;
 
 class ModuleProvider extends ModuleServiceProvider
 {

@@ -3,9 +3,6 @@
 namespace Modules\User\Traits;
 
 use Modules\Role\Models\Role;
-use Illuminate\Support\Facades\Cache;
-use Modules\Role\Models\RolePermission;
-use Modules\User\Helpers\PermissionHelper;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 
 trait HasRoles
@@ -16,7 +13,8 @@ trait HasRoles
      * @param string $permission
      * @return bool
      */
-    public function hasPermission($permission = ''){
+    public function hasPermission($permission = ''): bool
+    {
 
         if(!$this->role or !$this->role->hasPermission($permission)) return false;
 
@@ -28,7 +26,8 @@ trait HasRoles
      *
      * @param String|Role $role_id
      */
-    public function assignRole($role_id){
+    public function assignRole($role_id): void
+    {
         if($role_id instanceof Role){
             $this->role_id = $role_id->id;
             $this->save();

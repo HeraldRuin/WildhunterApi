@@ -5,7 +5,6 @@ namespace Modules\Animals;
 use Modules\ModuleServiceProvider;
 use Modules\Animals\Models\Animal;
 use Modules\Core\Helpers\SitemapHelper;
-use Modules\User\Helpers\PermissionHelper;
 
 class ModuleProvider extends ModuleServiceProvider
 {
