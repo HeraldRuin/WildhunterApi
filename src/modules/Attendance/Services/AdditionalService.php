@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Support\Collection;
 use Modules\Attendance\Dto\StoreAdditionalData;
 use Modules\Attendance\Dto\UpdateAdditionalData;
+use Modules\Attendance\Models\AdditionalSystem;
 use Modules\Attendance\Models\AddetionalPrice;
 use Modules\Hotel\Models\Hotel;
 
@@ -23,20 +24,15 @@ class AdditionalService
 
         return AddetionalPrice::query()
             ->forHotel($hotel->id)
-            ->additional()
             ->orderBy('id')
             ->get();
     }
 
     /**
-     * @throws ForbiddenException
      */
-    public function listSystem(User $user): Collection
+    public function listSystem(): Collection
     {
-        $hotel = $this->resolveHotel($user);
-
-        return AddetionalPrice::query()
-            ->system()
+        return AdditionalSystem::query()
             ->orderBy('id')
             ->get();
     }
