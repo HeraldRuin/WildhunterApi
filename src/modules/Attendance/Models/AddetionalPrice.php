@@ -50,15 +50,15 @@ class AddetionalPrice extends BaseModel
 
     public function scopeAdditional(Builder $query): Builder
     {
-        return $query
-            ->where('is_system', false);
+        return $query->where('is_system', false);
     }
 
     public function scopeSystem(Builder $query): Builder
     {
         return $query->where(function (Builder $query) {
             $query
-                ->where('is_system', true);
+                ->where('is_system', true)
+                ->whereNot('type', self::FOOD);
         });
     }
 
@@ -71,12 +71,7 @@ class AddetionalPrice extends BaseModel
 
     public function isSystem(): bool
     {
-        return (bool) $this->is_system;
-    }
-
-    public function isAdditional(): bool
-    {
-        return !$this->isSystem();
+        return (bool) $this->is_system || $this->isFood();
     }
 
     public function isFood(): bool
