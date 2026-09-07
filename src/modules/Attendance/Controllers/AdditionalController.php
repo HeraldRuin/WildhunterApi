@@ -36,11 +36,10 @@ class AdditionalController extends Controller
     }
 
     /**
-     * @throws ForbiddenException
      */
     public function systemIndex(): JsonResponse
     {
-        $services = $this->additionalService->listSystem(Auth::user());
+        $services = $this->additionalService->listSystem();
 
         return new SuccessResponse(data: SystemServiceResource::collection($services));
     }
