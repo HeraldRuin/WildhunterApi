@@ -16,7 +16,7 @@ class StoreAdditionalRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'price' => ['required', 'numeric', 'min:0'],
-            'is_system' => ['required', 'boolean', 'declined'],
+            'is_system' => ['required', 'boolean'],
         ];
     }
 
@@ -31,7 +31,6 @@ class StoreAdditionalRequest extends FormRequest
             'price.min' => __('additional.validation.price_min'),
             'is_system.required' => __('additional.validation.is_system_required'),
             'is_system.boolean' => __('additional.validation.is_system_must_be_boolean'),
-            'is_system.declined' => __('additional.validation.system_service_cannot_create'),
         ];
     }
 }

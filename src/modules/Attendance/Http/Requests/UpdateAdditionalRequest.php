@@ -39,7 +39,7 @@ class UpdateAdditionalRequest extends FormRequest
                 'string',
                 Rule::in([AddetionalPrice::INDIVIDUAL, AddetionalPrice::PERSON]),
             ],
-            'is_system' => ['required', 'boolean', Rule::in([$isSystem])],
+            'is_system' => ['required', 'boolean'],
         ];
     }
 
@@ -56,8 +56,7 @@ class UpdateAdditionalRequest extends FormRequest
             'count.min' => __('additional.validation.count_min'),
             'calculation_type.in' => __('additional.validation.calculation_type_invalid'),
             'is_system.required' => __('additional.validation.is_system_required'),
-            'is_system.boolean' => __('additional.validation.is_system_must_be_boolean'),
-            'is_system.in' => __('additional.validation.service_type_cannot_change'),
+            'is_system.boolean' => __('additional.validation.is_system_must_be_boolean')
         ];
     }
 }
