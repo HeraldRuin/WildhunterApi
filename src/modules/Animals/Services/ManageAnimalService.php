@@ -4,6 +4,7 @@ namespace Modules\Animals\Services;
 
 use App\Exceptions\ForbiddenException;
 use App\Exceptions\NotFoundException;
+use App\Exceptions\ValidationException;
 use App\Models\User;
 use Modules\Animals\Models\Animal;
 use Modules\Hotel\Models\Hotel;
@@ -32,6 +33,7 @@ class ManageAnimalService
             ->get();
 
         $available = Animal::query()
+            ->where('status', 'publish')
             ->whereDoesntHave('hotels', function ($q) use ($hotelId) {
                 $q->where('bc_hotel_animals.hotel_id', $hotelId);
             })
@@ -47,6 +49,7 @@ class ManageAnimalService
     /**
      * @throws ForbiddenException
      * @throws NotFoundException
+     * @throws ValidationException
      */
     public function attach(int $animalId, User $user): array
     {
@@ -56,6 +59,14 @@ class ManageAnimalService
         if (!$animal) {
             throw new NotFoundException(
                 errorCode: 'animal_not_found',
+                domain: 'animal',
+            );
+        }
+
+        if ($animal->status !== 'publish') {
+            throw new ValidationException(
+                message: __('animal.errors.animal_not_published'),
+                errorCode: 'animal_not_published',
                 domain: 'animal',
             );
         }
@@ -76,7 +87,10 @@ class ManageAnimalService
         }
 
         $animal->hotels()->syncWithoutDetaching([
-            $hotel->id => ['hunters_count' => 1],
+            $hotel->id => [
+                'hunters_count' => 1,
+                'status' => 'available',
+            ],
         ]);
 
         return [
