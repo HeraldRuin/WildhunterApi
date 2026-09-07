@@ -6,7 +6,7 @@ src/.env
 src/.env.backup
 src/.env.production
 src/supervisord.pid
-src/public/uploads/
+src/public/uploads
 src/.phpunit.result.cache
 
 # IDE
