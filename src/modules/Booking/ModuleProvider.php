@@ -7,7 +7,6 @@ use Modules\Booking\Gateways\PaykeeperGateway;
 use Modules\Core\Helpers\SitemapHelper;
 use Modules\ModuleServiceProvider;
 
-
 class ModuleProvider extends ModuleServiceProvider
 {
     public function boot(SitemapHelper $sitemapHelper)
@@ -23,7 +22,7 @@ class ModuleProvider extends ModuleServiceProvider
     {
         $this->app->register(RouterServiceProvider::class);
         $this->app->bind(PaymentGatewayInterface::class, PaykeeperGateway::class);
-//        $this->app->register(EventServiceProvider::class);
+
     }
 
 }
