@@ -52,10 +52,19 @@ class HotelService
             );
         }
 
+        $currentMonthStart = Carbon::now()->startOfMonth()->toDateString();
+
         $hotel->load([
-            'animals' => function ($query) {
+            'animals' => function ($query) use ($currentMonthStart) {
                 $query->where('bc_animals.status', 'publish')
-                    ->wherePivot('status', 'available');
+                    ->wherePivot('status', 'available')
+                    ->with([
+                        'periods' => function ($periodsQuery) use ($currentMonthStart) {
+                            $periodsQuery
+                                ->whereDate('end_date', '>=', $currentMonthStart)
+                                ->orderBy('start_date');
+                        },
+                    ]);
             },
         ]);
 

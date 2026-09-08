@@ -15,6 +15,10 @@ class AnimalResource extends BaseJsonResource
             'image_url' => $this->resource->getImageUrl(),
             'content' => $this->resource->content,
             'hunters_count' => (int) ($this->resource->pivot?->hunters_count ?? $this->resource->hunters_count ?? 1),
+            'periods' => $this->whenLoaded(
+                'periods',
+                fn () => AnimalPricePeriodResource::collection($this->resource->periods)
+            ),
         ];
     }
 }
