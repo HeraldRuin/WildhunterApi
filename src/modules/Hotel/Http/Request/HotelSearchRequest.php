@@ -33,6 +33,7 @@ class HotelSearchRequest extends FormRequest
             'price.min' => ['nullable','numeric', 'min:0'],
             'price.max' => ['nullable', 'numeric', 'min:0', 'gte:price.min'],
 
+            'sort' => ['nullable', 'string', Rule::in(['recommended', 'price_asc', 'price_desc', 'rating'])],
             'order_by' => ['nullable', 'string'],
             'order_direction' => ['nullable', 'string', 'in:asc,desc'],
             'limit' => ['nullable', 'numeric', 'min:1'],
@@ -75,6 +76,9 @@ class HotelSearchRequest extends FormRequest
             'price.min.min' => __('hotel.validation.price_must_be_positive'),
             'price.max.min' => __('hotel.validation.price_must_be_positive'),
             'price.max.gte' => __('hotel.validation.price_max_must_be_greater_than_min'),
+
+            'sort.string' => __('hotel.validation.sort_must_be_string'),
+            'sort.in' => __('hotel.validation.sort_invalid'),
 
             'order_direction.string' => __('hotel.validation.order_direction_must_be_string'),
             'order_direction.in' => __('hotel.validation.order_direction_invalid'),
