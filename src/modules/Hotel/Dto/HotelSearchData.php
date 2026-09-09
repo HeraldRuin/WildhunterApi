@@ -36,9 +36,9 @@ class HotelSearchData
             star_rate: $data['star_rate'] ?? null,
             price: $data['price'] ?? null,
             termIds: $data['term_ids'] ?? null,
-            sort: $data['sort'] ?? null,
-            order_by: $data['order_by'] ?? null,
-            order_direction: $data['order_direction'] ?? null,
+            sort: $data['sort'] ?? $request->input('sort'),
+            order_by: $data['order_by'] ?? $request->input('order_by'),
+            order_direction: $data['order_direction'] ?? $request->input('order_direction'),
             limit: $data['limit'] ?? null,
         );
     }

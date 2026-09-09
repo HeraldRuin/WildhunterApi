@@ -7,12 +7,14 @@ use App\Exceptions\ValidationException;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Modules\Hotel\Models\Hotel;
 use Modules\Hotel\Dto\CheckAvailabilityData;
 use Modules\Hotel\Dto\HotelFilterData;
 use Modules\Hotel\Dto\HotelSearchData;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Modules\Hotel\Models\HotelRoomDate;
+use Modules\Location\Models\Location;
 
 class HotelService
 {
@@ -24,18 +26,192 @@ class HotelService
 
     public function getHotels(HotelFilterData $dto): array
     {
-        $hotels = Hotel::published()
+        $settings = $this->resolveListHotelSettings($dto);
+
+        $query = Hotel::published()
             ->with(['location', 'reviews'])
-            ->when($dto->order_by, function ($q) use ($dto) {
-                $q->orderBy($dto->order_by, $dto->order_direction ?? 'asc');
-            })
-            ->when($dto->limit, fn($q) => $q->limit($dto->limit))
-            ->get();
+            ->whereNotNull('location_id')
+            ->where('location_id', '>', 0)
+            ->whereHas('location', fn ($q) => $q->where('status', 'publish'));
+
+        if (!empty($settings['location_id'])) {
+            $location = Location::query()
+                ->where('id', $settings['location_id'])
+                ->where('status', 'publish')
+                ->first();
+
+            if ($location) {
+                $query->whereHas('location', function ($q) use ($location) {
+                    $q->where('_lft', '>=', $location->_lft)
+                        ->where('_rgt', '<=', $location->_rgt);
+                });
+            }
+        }
+
+        if (!empty($settings['is_featured'])) {
+            $query->where('is_featured', 1);
+        }
+
+        $customIds = array_values(array_filter(array_map('intval', (array) ($settings['custom_ids'] ?? []))));
+
+        if (!empty($customIds)) {
+            $query->whereIn('bc_hotels.id', $customIds);
+            $query->orderByRaw(
+                'FIELD(' . $query->getModel()->qualifyColumn('id') . ', ' . implode(', ', $customIds) . ') ASC'
+            );
+        } elseif (!empty($settings['order_by'])) {
+            $query->orderBy($settings['order_by'], $settings['order_direction'] ?? 'asc');
+        } else {
+            $query->orderByDesc('is_featured')->orderByDesc('id');
+        }
+
+        if (!empty($settings['limit'])) {
+            $query->limit((int) $settings['limit']);
+        }
 
         return [
             'code' => '',
-            'data' => $hotels
+            'data' => $query->get(),
         ];
+    }
+
+    /**
+     * @return array{
+     *     is_featured: bool,
+     *     custom_ids: list<int>,
+     *     location_id: int|null,
+     *     limit: int|null,
+     *     order_by: string|null,
+     *     order_direction: string|null
+     * }
+     */
+    private function resolveListHotelSettings(HotelFilterData $dto): array
+    {
+        $settings = [
+            'is_featured' => true,
+            'custom_ids' => [],
+            'location_id' => null,
+            'limit' => 5,
+            'order_by' => 'id',
+            'order_direction' => 'desc',
+        ];
+
+        $block = $this->getHomeListHotelBlockModel();
+        if (!empty($block)) {
+            if (array_key_exists('is_featured', $block)) {
+                $settings['is_featured'] = $this->toBool($block['is_featured']);
+            }
+            if (!empty($block['number'])) {
+                $settings['limit'] = (int) $block['number'];
+            }
+            if (!empty($block['order'])) {
+                $settings['order_by'] = (string) $block['order'];
+            }
+            if (!empty($block['order_by'])) {
+                $settings['order_direction'] = strtolower((string) $block['order_by']) === 'asc' ? 'asc' : 'desc';
+            }
+            if (!empty($block['custom_ids'])) {
+                $settings['custom_ids'] = array_values(array_filter(array_map(
+                    'intval',
+                    is_array($block['custom_ids']) ? $block['custom_ids'] : explode(',', (string) $block['custom_ids'])
+                )));
+            }
+            if (!empty($block['location_id'])) {
+                $settings['location_id'] = (int) $block['location_id'];
+            }
+        }
+
+        if ($dto->is_featured !== null) {
+            $settings['is_featured'] = $dto->is_featured;
+        }
+        if ($dto->custom_ids !== null) {
+            $settings['custom_ids'] = $dto->custom_ids;
+        }
+        if ($dto->location_id !== null) {
+            $settings['location_id'] = $dto->location_id;
+        }
+        if ($dto->limit !== null) {
+            $settings['limit'] = $dto->limit;
+        }
+        if ($dto->order_by !== null) {
+            $settings['order_by'] = $dto->order_by;
+        }
+        if ($dto->order_direction !== null) {
+            $settings['order_direction'] = $dto->order_direction;
+        }
+
+        return $settings;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getHomeListHotelBlockModel(): array
+    {
+        $homePageId = setting_item('home_page_id');
+        if (empty($homePageId)) {
+            return [];
+        }
+
+        $page = DB::table('core_pages')
+            ->where('id', $homePageId)
+            ->whereNull('deleted_at')
+            ->first();
+
+        if (!$page || empty($page->template_id)) {
+            return [];
+        }
+
+        $content = DB::table('core_templates')
+            ->where('id', $page->template_id)
+            ->value('content');
+
+        if (empty($content) && Schema::hasTable('core_template_translations')) {
+            $content = DB::table('core_template_translations')
+                ->where('origin_id', $page->template_id)
+                ->where('locale', app()->getLocale())
+                ->value('content');
+        }
+
+        if (empty($content)) {
+            return [];
+        }
+
+        $blocks = json_decode($content, true);
+        if (!is_array($blocks)) {
+            return [];
+        }
+
+        if (isset($blocks['ROOT']['nodes']) && is_array($blocks['ROOT']['nodes'])) {
+            foreach ($blocks['ROOT']['nodes'] as $nodeId) {
+                $block = $blocks[$nodeId] ?? null;
+                if (is_array($block) && ($block['type'] ?? null) === 'list_hotel') {
+                    return is_array($block['model'] ?? null) ? $block['model'] : [];
+                }
+            }
+
+            return [];
+        }
+
+        foreach ($blocks as $block) {
+            if (!is_array($block)) {
+                continue;
+            }
+            if (($block['type'] ?? null) === 'list_hotel') {
+                return is_array($block['model'] ?? null) ? $block['model'] : [];
+            }
+        }
+
+        return [];
+    }
+
+    private function toBool(mixed $value): bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        return filter_var($value, FILTER_VALIDATE_BOOLEAN);
     }
 
     /**
@@ -162,6 +338,8 @@ class HotelService
             $hotelsCollection = collect(Hotel::query()->get());
         }
 
+        $hotelsCollection = $this->sortHotelsCollection($hotelsCollection, $dto);
+
         $perPage = $limit;
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
 
@@ -185,6 +363,47 @@ class HotelService
             'data' => $hotels['rows']
         ];
     }
+
+    /**
+     * @param  \Illuminate\Support\Collection<int, Hotel>  $hotels
+     * @return \Illuminate\Support\Collection<int, Hotel>
+     */
+    protected function sortHotelsCollection($hotels, HotelSearchData $dto)
+    {
+        $sort = $dto->sort;
+
+        if (empty($sort) && !empty($dto->order_by)) {
+            $direction = strtolower((string) ($dto->order_direction ?? 'asc')) === 'desc' ? 'desc' : 'asc';
+            $column = $dto->order_by;
+
+            $sort = match (true) {
+                $column === 'price' && $direction === 'asc' => 'price_asc',
+                $column === 'price' && $direction === 'desc' => 'price_desc',
+                in_array($column, ['star_rate', 'rating', 'review_score'], true) => 'rating',
+                default => 'recommended',
+            };
+        }
+
+        $sort = $sort ?: 'recommended';
+
+        $items = $hotels->values()->all();
+
+        usort($items, static function ($left, $right) use ($sort) {
+            return match ($sort) {
+                'price_asc' => ((float) $left->price <=> (float) $right->price)
+                    ?: ((int) $left->id <=> (int) $right->id),
+                'price_desc' => ((float) $right->price <=> (float) $left->price)
+                    ?: ((int) $right->id <=> (int) $left->id),
+                'rating' => ((float) $right->star_rate <=> (float) $left->star_rate)
+                    ?: ((int) $right->id <=> (int) $left->id),
+                default => ((int) $right->is_featured <=> (int) $left->is_featured)
+                    ?: ((int) $right->id <=> (int) $left->id),
+            };
+        });
+
+        return collect($items);
+    }
+
     public function filterHotelsByAvailability($hotels, Carbon $start, Carbon $end)
     {
         return $hotels->filter(/**
