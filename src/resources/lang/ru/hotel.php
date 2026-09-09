@@ -30,11 +30,18 @@ return [
     'validation' => [
         'order_by_must_be_string' => 'Поле "сортировка" должно быть строкой',
 
+        'sort_must_be_string' => 'Поле "sort" должно быть строкой',
+        'sort_invalid' => 'Допустимые значения sort: recommended, price_asc, price_desc, rating',
+
         'order_direction_must_be_string' => 'Направление сортировки должно быть строкой',
         'order_direction_invalid' => 'Направление сортировки может быть только asc или desc',
 
         'limit_must_be_numeric' => 'Параметр limit должен быть числом',
         'limit_min_value' => 'Минимальное значение limit — 1',
+
+        'is_featured_must_be_boolean' => 'Поле "избранные" должно быть булевым',
+        'custom_ids_must_be_array' => 'Поле "custom_ids" должно быть массивом',
+        'custom_id_must_be_integer' => 'Каждый ID в custom_ids должен быть целым числом',
 
         'location_id_must_be_integer' => 'Поле "локация" должно быть числом',
         'animal_id_must_be_integer' => 'Поле "животные" должно быть числом',
