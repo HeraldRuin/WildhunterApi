@@ -20,6 +20,7 @@ class HotelSearchResource extends BaseJsonResource
             'review_count' => $this->resource->reviews->count(),
             'star_rate' => $this->resource->star_rate,
             'has_food' => (bool) $this->resource->has_food,
+            'is_featured' => (bool) $this->resource->is_featured,
             'is_in_wishList' => $this->hasWishList !== null,
             'location' => LocationResource::make($this->resource->location),
         ];
