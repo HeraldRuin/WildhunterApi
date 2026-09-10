@@ -20,6 +20,8 @@ class HotelResource extends BaseJsonResource
             'slug'=> $hotel->slug,
             'address'=> $hotel->address,
             'content'=> $hotel->content ,
+            'map_lat' => $hotel->map_lat,
+            'map_lng' => $hotel->map_lng,
             'image_url' => $hotel->getImageUrl()?: asset('uploads/0000/1/2026/11/14/no_image.png'),
             'gallery' => $hotel->getGallery(),
             'review_count' => $hotel->reviews->count(),
