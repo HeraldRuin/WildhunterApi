@@ -17,6 +17,7 @@ class AnimalService
     public function getAnimals(): array
     {
         $animals = Animal::where('status', 'publish')
+            ->orderBy('title')
             ->get();
 
         return [
