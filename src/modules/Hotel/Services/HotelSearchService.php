@@ -32,6 +32,11 @@ class HotelSearchService
                 },
                 'reviews',
                 'translation',
+                'animals' => function ($animalsQuery) {
+                    $animalsQuery
+                        ->where('bc_animals.status', 'publish')
+                        ->wherePivot('status', 'available');
+                },
             ]);
     }
 

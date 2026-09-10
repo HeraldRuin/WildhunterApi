@@ -24,6 +24,10 @@ class LocationHotelResource extends BaseJsonResource
             'is_featured' => (bool) $hotel->is_featured,
             'price' => $hotel->price,
             'review_count' => $hotel->reviews->count(),
+            'animals' => ($hotel->animals ?? collect())->map(static fn ($animal) => [
+                'id' => $animal->id,
+                'title' => $animal->title,
+            ])->values()->all(),
             'location' => LocationResource::make($this->resource->location),
         ];
     }

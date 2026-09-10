@@ -22,6 +22,10 @@ class HotelSearchResource extends BaseJsonResource
             'has_food' => (bool) $this->resource->has_food,
             'is_featured' => (bool) $this->resource->is_featured,
             'is_in_wishList' => $this->hasWishList !== null,
+            'animals' => ($this->resource->animals ?? collect())->map(static fn ($animal) => [
+                'id' => $animal->id,
+                'title' => $animal->title,
+            ])->values()->all(),
             'location' => LocationResource::make($this->resource->location),
         ];
     }

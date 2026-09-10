@@ -29,7 +29,15 @@ class HotelService
         $settings = $this->resolveListHotelSettings($dto);
 
         $query = Hotel::published()
-            ->with(['location', 'reviews'])
+            ->with([
+                'location',
+                'reviews',
+                'animals' => function ($animalsQuery) {
+                    $animalsQuery
+                        ->where('bc_animals.status', 'publish')
+                        ->wherePivot('status', 'available');
+                },
+            ])
             ->whereNotNull('location_id')
             ->where('location_id', '>', 0)
             ->whereHas('location', fn ($q) => $q->where('status', 'publish'));

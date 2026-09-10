@@ -24,7 +24,9 @@ class LocationService
     }
     public function getLocations(LocationFilterData $dto): array
     {
-        $locations = Location::published()->get();
+        $locations = Location::published()
+            ->orderBy('name')
+            ->get();
 
         return [
             'locations' => $locations
@@ -47,7 +49,15 @@ class LocationService
 
         $hotels = $location->hotels()
             ->published()
-            ->with(['reviews'])
+            ->with([
+                'reviews',
+                'location',
+                'animals' => function ($animalsQuery) {
+                    $animalsQuery
+                        ->where('bc_animals.status', 'publish')
+                        ->wherePivot('status', 'available');
+                },
+            ])
             ->get();
 
         return [
