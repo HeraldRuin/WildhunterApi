@@ -12,6 +12,7 @@ Route::post('/animals/check-availability', [AnimalController::class, 'checkAvail
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/animals/manage', [ManageAnimalController::class, 'index']);
     Route::post('/animals/manage', [ManageAnimalController::class, 'attach']);
+    Route::put('/animals/manage/hunters-count', [ManageAnimalController::class, 'updateHuntersCounts']);
     Route::put('/animals/manage/{animal}/hunters-count', [ManageAnimalController::class, 'updateHuntersCount']);
     Route::delete('/animals/manage/{animal}', [ManageAnimalController::class, 'detach']);
 
