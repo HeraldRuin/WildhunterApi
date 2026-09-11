@@ -109,6 +109,8 @@ return [
         'location_id_not_exists' => 'Указанная локация не найдена',
         'status_invalid' => 'Недопустимый статус',
         'has_food_must_be_boolean' => 'Поле «питание» должно быть булевым',
+        'max_hunts_per_day_must_be_integer' => 'Количество егерей должно быть целым числом',
+        'max_hunts_per_day_min' => 'Количество егерей не может быть отрицательным',
 
         'price_must_be_array' => 'Поле "цена" должно быть массивом',
         'price_min_must_be_numeric' => 'Минимальная цена должна быть числом',
