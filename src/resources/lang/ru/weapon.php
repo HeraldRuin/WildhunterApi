@@ -25,6 +25,10 @@ return [
         'hunter_billet_issue_date_required' => 'Дата выдачи охотничьего билета обязательна',
         'hunter_billet_issue_date_invalid' => 'Неверная дата выдачи охотничьего билета',
 
+        'identity_document_required' => 'Документ, удостоверяющий личность, обязателен',
+        'identity_document_string' => 'Документ, удостоверяющий личность, должен быть строкой',
+        'identity_document_max' => 'Документ, удостоверяющий личность, не должен превышать 255 символов',
+
         'hunter_license_number_required' => 'Лицензия обязательна',
         'hunter_license_number_string' => 'Номер лицензии должен быть строкой',
 

@@ -91,6 +91,7 @@ class WeaponService
             'hunter_billet_issuing_authority' => $dto->hunter_billet_issuing_authority,
             'hunter_billet_rf_subject' => $dto->hunter_billet_rf_subject,
             'hunter_billet_issue_date' => $dto->hunter_billet_issue_date,
+            'identity_document' => $dto->identity_document,
         ]);
     }
 

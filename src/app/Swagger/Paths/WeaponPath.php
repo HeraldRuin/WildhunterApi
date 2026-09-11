@@ -113,6 +113,7 @@ class WeaponPath
                                 "hunter_billet_issuing_authority",
                                 "hunter_billet_rf_subject",
                                 "hunter_billet_issue_date",
+                                "identity_document",
                                 "weapons",
                             ],
                             properties: [
@@ -120,6 +121,7 @@ class WeaponPath
                                 new OA\Property(property: "hunter_billet_issuing_authority", type: "string", nullable: true),
                                 new OA\Property(property: "hunter_billet_rf_subject", type: "string", nullable: true),
                                 new OA\Property(property: "hunter_billet_issue_date", type: "string", nullable: true),
+                                new OA\Property(property: "identity_document", type: "string", nullable: true),
                                 new OA\Property(
                                     property: "weapons",
                                     type: "array",
@@ -196,6 +198,13 @@ class WeaponPath
                         type: "string",
                         format: "date",
                         example: "2020-05-15",
+                        nullable: true
+                    ),
+                    new OA\Property(
+                        property: "identity_document",
+                        description: "Документ, удостоверяющий личность",
+                        type: "string",
+                        example: "4510 123456",
                         nullable: true
                     ),
                     new OA\Property(
@@ -285,6 +294,13 @@ class WeaponPath
                         type: "string",
                         format: "date",
                         example: "2020-05-15",
+                        nullable: true
+                    ),
+                    new OA\Property(
+                        property: "identity_document",
+                        description: "Документ, удостоверяющий личность",
+                        type: "string",
+                        example: "4510 123456",
                         nullable: true
                     ),
                     new OA\Property(

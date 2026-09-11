@@ -19,6 +19,7 @@ class SaveUserWeaponRequest extends FormRequest
             'hunter_billet_issuing_authority' => ['nullable', 'string', 'max:255'],
             'hunter_billet_rf_subject' => ['nullable', 'string', 'max:255'],
             'hunter_billet_issue_date' => ['nullable', 'date'],
+            'identity_document' => ['nullable', 'string', 'max:255'],
             'hunter_license_number' => ['nullable', 'string', 'max:255'],
             'hunter_license_date' => ['nullable', 'date'],
             'weapon_type_id' => ['nullable', 'integer', 'exists:bc_weapons,id'],
@@ -71,6 +72,8 @@ class SaveUserWeaponRequest extends FormRequest
             'hunter_billet_rf_subject.string' => __('weapon.validation.hunter_billet_rf_subject_string'),
             'hunter_billet_rf_subject.max' => __('weapon.validation.hunter_billet_rf_subject_max'),
             'hunter_billet_issue_date.date' => __('weapon.validation.hunter_billet_issue_date_invalid'),
+            'identity_document.string' => __('weapon.validation.identity_document_string'),
+            'identity_document.max' => __('weapon.validation.identity_document_max'),
             'hunter_license_number.string' => __('weapon.validation.hunter_license_number_string'),
             'hunter_license_date.date' => __('weapon.validation.hunter_license_date_invalid'),
             'weapon_type_id.exists' => __('weapon.validation.weapon_type_not_found'),
@@ -108,6 +111,7 @@ class SaveUserWeaponRequest extends FormRequest
             'hunter_billet_issuing_authority' => 'weapon.validation.hunter_billet_issuing_authority_required',
             'hunter_billet_rf_subject' => 'weapon.validation.hunter_billet_rf_subject_required',
             'hunter_billet_issue_date' => 'weapon.validation.hunter_billet_issue_date_required',
+            'identity_document' => 'weapon.validation.identity_document_required',
         ];
     }
 

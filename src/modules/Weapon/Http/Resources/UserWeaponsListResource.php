@@ -27,6 +27,7 @@ class UserWeaponsListResource extends JsonResource
             'hunter_billet_issuing_authority' => $this->user->hunter_billet_issuing_authority,
             'hunter_billet_rf_subject' => $this->user->hunter_billet_rf_subject,
             'hunter_billet_issue_date' => $this->user->hunter_billet_issue_date?->translatedFormat('d F Y г.'),
+            'identity_document' => $this->user->identity_document,
             'weapons' => UserWeaponResource::collection($this->weapons),
         ];
     }
