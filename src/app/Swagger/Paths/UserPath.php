@@ -27,7 +27,7 @@ class UserPath
                             items: new OA\Items(
                                 required: [
                                     "id", "name", "first_name", "last_name", "nik", "birthday", "email",
-                                    "avatar_url", "phone", "city", "address", "role", "bio", "is_verified",
+                                    "avatar_url", "phone", "city", "address", "identity_document", "role", "bio", "is_verified",
                                     "status", "created_at"
                                 ],
                                 properties: [
@@ -42,6 +42,7 @@ class UserPath
                                     new OA\Property(property: "phone", type: "string", nullable: true),
                                     new OA\Property(property: "city", type: "string", nullable: true),
                                     new OA\Property(property: "address", type: "string", nullable: true),
+                                    new OA\Property(property: "identity_document", type: "string", nullable: true),
                                     new OA\Property(property: "role", type: "string", nullable: true),
                                     new OA\Property(property: "bio", type: "string", nullable: true),
                                     new OA\Property(property: "is_verified", type: "integer", nullable: true),
@@ -322,7 +323,7 @@ class UserPath
                             property: "data",
                             required: [
                                 "id", "name", "first_name", "last_name", "nik", "birthday", "email",
-                                "avatar_url", "phone", "city", "address", "role", "bio", "is_verified",
+                                "avatar_url", "phone", "city", "address", "identity_document", "role", "bio", "is_verified",
                                 "status", "created_at"
                             ],
                             properties: [
@@ -337,6 +338,7 @@ class UserPath
                                 new OA\Property(property: "phone", type: "string", nullable: true),
                                 new OA\Property(property: "city", type: "string", nullable: true),
                                 new OA\Property(property: "address", type: "string", nullable: true),
+                                new OA\Property(property: "identity_document", type: "string", nullable: true),
                                 new OA\Property(property: "role", type: "string", nullable: true),
                                 new OA\Property(property: "bio", type: "string", nullable: true),
                                 new OA\Property(property: "is_verified", type: "integer", nullable: true),
@@ -418,6 +420,13 @@ class UserPath
                         new OA\Property(property: "city", type: "string", example: ""),
                         new OA\Property(property: "address", type: "string", example: ""),
                         new OA\Property(property: "hunter_billet_number", type: "string", example: ""),
+                        new OA\Property(
+                            property: "identity_document",
+                            description: "Документ, удостоверяющий личность",
+                            type: "string",
+                            example: "Паспорт РФ",
+                            nullable: true
+                        ),
                         new OA\Property(property: "bio", type: "string", example: ""),
                         new OA\Property(
                             property: "avatar",
@@ -452,7 +461,7 @@ class UserPath
                             property: "data",
                             required: [
                                 "id", "name", "first_name", "last_name", "nik", "birthday", "email",
-                                "avatar_url", "phone", "city", "address", "role", "bio", "is_verified",
+                                "avatar_url", "phone", "city", "address", "identity_document", "role", "bio", "is_verified",
                                 "status", "created_at"
                             ],
                             properties: [
@@ -467,6 +476,7 @@ class UserPath
                                 new OA\Property(property: "phone", type: "string", nullable: true),
                                 new OA\Property(property: "city", type: "string", nullable: true),
                                 new OA\Property(property: "address", type: "string", nullable: true),
+                                new OA\Property(property: "identity_document", type: "string", nullable: true),
                                 new OA\Property(property: "role", type: "string", nullable: true),
                                 new OA\Property(property: "bio", type: "string", nullable: true),
                                 new OA\Property(property: "is_verified", type: "integer", nullable: true),

@@ -17,6 +17,7 @@ class ProfileUpdateData
         public ?string $city,
         public ?string $address,
         public ?string $hunter_billet_number,
+        public ?string $identity_document,
         public ?string $bio,
         public ?UploadedFile $avatar,
         public ?int $avatar_id,
@@ -39,6 +40,7 @@ class ProfileUpdateData
             address: $data['address'] ?? null,
 
             hunter_billet_number: $data['hunter_billet_number'] ?? null,
+            identity_document: $data['identity_document'] ?? null,
             bio: $data['bio'] ?? null,
 
             avatar: $data['avatar'] ?? null,

@@ -36,15 +36,12 @@ class WeaponController extends Controller
 
     public function index(): JsonResponse
     {
+        /** @var User $user */
         $user = Auth::user();
         $weapons = $this->weaponService->getUserWeapons((int) $user->id);
 
-        $hunterBilletNumber = User::query()
-            ->whereKey($user->id)
-            ->value('hunter_billet_number');
-
         return new SuccessResponse(data: new UserWeaponsListResource(
-            $hunterBilletNumber,
+            $user,
             $weapons,
         ));
     }

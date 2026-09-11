@@ -240,6 +240,7 @@ class UserService
             'address' => $dto->address,
             'birthday' => date("Y-m-d", strtotime($dto->birthday)),
             'hunter_billet_number' => $dto->hunter_billet_number,
+            'identity_document' => $dto->identity_document,
         ], fn($v) => $v !== null));
 
         $user->bio = $dto->bio ? strip_tags($dto->bio) : null;

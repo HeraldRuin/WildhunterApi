@@ -31,6 +31,7 @@ class ProfileUpdateRequest extends FormRequest
             'address' => ['nullable', 'string', 'max:255'],
 
             'hunter_billet_number' => ['nullable', 'string', 'max:255'],
+            'identity_document' => ['nullable', 'string', 'max:255'],
 
             'bio' => ['nullable', 'string'],
 
@@ -88,6 +89,9 @@ class ProfileUpdateRequest extends FormRequest
 
             'hunter_billet_number.string' => __('user.validation.profile.hunter_billet_number_string'),
             'hunter_billet_number.max' => __('user.validation.profile.hunter_billet_number_max'),
+
+            'identity_document.string' => __('user.validation.profile.identity_document_string'),
+            'identity_document.max' => __('user.validation.profile.identity_document_max'),
 
             'bio.string' => __('user.validation.profile.bio_string'),
 

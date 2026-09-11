@@ -31,7 +31,7 @@ class WeaponService
 
     public function storeUserWeapon($userId, SaveUserWeaponData $dto): array
     {
-        $this->updateHunterBilletNumber($userId, $dto);
+        $this->updateHunterBillet($userId, $dto);
 
         if ($dto->hasWeaponData()) {
             UserWeapon::create([
@@ -53,7 +53,7 @@ class WeaponService
      */
     public function updateUserWeapon(int $userId, int $weaponId, SaveUserWeaponData $dto): array
     {
-        $this->updateHunterBilletNumber($userId, $dto);
+        $this->updateHunterBillet($userId, $dto);
 
         if ($dto->hasWeaponData()) {
             $weapon = UserWeapon::where('id', $weaponId)
@@ -80,14 +80,17 @@ class WeaponService
         ];
     }
 
-    private function updateHunterBilletNumber(int $userId, SaveUserWeaponData $dto): void
+    private function updateHunterBillet(int $userId, SaveUserWeaponData $dto): void
     {
-        if ($dto->hunter_billet_number === null) {
+        if (!$dto->hasBilletData()) {
             return;
         }
 
         User::where('id', $userId)->update([
             'hunter_billet_number' => $dto->hunter_billet_number,
+            'hunter_billet_issuing_authority' => $dto->hunter_billet_issuing_authority,
+            'hunter_billet_rf_subject' => $dto->hunter_billet_rf_subject,
+            'hunter_billet_issue_date' => $dto->hunter_billet_issue_date,
         ]);
     }
 

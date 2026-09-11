@@ -21,6 +21,7 @@ class UserResource extends BaseJsonResource
             'phone' => $this->resource->phone,
             'city' => $this->resource->city,
             'address' => $this->resource->address,
+            'identity_document' => $this->resource->identity_document,
             'role' => $this->resource->role_name,
             'bio' => $this->resource->bio,
             'is_verified' => $this->resource->is_verified,

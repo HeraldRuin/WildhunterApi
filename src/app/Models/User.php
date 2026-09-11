@@ -37,6 +37,10 @@ class User extends Authenticatable
         'address',
         'birthday',
         'hunter_billet_number',
+        'hunter_billet_issuing_authority',
+        'hunter_billet_rf_subject',
+        'hunter_billet_issue_date',
+        'identity_document',
         'password',
         'current_password',
         'status',
@@ -48,6 +52,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'birthday' => 'date',
+            'hunter_billet_issue_date' => 'date',
             'created_at' => 'date',
         ];
     }

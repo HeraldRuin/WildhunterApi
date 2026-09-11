@@ -108,9 +108,18 @@ class WeaponPath
                         new OA\Property(property: "message", type: "string", example: ""),
                         new OA\Property(
                             property: "data",
-                            required: ["hunter_billet_number", "weapons"],
+                            required: [
+                                "hunter_billet_number",
+                                "hunter_billet_issuing_authority",
+                                "hunter_billet_rf_subject",
+                                "hunter_billet_issue_date",
+                                "weapons",
+                            ],
                             properties: [
                                 new OA\Property(property: "hunter_billet_number", type: "string", nullable: true),
+                                new OA\Property(property: "hunter_billet_issuing_authority", type: "string", nullable: true),
+                                new OA\Property(property: "hunter_billet_rf_subject", type: "string", nullable: true),
+                                new OA\Property(property: "hunter_billet_issue_date", type: "string", nullable: true),
                                 new OA\Property(
                                     property: "weapons",
                                     type: "array",
@@ -154,7 +163,7 @@ class WeaponPath
 
     #[OA\POST(
         path: "/api/" . ApiConfig::VERSION . "/user/weapons",
-        description: "Можно передать только hunter_billet_number, только данные оружия, или оба набора полей.",
+        description: "Можно передать только данные охотничьего билета, только данные оружия, или оба набора полей.",
         summary: "Сохранить оружие или охотничий билет пользователя",
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
@@ -165,6 +174,28 @@ class WeaponPath
                         property: "hunter_billet_number",
                         type: "string",
                         example: "АБ1234567",
+                        nullable: true
+                    ),
+                    new OA\Property(
+                        property: "hunter_billet_issuing_authority",
+                        description: "Исполнительный орган",
+                        type: "string",
+                        example: "Министерство природных ресурсов",
+                        nullable: true
+                    ),
+                    new OA\Property(
+                        property: "hunter_billet_rf_subject",
+                        description: "Субъект РФ",
+                        type: "string",
+                        example: "Московская область",
+                        nullable: true
+                    ),
+                    new OA\Property(
+                        property: "hunter_billet_issue_date",
+                        description: "Дата выдачи охотничьего билета",
+                        type: "string",
+                        format: "date",
+                        example: "2020-05-15",
                         nullable: true
                     ),
                     new OA\Property(
@@ -221,7 +252,7 @@ class WeaponPath
 
     #[OA\Put(
         path: "/api/" . ApiConfig::VERSION . "/user/weapons/{id}",
-        description: "Можно передать только hunter_billet_number, только данные оружия",
+        description: "Можно передать только данные охотничьего билета, только данные оружия",
         summary: "Обновить оружие или охотничий билет пользователя",
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
@@ -232,6 +263,28 @@ class WeaponPath
                         property: "hunter_billet_number",
                         type: "string",
                         example: "АБ1234567",
+                        nullable: true
+                    ),
+                    new OA\Property(
+                        property: "hunter_billet_issuing_authority",
+                        description: "Исполнительный орган",
+                        type: "string",
+                        example: "Министерство природных ресурсов",
+                        nullable: true
+                    ),
+                    new OA\Property(
+                        property: "hunter_billet_rf_subject",
+                        description: "Субъект РФ",
+                        type: "string",
+                        example: "Московская область",
+                        nullable: true
+                    ),
+                    new OA\Property(
+                        property: "hunter_billet_issue_date",
+                        description: "Дата выдачи охотничьего билета",
+                        type: "string",
+                        format: "date",
+                        example: "2020-05-15",
                         nullable: true
                     ),
                     new OA\Property(
