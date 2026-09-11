@@ -6,8 +6,11 @@ use App\Exceptions\ForbiddenException;
 use App\Exceptions\NotFoundException;
 use App\Exceptions\ValidationException;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Modules\Animals\Dto\BulkUpdateHuntersCountData;
 use Modules\Animals\Models\Animal;
 use Modules\Hotel\Models\Hotel;
+use Modules\Hotel\Models\HotelAnimal;
 
 class ManageAnimalService
 {
@@ -124,6 +127,56 @@ class ManageAnimalService
                 'id' => $animal->id,
                 'title' => $animal->title,
                 'hunters_count' => $huntersCount,
+            ],
+        ];
+    }
+
+    /**
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     */
+    public function updateHuntersCounts(BulkUpdateHuntersCountData $data, User $user): array
+    {
+        $hotel = $this->resolveHotel($user);
+        $animalIds = array_values(array_unique(array_column($data->animals, 'id')));
+
+        $animals = Animal::query()
+            ->forHotel($hotel->id)
+            ->whereIn('bc_animals.id', $animalIds)
+            ->get(['bc_animals.id', 'bc_animals.title'])
+            ->keyBy('id');
+
+        if ($animals->count() !== count($animalIds)) {
+            throw new NotFoundException(
+                errorCode: 'animal_not_found',
+                domain: 'animal',
+            );
+        }
+
+        $updated = DB::transaction(function () use ($hotel, $data, $animals): array {
+            $result = [];
+
+            foreach ($data->animals as $item) {
+                HotelAnimal::query()
+                    ->where('hotel_id', $hotel->id)
+                    ->where('animal_id', $item['id'])
+                    ->update(['hunters_count' => $item['huntersCount']]);
+
+                $animal = $animals->get($item['id']);
+                $result[$item['id']] = [
+                    'id' => $animal->id,
+                    'title' => $animal->title,
+                    'hunters_count' => $item['huntersCount'],
+                ];
+            }
+
+            return array_values($result);
+        });
+
+        return [
+            'code' => 'hunters_count_updated',
+            'data' => [
+                'animals' => $updated,
             ],
         ];
     }

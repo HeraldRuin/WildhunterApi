@@ -9,11 +9,13 @@ use App\Http\Responses\SuccessResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Modules\Animals\Dto\AttachAnimalData;
+use Modules\Animals\Dto\BulkUpdateHuntersCountData;
 use Modules\Animals\Dto\UpdateHuntersCountData;
 use Modules\Animals\Http\Resources\AvailableAnimalResource;
 use Modules\Animals\Http\Resources\ManagedAnimalResource;
 use Modules\Animals\Models\Animal;
 use Modules\Animals\Requests\AttachAnimalRequest;
+use Modules\Animals\Requests\BulkUpdateHuntersCountRequest;
 use Modules\Animals\Requests\UpdateHuntersCountRequest;
 use Modules\Animals\Services\ManageAnimalService;
 
@@ -67,6 +69,22 @@ class ManageAnimalController extends Controller
             $data->huntersCount,
             Auth::user(),
         );
+
+        return new SuccessResponse(
+            code: $result['code'],
+            domain: 'animal',
+            data: $result['data'],
+        );
+    }
+
+    /**
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     */
+    public function updateHuntersCounts(BulkUpdateHuntersCountRequest $request): JsonResponse
+    {
+        $data = BulkUpdateHuntersCountData::fromRequest($request);
+        $result = $this->manageAnimalService->updateHuntersCounts($data, Auth::user());
 
         return new SuccessResponse(
             code: $result['code'],
