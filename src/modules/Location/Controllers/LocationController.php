@@ -38,9 +38,9 @@ class LocationController extends Controller
     /**
      * @throws NotFoundException
      */
-    public function getLocationHotels(int $id): JsonResponse
+    public function getLocationHotels(string $slug): JsonResponse
     {
-        $result = $this->locationService->getLocationHotels($id);
+        $result = $this->locationService->getLocationHotels($slug);
 
         return new SuccessResponse(data: LocationHotelResource::collection($result['hotels']));
     }

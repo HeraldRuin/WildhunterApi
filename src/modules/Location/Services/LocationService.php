@@ -36,9 +36,9 @@ class LocationService
     /**
      * @throws NotFoundException
      */
-    public function getLocationHotels(int $id): array
+    public function getLocationHotels(string $slug): array
     {
-        $location = Location::published()->find($id);
+        $location = Location::published()->where('slug', $slug)->first();
 
         if (!$location) {
             throw new NotFoundException(

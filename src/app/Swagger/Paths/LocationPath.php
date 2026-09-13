@@ -117,20 +117,19 @@ class LocationPath
     {}
 
     #[OA\Get(
-        path: "/api/" . ApiConfig::VERSION . "/locations/{id}/hotels",
+        path: "/api/" . ApiConfig::VERSION . "/locations/{slug}/hotels",
         summary: "Выводит список отелей для указанной локации",
         security: [['bearerAuth' => []]],
         tags: ["Locations"],
         parameters: [
             new OA\Parameter(
-                name: "id",
-                description: "ID локации",
+                name: "slug",
+                description: "Slug локации",
                 in: "path",
                 required: true,
                 schema: new OA\Schema(
-                    type: "integer",
-                    example: 1,
-                    minimum: 1
+                    type: "string",
+                    example: "iaroslavskaia-oblast"
                 )
             ),
         ],
