@@ -20,6 +20,7 @@ class ProfileUpdateRequest extends FormRequest
         return [
             'first_name' => ['nullable', 'string', 'max:255'],
             'last_name' => ['nullable', 'string', 'max:255'],
+            'patronymic' => ['nullable', 'string', 'max:255'],
             'nik' => ['nullable', 'string', 'max:255'],
 
             'birthday' => ['nullable', 'date'],
@@ -68,6 +69,9 @@ class ProfileUpdateRequest extends FormRequest
 
             'last_name.string' => __('user.validation.profile.last_name_string'),
             'last_name.max' => __('user.validation.profile.last_name_max'),
+
+            'patronymic.string' => __('user.validation.profile.patronymic_string'),
+            'patronymic.max' => __('user.validation.profile.patronymic_max'),
 
             'nik.string' => __('user.validation.profile.nik_string'),
             'nik.max' => __('user.validation.profile.nik_max'),
