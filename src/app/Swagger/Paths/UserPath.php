@@ -418,6 +418,7 @@ class UserPath
                     properties: [
                         new OA\Property(property: "first_name", type: "string", example: ""),
                         new OA\Property(property: "last_name", type: "string", example: ""),
+                        new OA\Property(property: "patronymic", type: "string", example: "", nullable: true),
                         new OA\Property(property: "nik", type: "string", example: ""),
                         new OA\Property(property: "birthday", type: "string", example: ""),
                         new OA\Property(property: "email", type: "string", example: "test@mail.com"),
