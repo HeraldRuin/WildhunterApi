@@ -10,6 +10,7 @@ class ProfileUpdateData
     public function __construct(
         public ?string $first_name,
         public ?string $last_name,
+        public ?string $patronymic,
         public ?string $nik,
         public ?string $birthday,
         public string $email,
@@ -30,6 +31,7 @@ class ProfileUpdateData
         return new self(
             first_name: $data['first_name'] ?? null,
             last_name: $data['last_name'] ?? null,
+            patronymic: filled($data['patronymic'] ?? null) ? $data['patronymic'] : null,
             nik: $data['nik'] ?? null,
             birthday: $data['birthday'] ?? null,
 

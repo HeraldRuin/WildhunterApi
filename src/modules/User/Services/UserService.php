@@ -245,9 +245,7 @@ class UserService
             'identity_document' => $dto->identity_document,
         ], fn($v) => $v !== null);
 
-        if ($dto->patronymic_provided) {
-            $profileData['patronymic'] = $dto->patronymic;
-        }
+        $profileData['patronymic'] = $dto->patronymic;
 
         $user->fill($profileData);
 
