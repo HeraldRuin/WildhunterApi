@@ -67,6 +67,7 @@ class ManageAnimalController extends Controller
         $result = $this->manageAnimalService->updateHuntersCount(
             $animal->id,
             $data->huntersCount,
+            $data->maxHuntersCount,
             Auth::user(),
         );
 

@@ -17,6 +17,7 @@ class BulkUpdateHuntersCountRequest extends FormRequest
             'animals' => ['required', 'array', 'min:1'],
             'animals.*.id' => ['required', 'integer', 'min:1'],
             'animals.*.hunters_count' => ['required', 'integer', 'min:1'],
+            'animals.*.max_hunters_count' => ['required', 'integer', 'min:1', 'gte:animals.*.hunters_count'],
         ];
     }
 
@@ -32,6 +33,10 @@ class BulkUpdateHuntersCountRequest extends FormRequest
             'animals.*.hunters_count.required' => __('animal.validation.hunters_count_required'),
             'animals.*.hunters_count.integer' => __('animal.validation.hunters_count_must_be_integer'),
             'animals.*.hunters_count.min' => __('animal.validation.hunters_min_value'),
+            'animals.*.max_hunters_count.required' => __('animal.validation.max_hunters_count_required'),
+            'animals.*.max_hunters_count.integer' => __('animal.validation.max_hunters_count_must_be_integer'),
+            'animals.*.max_hunters_count.min' => __('animal.validation.max_hunters_min_value'),
+            'animals.*.max_hunters_count.gte' => __('animal.validation.max_hunters_gte_hunters'),
         ];
     }
 }

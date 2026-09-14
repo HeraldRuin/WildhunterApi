@@ -12,5 +12,6 @@ class HotelAnimal extends Model
         'animal_id',
         'status',
         'hunters_count',
+        'max_hunters_count',
     ];
 }

@@ -164,11 +164,12 @@ class AnimalsPath
                                     property: "animals",
                                     type: "array",
                                     items: new OA\Items(
-                                        required: ["id", "title", "hunters_count"],
+                                        required: ["id", "title", "hunters_count", "max_hunters_count"],
                                         properties: [
                                             new OA\Property(property: "id", type: "integer", example: 1),
                                             new OA\Property(property: "title", type: "string", example: "Косуля европейская"),
                                             new OA\Property(property: "hunters_count", type: "integer", example: 2),
+                                            new OA\Property(property: "max_hunters_count", type: "integer", example: 8),
                                         ],
                                         type: "object"
                                     )
@@ -232,11 +233,12 @@ class AnimalsPath
                         new OA\Property(property: "message", type: "string", example: "Животное добавлено"),
                         new OA\Property(
                             property: "data",
-                            required: ["id", "title", "hunters_count"],
+                            required: ["id", "title", "hunters_count", "max_hunters_count"],
                             properties: [
                                 new OA\Property(property: "id", type: "integer", example: 5),
                                 new OA\Property(property: "title", type: "string", example: "Медведь бурый"),
                                 new OA\Property(property: "hunters_count", type: "integer", example: 1),
+                                new OA\Property(property: "max_hunters_count", type: "integer", example: 1),
                             ],
                             type: "object"
                         ),
@@ -266,16 +268,104 @@ class AnimalsPath
     {}
 
     #[OA\Put(
-        path: "/api/" . ApiConfig::VERSION . "/animals/manage/{animal}/hunters-count",
-        description: "Обновляет hunters_count в bc_hotel_animals для животного базы.",
-        summary: "Сохранить минимальное количество охотников",
+        path: "/api/" . ApiConfig::VERSION . "/animals/manage/hunters-count",
+        description: "Массово обновляет hunters_count и max_hunters_count в bc_hotel_animals для животных базы. Атомарно: все или ничего.",
+        summary: "Сохранить количество охотников (массово)",
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ["hunters_count"],
+                required: ["animals"],
+                properties: [
+                    new OA\Property(
+                        property: "animals",
+                        type: "array",
+                        minItems: 1,
+                        items: new OA\Items(
+                            required: ["id", "hunters_count", "max_hunters_count"],
+                            properties: [
+                                new OA\Property(property: "id", type: "integer", example: 1, minimum: 1),
+                                new OA\Property(property: "hunters_count", type: "integer", example: 2, minimum: 1),
+                                new OA\Property(property: "max_hunters_count", type: "integer", example: 8, minimum: 1),
+                            ],
+                            type: "object"
+                        ),
+                        example: [
+                            ["id" => 1, "hunters_count" => 2, "max_hunters_count" => 8],
+                            ["id" => 5, "hunters_count" => 12, "max_hunters_count" => 20],
+                        ]
+                    ),
+                ]
+            )
+        ),
+        tags: ["Animals"],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Количество охотников сохранено",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: "Количество охотников сохранено"),
+                        new OA\Property(
+                            property: "data",
+                            required: ["animals"],
+                            properties: [
+                                new OA\Property(
+                                    property: "animals",
+                                    type: "array",
+                                    items: new OA\Items(
+                                        required: ["id", "title", "hunters_count", "max_hunters_count"],
+                                        properties: [
+                                            new OA\Property(property: "id", type: "integer", example: 1),
+                                            new OA\Property(property: "title", type: "string", example: "Косуля европейская"),
+                                            new OA\Property(property: "hunters_count", type: "integer", example: 2),
+                                            new OA\Property(property: "max_hunters_count", type: "integer", example: 8),
+                                        ],
+                                        type: "object"
+                                    )
+                                ),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(
+                ref: "#/components/responses/AuthResponse",
+                response: 401
+            ),
+            new OA\Response(
+                response: 403,
+                description: "Нет прав baseAdmin или у пользователя нет отеля"
+            ),
+            new OA\Response(
+                ref: "#/components/responses/NotFoundResponse",
+                response: 404
+            ),
+            new OA\Response(
+                ref: "#/components/responses/ValidationError",
+                response: 422
+            ),
+        ]
+    )]
+    public function updateManageHuntersCounts(): void
+    {}
+
+    #[OA\Put(
+        path: "/api/" . ApiConfig::VERSION . "/animals/manage/{animal}/hunters-count",
+        description: "Обновляет hunters_count и max_hunters_count в bc_hotel_animals для животного базы.",
+        summary: "Сохранить количество охотников",
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["hunters_count", "max_hunters_count"],
                 properties: [
                     new OA\Property(property: "hunters_count", type: "integer", example: 2, minimum: 1),
+                    new OA\Property(property: "max_hunters_count", type: "integer", example: 8, minimum: 1),
                 ]
             )
         ),
@@ -300,11 +390,12 @@ class AnimalsPath
                         new OA\Property(property: "message", type: "string", example: "Количество охотников сохранено"),
                         new OA\Property(
                             property: "data",
-                            required: ["id", "title", "hunters_count"],
+                            required: ["id", "title", "hunters_count", "max_hunters_count"],
                             properties: [
                                 new OA\Property(property: "id", type: "integer", example: 1),
                                 new OA\Property(property: "title", type: "string", example: "Косуля европейская"),
                                 new OA\Property(property: "hunters_count", type: "integer", example: 2),
+                                new OA\Property(property: "max_hunters_count", type: "integer", example: 8),
                             ],
                             type: "object"
                         ),

@@ -61,7 +61,7 @@ class Animal extends Model
     public function hotels(): BelongsToMany
     {
         return $this->belongsToMany(Hotel::class, 'bc_hotel_animals', 'animal_id', 'hotel_id')
-            ->withPivot('status', 'hunters_count');
+            ->withPivot('status', 'hunters_count', 'max_hunters_count');
     }
 
     public function scopeForHotel($query, int $hotelId)

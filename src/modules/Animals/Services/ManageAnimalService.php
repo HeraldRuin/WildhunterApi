@@ -31,6 +31,7 @@ class ManageAnimalService
                 'bc_animals.*',
                 'bha.status as animal_status',
                 'bha.hunters_count as hunters_count',
+                'bha.max_hunters_count as max_hunters_count',
             ])
             ->orderByDesc('bc_animals.id')
             ->get();
@@ -81,28 +82,25 @@ class ManageAnimalService
         if ($pivot) {
             return [
                 'code' => 'animal_attached',
-                'data' => [
-                    'id' => $animal->id,
-                    'title' => $animal->title,
-                    'hunters_count' => (int) ($pivot->pivot->hunters_count ?? 1),
-                ],
+                'data' => $this->animalHuntersPayload(
+                    $animal,
+                    (int) ($pivot->pivot->hunters_count ?? 1),
+                    (int) ($pivot->pivot->max_hunters_count ?? 0),
+                ),
             ];
         }
 
         $animal->hotels()->syncWithoutDetaching([
             $hotel->id => [
                 'hunters_count' => 1,
+                'max_hunters_count' => 1,
                 'status' => 'available',
             ],
         ]);
 
         return [
             'code' => 'animal_attached',
-            'data' => [
-                'id' => $animal->id,
-                'title' => $animal->title,
-                'hunters_count' => 1,
-            ],
+            'data' => $this->animalHuntersPayload($animal, 1, 1),
         ];
     }
 
@@ -110,8 +108,12 @@ class ManageAnimalService
      * @throws ForbiddenException
      * @throws NotFoundException
      */
-    public function updateHuntersCount(int $animalId, int $huntersCount, User $user): array
-    {
+    public function updateHuntersCount(
+        int $animalId,
+        int $huntersCount,
+        int $maxHuntersCount,
+        User $user,
+    ): array {
         $hotel = $this->resolveHotel($user);
         $this->assertAnimalBelongsToHotel($animalId, $hotel);
 
@@ -119,15 +121,12 @@ class ManageAnimalService
 
         $animal->hotels()->updateExistingPivot($hotel->id, [
             'hunters_count' => $huntersCount,
+            'max_hunters_count' => $maxHuntersCount,
         ]);
 
         return [
             'code' => 'hunters_count_updated',
-            'data' => [
-                'id' => $animal->id,
-                'title' => $animal->title,
-                'hunters_count' => $huntersCount,
-            ],
+            'data' => $this->animalHuntersPayload($animal, $huntersCount, $maxHuntersCount),
         ];
     }
 
@@ -160,14 +159,17 @@ class ManageAnimalService
                 HotelAnimal::query()
                     ->where('hotel_id', $hotel->id)
                     ->where('animal_id', $item['id'])
-                    ->update(['hunters_count' => $item['huntersCount']]);
+                    ->update([
+                        'hunters_count' => $item['huntersCount'],
+                        'max_hunters_count' => $item['maxHuntersCount'],
+                    ]);
 
                 $animal = $animals->get($item['id']);
-                $result[$item['id']] = [
-                    'id' => $animal->id,
-                    'title' => $animal->title,
-                    'hunters_count' => $item['huntersCount'],
-                ];
+                $result[$item['id']] = $this->animalHuntersPayload(
+                    $animal,
+                    $item['huntersCount'],
+                    $item['maxHuntersCount'],
+                );
             }
 
             return array_values($result);
@@ -198,6 +200,19 @@ class ManageAnimalService
             'data' => [
                 'id' => $animalId,
             ],
+        ];
+    }
+
+    private function animalHuntersPayload(Animal $animal, int $huntersCount, int $maxHuntersCount): array
+    {
+        $huntersCount = $huntersCount > 0 ? $huntersCount : 1;
+        $maxHuntersCount = $maxHuntersCount > 0 ? $maxHuntersCount : $huntersCount;
+
+        return [
+            'id' => $animal->id,
+            'title' => $animal->title,
+            'hunters_count' => $huntersCount,
+            'max_hunters_count' => $maxHuntersCount,
         ];
     }
 

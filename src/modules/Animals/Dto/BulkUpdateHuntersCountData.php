@@ -7,7 +7,7 @@ use Modules\Animals\Requests\BulkUpdateHuntersCountRequest;
 readonly class BulkUpdateHuntersCountData
 {
     /**
-     * @param list<array{id: int, huntersCount: int}> $animals
+     * @param list<array{id: int, huntersCount: int, maxHuntersCount: int}> $animals
      */
     public function __construct(
         public array $animals,
@@ -21,6 +21,7 @@ readonly class BulkUpdateHuntersCountData
             static fn (array $item): array => [
                 'id' => (int) $item['id'],
                 'huntersCount' => (int) $item['hunters_count'],
+                'maxHuntersCount' => (int) $item['max_hunters_count'],
             ],
             $data['animals'],
         );
