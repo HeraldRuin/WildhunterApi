@@ -185,13 +185,14 @@ class HotelsPath
                                     property: "animals",
                                     type: "array",
                                     items: new OA\Items(
-                                        required: ["id", "title", "slug", "image_url", "content"],
+                                        required: ["id", "title", "slug", "image_url", "content", "max_hunters_count"],
                                         properties: [
                                             new OA\Property(property: "id", type: "integer"),
                                             new OA\Property(property: "title", type: "string", nullable: true),
                                             new OA\Property(property: "slug", type: "string", nullable: true),
                                             new OA\Property(property: "image_url", type: "string"),
                                             new OA\Property(property: "content", type: "string", nullable: true),
+                                            new OA\Property(property: "max_hunters_count", type: "integer", example: 8),
                                         ],
                                         type: "object"
                                     )
