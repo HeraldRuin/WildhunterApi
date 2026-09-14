@@ -60,7 +60,7 @@ class UserService
             ->orWhere('email', 'LIKE', $query.'%')
             ->orWhere('id', 'LIKE', $query.'%');
     })
-            ->select(['id', 'user_name', 'first_name', 'last_name'])
+            ->select(['id', 'user_name', 'first_name', 'last_name', 'patronymic'])
             ->get();
     }
 
@@ -146,6 +146,7 @@ class UserService
                 'user_name',
                 'first_name',
                 'last_name',
+                'patronymic',
                 'email',
                 'phone',
                 'role_id',
@@ -211,6 +212,7 @@ class UserService
                 'user_name',
                 'first_name',
                 'last_name',
+                'patronymic',
                 'email',
                 'phone',
                 'role_id',
@@ -225,12 +227,12 @@ class UserService
             })
             ->whereKeyNot($excludedUserId)
             ->where('id', 'like', "%{$query}%")
-            ->get(['id', 'user_name', 'first_name', 'last_name', 'email', 'phone']);
+            ->get(['id', 'user_name', 'first_name', 'last_name', 'patronymic', 'email', 'phone']);
     }
 
     public function update($user, ProfileUpdateData $dto): array
     {
-        $user->fill(array_filter([
+        $profileData = array_filter([
             'first_name' => $dto->first_name,
             'last_name' => $dto->last_name,
             'user_name' => $dto->nik,
@@ -241,7 +243,13 @@ class UserService
             'birthday' => date("Y-m-d", strtotime($dto->birthday)),
             'hunter_billet_number' => $dto->hunter_billet_number,
             'identity_document' => $dto->identity_document,
-        ], fn($v) => $v !== null));
+        ], fn($v) => $v !== null);
+
+        if ($dto->patronymic_provided) {
+            $profileData['patronymic'] = $dto->patronymic;
+        }
+
+        $user->fill($profileData);
 
         $user->bio = $dto->bio ? strip_tags($dto->bio) : null;
         $user->updateFullName();
