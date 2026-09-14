@@ -26,7 +26,7 @@ class UserPath
                             type: "array",
                             items: new OA\Items(
                                 required: [
-                                    "id", "name", "first_name", "last_name", "nik", "birthday", "email",
+                                    "id", "name", "first_name", "last_name", "patronymic", "nik", "birthday", "email",
                                     "avatar_url", "phone", "city", "address", "identity_document", "role", "bio", "is_verified",
                                     "status", "created_at"
                                 ],
@@ -35,6 +35,7 @@ class UserPath
                                     new OA\Property(property: "name", type: "string", nullable: true),
                                     new OA\Property(property: "first_name", type: "string", nullable: true),
                                     new OA\Property(property: "last_name", type: "string", nullable: true),
+                                    new OA\Property(property: "patronymic", type: "string", nullable: true),
                                     new OA\Property(property: "nik", type: "string", nullable: true),
                                     new OA\Property(property: "birthday", type: "string", nullable: true),
                                     new OA\Property(property: "email", type: "string", format: "email", nullable: true),
@@ -100,13 +101,14 @@ class UserPath
                             type: "array",
                             items: new OA\Items(
                                 required: [
-                                    "id", "user_name", "first_name", "last_name", "email", "phone",
+                                    "id", "user_name", "first_name", "last_name", "patronymic", "email", "phone",
                                 ],
                                 properties: [
                                     new OA\Property(property: "id", type: "integer"),
                                     new OA\Property(property: "user_name", type: "string", nullable: true),
                                     new OA\Property(property: "first_name", type: "string", nullable: true),
                                     new OA\Property(property: "last_name", type: "string", nullable: true),
+                                    new OA\Property(property: "patronymic", type: "string", nullable: true),
                                     new OA\Property(
                                         property: "email",
                                         type: "string",
@@ -175,13 +177,14 @@ class UserPath
                             type: "array",
                             items: new OA\Items(
                                 required: [
-                                    "id", "user_name", "first_name", "last_name", "email", "phone",
+                                    "id", "user_name", "first_name", "last_name", "patronymic", "email", "phone",
                                 ],
                                 properties: [
                                     new OA\Property(property: "id", type: "integer"),
                                     new OA\Property(property: "user_name", type: "string", nullable: true),
                                     new OA\Property(property: "first_name", type: "string", nullable: true),
                                     new OA\Property(property: "last_name", type: "string", nullable: true),
+                                    new OA\Property(property: "patronymic", type: "string", nullable: true),
                                     new OA\Property(
                                         property: "email",
                                         type: "string",
@@ -249,13 +252,14 @@ class UserPath
                             type: "array",
                             items: new OA\Items(
                                 required: [
-                                    "id", "user_name", "first_name", "last_name", "email", "phone",
+                                    "id", "user_name", "first_name", "last_name", "patronymic", "email", "phone",
                                 ],
                                 properties: [
                                     new OA\Property(property: "id", type: "integer"),
                                     new OA\Property(property: "user_name", type: "string", nullable: true),
                                     new OA\Property(property: "first_name", type: "string", nullable: true),
                                     new OA\Property(property: "last_name", type: "string", nullable: true),
+                                    new OA\Property(property: "patronymic", type: "string", nullable: true),
                                     new OA\Property(
                                         property: "email",
                                         type: "string",
@@ -322,7 +326,7 @@ class UserPath
                         new OA\Property(
                             property: "data",
                             required: [
-                                "id", "name", "first_name", "last_name", "nik", "birthday", "email",
+                                "id", "name", "first_name", "last_name", "patronymic", "nik", "birthday", "email",
                                 "avatar_url", "phone", "city", "address", "identity_document", "role", "bio", "is_verified",
                                 "status", "created_at"
                             ],
@@ -331,6 +335,7 @@ class UserPath
                                 new OA\Property(property: "name", type: "string", nullable: true),
                                 new OA\Property(property: "first_name", type: "string", nullable: true),
                                 new OA\Property(property: "last_name", type: "string", nullable: true),
+                                new OA\Property(property: "patronymic", type: "string", nullable: true),
                                 new OA\Property(property: "nik", type: "string", nullable: true),
                                 new OA\Property(property: "birthday", type: "string", nullable: true),
                                 new OA\Property(property: "email", type: "string", format: "email", nullable: true),
@@ -460,7 +465,7 @@ class UserPath
                         new OA\Property(
                             property: "data",
                             required: [
-                                "id", "name", "first_name", "last_name", "nik", "birthday", "email",
+                                "id", "name", "first_name", "last_name", "patronymic", "nik", "birthday", "email",
                                 "avatar_url", "phone", "city", "address", "identity_document", "role", "bio", "is_verified",
                                 "status", "created_at"
                             ],
@@ -469,6 +474,7 @@ class UserPath
                                 new OA\Property(property: "name", type: "string", nullable: true),
                                 new OA\Property(property: "first_name", type: "string", nullable: true),
                                 new OA\Property(property: "last_name", type: "string", nullable: true),
+                                new OA\Property(property: "patronymic", type: "string", nullable: true),
                                 new OA\Property(property: "nik", type: "string", nullable: true),
                                 new OA\Property(property: "birthday", type: "string", nullable: true),
                                 new OA\Property(property: "email", type: "string", format: "email", nullable: true),

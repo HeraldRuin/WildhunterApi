@@ -14,6 +14,7 @@ class UserResource extends BaseJsonResource
             'name' => $this->resource->name,
             'first_name' => $this->resource->first_name,
             'last_name' => $this->resource->last_name,
+            'patronymic' => $this->resource->patronymic,
             'nik' => $this->resource->user_name,
             'birthday' => $this->resource->birthday?->translatedFormat('d F Y г.'),
             'email' => $this->resource->email,

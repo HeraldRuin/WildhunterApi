@@ -13,6 +13,7 @@ class UserLoginResource extends BaseJsonResource
             'id' => $this->resource->id,
             'first_name'=>$this->resource->first_name,
             'last_name'=>$this->resource->last_name,
+            'patronymic'=>$this->resource->patronymic,
             'email'=>$this->resource->email,
             'avatar'=> UserAvatarUrl::resolve($this->resource->avatar_id),
         ];
