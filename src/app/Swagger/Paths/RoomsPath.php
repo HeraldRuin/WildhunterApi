@@ -467,6 +467,98 @@ class RoomsPath
     {
     }
 
+    #[OA\Get(
+        path: "/api/" . ApiConfig::VERSION . "/hotels/rooms/calendar-availability",
+        description: "Публичный календарь занятости номеров базы. date — ночь проживания (день выезда не занимает номер). available_rooms = 0 означает, что нельзя заехать в эту дату и нельзя жить эту ночь; выезд утром в занятую дату разрешён на фронте. В ноль входят проданные и закрытые админом (active = 0) номера. Считаются только опубликованные типы номеров. end исключительный: период [start, end).",
+        summary: "Календарь доступности номеров базы по дням",
+        tags: ["Rooms"],
+        parameters: [
+            new OA\Parameter(
+                name: "hotel_id",
+                description: "ID опубликованной базы",
+                in: "query",
+                required: true,
+                schema: new OA\Schema(type: "integer", example: 27, minimum: 1)
+            ),
+            new OA\Parameter(
+                name: "start",
+                description: "Начало периода включительно",
+                in: "query",
+                required: true,
+                schema: new OA\Schema(type: "string", format: "date", example: "2026-09-01")
+            ),
+            new OA\Parameter(
+                name: "end",
+                description: "Конец периода исключительно (как в GET /rooms/availability)",
+                in: "query",
+                required: true,
+                schema: new OA\Schema(type: "string", format: "date", example: "2026-10-01")
+            ),
+            new OA\Parameter(
+                name: "adults",
+                description: "Число взрослых. Если передан — учитываются только номера, которые могут разместить столько гостей. Если нет — без фильтра по вместимости",
+                in: "query",
+                required: false,
+                schema: new OA\Schema(type: "integer", example: 2, minimum: 1)
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Занятость по дням периода",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            required: ["days"],
+                            properties: [
+                                new OA\Property(
+                                    property: "days",
+                                    type: "array",
+                                    items: new OA\Items(
+                                        required: ["date", "available_rooms"],
+                                        properties: [
+                                            new OA\Property(
+                                                property: "date",
+                                                description: "Ночь проживания",
+                                                type: "string",
+                                                format: "date",
+                                                example: "2026-09-16"
+                                            ),
+                                            new OA\Property(
+                                                property: "available_rooms",
+                                                description: "Свободные опубликованные номера на эту ночь",
+                                                type: "integer",
+                                                example: 3
+                                            ),
+                                        ],
+                                        type: "object"
+                                    )
+                                ),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(
+                ref: "#/components/responses/NotFoundResponse",
+                response: 404
+            ),
+            new OA\Response(
+                ref: "#/components/responses/ValidationError",
+                response: 422
+            ),
+        ]
+    )]
+    public function calendarAvailability(): void
+    {
+    }
+
     #[OA\Post(
         path: "/api/" . ApiConfig::VERSION . "/rooms",
         description: "Доступно админу базы. Создаёт номер у отеля текущего пользователя (parent_id). Обязательно только title. Статус по умолчанию — draft. В ответе — данные номера в формате формы редактирования.",

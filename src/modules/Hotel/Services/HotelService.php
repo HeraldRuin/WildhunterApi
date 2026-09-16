@@ -9,6 +9,7 @@ use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Modules\Hotel\Models\Hotel;
+use Modules\Hotel\Dto\CalendarAvailabilityData;
 use Modules\Hotel\Dto\CheckAvailabilityData;
 use Modules\Hotel\Dto\HotelFilterData;
 use Modules\Hotel\Dto\HotelSearchData;
@@ -317,6 +318,26 @@ class HotelService
         return [
             'code' => '',
             'data' => $this->roomService->getAvailableRooms($hotel, $dto->toFilters()),
+        ];
+    }
+
+    /**
+     * @throws NotFoundException
+     * @return array{days: list<array{date: string, available_rooms: int}>}
+     */
+    public function getCalendarAvailability(CalendarAvailabilityData $dto): array
+    {
+        $hotel = Hotel::published()->with('rooms')->find($dto->hotelId);
+
+        if (!$hotel) {
+            throw new NotFoundException(
+                errorCode: 'hotel_not_found',
+                domain: 'hotel'
+            );
+        }
+
+        return [
+            'days' => $this->roomService->getCalendarAvailabilityDays($hotel, $dto),
         ];
     }
 

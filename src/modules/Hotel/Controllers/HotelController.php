@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Exceptions\ValidationException;
 use Illuminate\Support\Facades\Auth;
+use Modules\Hotel\Dto\CalendarAvailabilityData;
 use Modules\Hotel\Dto\CheckAvailabilityData;
 use Modules\Hotel\Dto\HotelFilterData;
 use Modules\Hotel\Dto\HotelSearchData;
@@ -17,6 +18,7 @@ use Modules\Hotel\Models\Hotel;
 use Modules\Hotel\Services\HotelService;
 use App\Http\Resources\PaginateResource;
 use Modules\Hotel\Http\Resources\HotelResource;
+use Modules\Hotel\Http\Request\CalendarAvailabilityRequest;
 use Modules\Hotel\Http\Request\CheckAvailabilityRequest;
 use Modules\Hotel\Http\Request\HotelFilterRequest;
 use Modules\Hotel\Http\Request\HotelSearchRequest;
@@ -157,6 +159,18 @@ class HotelController extends Controller
             data: [
                 'rooms' => HotelRoomResource::collection($result['data'])->resolve(),
             ]
+        );
+    }
+
+    /**
+     * @throws NotFoundException
+     */
+    public function calendarAvailability(CalendarAvailabilityRequest $request): JsonResponse
+    {
+        $dto = CalendarAvailabilityData::fromRequest($request);
+
+        return new SuccessResponse(
+            data: $this->hotelService->getCalendarAvailability($dto),
         );
     }
 }
