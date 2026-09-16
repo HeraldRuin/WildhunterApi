@@ -19,7 +19,9 @@ class HotelSearchRequest extends FormRequest
             'location_id' => ['nullable', 'integer', 'min:1'],
             'location_ids' => ['nullable', 'array'],
             'location_ids.*' => ['integer', 'min:1', Rule::exists('bc_locations', 'id')],
-            'animal_id' => ['nullable', 'integer'],
+            'animal_id' => ['nullable', 'integer', 'min:1', Rule::exists('bc_animals', 'id')],
+            'animal_ids' => ['nullable', 'array'],
+            'animal_ids.*' => ['integer', 'min:1', Rule::exists('bc_animals', 'id')],
             'check_in' => ['required', 'date'],
             'check_out' => ['required', 'date', 'after:check_in'],
             'adults' => ['nullable', 'integer', 'min:1'],
@@ -54,6 +56,13 @@ class HotelSearchRequest extends FormRequest
             'location_ids.*.exists' => __('hotel.validation.location_id_not_exists'),
 
             'animal_id.integer' => __('hotel.validation.animal_id_must_be_integer'),
+            'animal_id.min' => __('hotel.validation.animal_id_must_be_integer'),
+            'animal_id.exists' => __('hotel.validation.animal_id_not_exists'),
+
+            'animal_ids.array' => __('hotel.validation.animal_ids_must_be_array'),
+            'animal_ids.*.integer' => __('hotel.validation.animal_id_must_be_integer'),
+            'animal_ids.*.min' => __('hotel.validation.animal_id_must_be_integer'),
+            'animal_ids.*.exists' => __('hotel.validation.animal_id_not_exists'),
 
             'check_in.required' => __('hotel.validation.check_in_required'),
             'check_in.date' => __('hotel.validation.check_in_must_be_date'),

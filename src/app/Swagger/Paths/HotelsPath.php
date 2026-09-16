@@ -250,9 +250,17 @@ class HotelsPath
                     ),
                     new OA\Property(
                         property: "animal_id",
-                        description: "ID животного",
+                        description: "ID животного из формы поиска (dropdown «Дичь»)",
                         type: "integer",
                         example: 5,
+                        nullable: true
+                    ),
+                    new OA\Property(
+                        property: "animal_ids",
+                        description: "Массив ID животных из сайдбара (OR: база попадает, если у неё есть хотя бы одно из выбранных). При одновременной передаче с animal_id применяется пересечение (AND)",
+                        type: "array",
+                        items: new OA\Items(type: "integer", example: 2),
+                        example: [2, 7, 12],
                         nullable: true
                     ),
                     new OA\Property(

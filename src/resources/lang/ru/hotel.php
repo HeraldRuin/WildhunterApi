@@ -46,6 +46,8 @@ return [
         'location_id_must_be_integer' => 'Поле "локация" должно быть числом',
         'location_ids_must_be_array' => 'Поле "location_ids" должно быть массивом',
         'animal_id_must_be_integer' => 'Поле "животные" должно быть числом',
+        'animal_id_not_exists' => 'Указанное животное не найдено',
+        'animal_ids_must_be_array' => 'Поле "animal_ids" должно быть массивом',
 
         'hotel_id_required' => 'Укажите отель',
         'hotel_id_must_be_integer' => 'Поле "отель" должно быть числом',
