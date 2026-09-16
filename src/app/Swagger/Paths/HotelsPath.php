@@ -1080,4 +1080,40 @@ class HotelsPath
     {
     }
 
+    #[OA\Get(
+        path: "/api/" . ApiConfig::VERSION . "/hotels/hunting-methods",
+        summary: "Получить способы охоты",
+        tags: ["Hotels"],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Список способов охоты",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            type: "array",
+                            items: new OA\Items(
+                                required: ["id", "name", "slug"],
+                                properties: [
+                                    new OA\Property(property: "id", type: "integer"),
+                                    new OA\Property(property: "name", type: "string"),
+                                    new OA\Property(property: "slug", type: "string"),
+                                ],
+                                type: "object"
+                            )
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+        ]
+    )]
+    public function GetHuntingMethods(): void
+    {
+    }
+
 }

@@ -8,7 +8,9 @@ use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Eloquent\Collection;
 use Modules\Hotel\Models\Hotel;
+use Modules\Hotel\Models\HuntingMethod;
 use Modules\Hotel\Dto\CalendarAvailabilityData;
 use Modules\Hotel\Dto\CheckAvailabilityData;
 use Modules\Hotel\Dto\HotelFilterData;
@@ -23,6 +25,14 @@ class HotelService
         private HotelSearchService $searchService,
         private RoomService $roomService,
     ) {
+    }
+
+    public function getHuntingMethods(): Collection
+    {
+        return HuntingMethod::query()
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get();
     }
 
     public function getHotels(HotelFilterData $dto): array

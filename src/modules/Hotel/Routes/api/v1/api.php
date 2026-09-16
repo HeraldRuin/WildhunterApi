@@ -8,6 +8,7 @@ use Modules\Hotel\Controllers\RoomAvailabilityController;
 Route::post('/hotels/offers', [HotelController::class, 'getHotels']);
 Route::post('/hotels/search', [HotelController::class, 'searchHotels']);
 Route::get('/hotels/price-range', [HotelController::class, 'priceRange']);
+Route::get('/hotels/hunting-methods', [HotelController::class, 'huntingMethods']);
 Route::post('/hotels/rooms/check-availability', [HotelController::class, 'checkAvailability']);
 Route::get('/hotels/rooms/calendar-availability', [HotelController::class, 'calendarAvailability']);
 

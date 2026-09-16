@@ -28,6 +28,7 @@ use Modules\Hotel\Http\Resources\HotelOffersResource;
 use Modules\Hotel\Http\Resources\HotelRoomResource;
 use Modules\Hotel\Http\Resources\HotelManageEditResource;
 use Modules\Hotel\Http\Resources\HotelManageListResource;
+use Modules\Hotel\Http\Resources\HuntingMethodResource;
 use Modules\Hotel\Http\Resources\HotelSearchResource;
 use Modules\Hotel\Services\ManageHotelService;
 
@@ -144,6 +145,13 @@ class HotelController extends Controller
     public function priceRange(): JsonResponse
     {
         return new SuccessResponse(data: Hotel::getMinMaxPrice());
+    }
+
+    public function huntingMethods(): JsonResponse
+    {
+        $result = $this->hotelService->getHuntingMethods();
+
+        return new SuccessResponse(data: HuntingMethodResource::collection($result));
     }
 
     /**
