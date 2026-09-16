@@ -235,9 +235,17 @@ class HotelsPath
                 properties: [
                     new OA\Property(
                         property: "location_id",
-                        description: "ID локации",
+                        description: "ID локации из формы поиска (иерархический фильтр, включая вложенные)",
                         type: "integer",
                         example: 1,
+                        nullable: true
+                    ),
+                    new OA\Property(
+                        property: "location_ids",
+                        description: "Массив ID локаций из сайдбара (OR: отель попадает, если его location_id в списке). При одновременной передаче с location_id применяется пересечение (AND)",
+                        type: "array",
+                        items: new OA\Items(type: "integer", example: 1),
+                        example: [1, 3, 5],
                         nullable: true
                     ),
                     new OA\Property(

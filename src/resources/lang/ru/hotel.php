@@ -44,6 +44,7 @@ return [
         'custom_id_must_be_integer' => 'Каждый ID в custom_ids должен быть целым числом',
 
         'location_id_must_be_integer' => 'Поле "локация" должно быть числом',
+        'location_ids_must_be_array' => 'Поле "location_ids" должно быть массивом',
         'animal_id_must_be_integer' => 'Поле "животные" должно быть числом',
 
         'hotel_id_required' => 'Укажите отель',

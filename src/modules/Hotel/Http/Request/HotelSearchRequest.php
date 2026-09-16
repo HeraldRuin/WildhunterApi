@@ -16,7 +16,9 @@ class HotelSearchRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'location_id' => ['nullable', 'integer'],
+            'location_id' => ['nullable', 'integer', 'min:1'],
+            'location_ids' => ['nullable', 'array'],
+            'location_ids.*' => ['integer', 'min:1', Rule::exists('bc_locations', 'id')],
             'animal_id' => ['nullable', 'integer'],
             'check_in' => ['required', 'date'],
             'check_out' => ['required', 'date', 'after:check_in'],
@@ -44,6 +46,12 @@ class HotelSearchRequest extends FormRequest
     {
         return [
             'location_id.integer' => __('hotel.validation.location_id_must_be_integer'),
+            'location_id.min' => __('hotel.validation.location_id_must_be_integer'),
+
+            'location_ids.array' => __('hotel.validation.location_ids_must_be_array'),
+            'location_ids.*.integer' => __('hotel.validation.location_id_must_be_integer'),
+            'location_ids.*.min' => __('hotel.validation.location_id_must_be_integer'),
+            'location_ids.*.exists' => __('hotel.validation.location_id_not_exists'),
 
             'animal_id.integer' => __('hotel.validation.animal_id_must_be_integer'),
 

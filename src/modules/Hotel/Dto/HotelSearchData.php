@@ -6,8 +6,12 @@ use Illuminate\Http\Request;
 
 class HotelSearchData
 {
+    /**
+     * @param  list<int>|null  $locationIds
+     */
     public function __construct(
         public ?int $location_id,
+        public ?array $locationIds,
         public ?int $animal_id,
         public string $startDate,
         public string $endDate,
@@ -26,8 +30,14 @@ class HotelSearchData
     {
         $data = $request->validated();
 
+        $locationIds = null;
+        if (array_key_exists('location_ids', $data) && $data['location_ids'] !== null) {
+            $locationIds = array_values(array_map('intval', $data['location_ids']));
+        }
+
         return new self(
-            location_id: $data['location_id'] ?? null,
+            location_id: isset($data['location_id']) ? (int) $data['location_id'] : null,
+            locationIds: $locationIds,
             animal_id: $data['animal_id'] ?? null,
             startDate: $data['check_in'],
             endDate: $data['check_out'],
