@@ -66,6 +66,10 @@ readonly class UpdateHotelManageData
             $data['price'] = (float) $data['price'];
         }
 
+        if (array_key_exists('max_hunts_per_day', $data) && $data['max_hunts_per_day'] !== null) {
+            $data['max_hunts_per_day'] = (int) $data['max_hunts_per_day'];
+        }
+
         return new self(
             fields: $data,
             hasGallery: $hasGallery,
