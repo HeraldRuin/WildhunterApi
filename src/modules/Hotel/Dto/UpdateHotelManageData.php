@@ -10,6 +10,7 @@ readonly class UpdateHotelManageData
      * @param array<string, mixed> $fields
      * @param list<int>|null $galleryIds
      * @param list<int>|null $termIds
+     * @param list<int>|null $huntingMethodIds
      */
     public function __construct(
         public array $fields,
@@ -17,6 +18,8 @@ readonly class UpdateHotelManageData
         public ?array $galleryIds,
         public bool $hasTermIds,
         public ?array $termIds,
+        public bool $hasHuntingMethodIds,
+        public ?array $huntingMethodIds,
     ) {
     }
 
@@ -44,7 +47,14 @@ readonly class UpdateHotelManageData
             $termIds = array_values(array_map('intval', $data['term_ids'] ?? []));
         }
 
-        unset($data['gallery'], $data['term_ids']);
+        $hasHuntingMethodIds = array_key_exists('hunting_method_ids', $data);
+        $huntingMethodIds = null;
+
+        if ($hasHuntingMethodIds) {
+            $huntingMethodIds = array_values(array_unique(array_map('intval', $data['hunting_method_ids'] ?? [])));
+        }
+
+        unset($data['gallery'], $data['term_ids'], $data['hunting_method_ids']);
 
         if (array_key_exists('has_food', $data)) {
             $data['has_food'] = (bool) $data['has_food'];
@@ -76,6 +86,8 @@ readonly class UpdateHotelManageData
             galleryIds: $galleryIds,
             hasTermIds: $hasTermIds,
             termIds: $termIds,
+            hasHuntingMethodIds: $hasHuntingMethodIds,
+            huntingMethodIds: $huntingMethodIds,
         );
     }
 }

@@ -135,4 +135,14 @@ class Hotel extends Bookable
     {
         return $this->belongsToMany(Terms::class, 'bc_hotel_term', 'target_id', 'term_id');
     }
+
+    public function huntingMethods(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            HuntingMethod::class,
+            'bc_hotel_hunting_methods',
+            'hotel_id',
+            'hunting_method_id'
+        );
+    }
 }

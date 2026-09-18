@@ -35,7 +35,7 @@ class ManageHotelService
         $this->assertBaseAdmin();
         $this->assertBelongsToAdmin($hotel, $user);
 
-        $hotel->load(['location', 'terms']);
+        $hotel->load(['location', 'terms', 'huntingMethods']);
 
         return $hotel;
     }
@@ -77,10 +77,14 @@ class ManageHotelService
                 $hotel->terms()->sync($data->termIds ?? []);
             }
 
+            if ($data->hasHuntingMethodIds) {
+                $hotel->huntingMethods()->sync($data->huntingMethodIds ?? []);
+            }
+
             return $hotel;
         });
 
-        $hotel->load(['location', 'terms']);
+        $hotel->load(['location', 'terms', 'huntingMethods']);
 
         return [
             'code' => 'hotel_created',
@@ -113,9 +117,13 @@ class ManageHotelService
             if ($data->hasTermIds) {
                 $hotel->terms()->sync($data->termIds ?? []);
             }
+
+            if ($data->hasHuntingMethodIds) {
+                $hotel->huntingMethods()->sync($data->huntingMethodIds ?? []);
+            }
         });
 
-        $hotel->load(['location', 'terms']);
+        $hotel->load(['location', 'terms', 'huntingMethods']);
 
         return [
             'code' => 'hotel_updated',

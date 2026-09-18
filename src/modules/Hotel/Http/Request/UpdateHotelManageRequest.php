@@ -43,6 +43,8 @@ class UpdateHotelManageRequest extends FormRequest
             'has_food' => ['nullable', 'boolean'],
             'term_ids' => ['nullable', 'array'],
             'term_ids.*' => ['integer', Rule::exists('bc_terms', 'id')],
+            'hunting_method_ids' => ['nullable', 'array'],
+            'hunting_method_ids.*' => ['integer', Rule::exists('bc_hunting_methods', 'id')],
             'max_hunts_per_day' => ['nullable', 'integer', 'min:0'],
         ];
     }
@@ -70,6 +72,9 @@ class UpdateHotelManageRequest extends FormRequest
             'term_ids.array' => __('hotel.validation.term_ids_must_be_array'),
             'term_ids.*.integer' => __('hotel.validation.term_id_must_be_integer'),
             'term_ids.*.exists' => __('hotel.validation.term_id_not_exists'),
+            'hunting_method_ids.array' => __('hotel.validation.hunting_method_ids_must_be_array'),
+            'hunting_method_ids.*.integer' => __('hotel.validation.hunting_method_id_must_be_integer'),
+            'hunting_method_ids.*.exists' => __('hotel.validation.hunting_method_id_not_exists'),
             'max_hunts_per_day.integer' => __('hotel.validation.max_hunts_per_day_must_be_integer'),
             'max_hunts_per_day.min' => __('hotel.validation.max_hunts_per_day_min'),
         ];

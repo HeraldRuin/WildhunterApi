@@ -39,6 +39,9 @@ class HotelManageEditResource extends BaseJsonResource
             'term_ids' => $hotel->relationLoaded('terms')
                 ? $hotel->terms->pluck('id')->values()->all()
                 : [],
+            'hunting_method_ids' => $hotel->relationLoaded('huntingMethods')
+                ? $hotel->huntingMethods->pluck('id')->values()->all()
+                : [],
             'max_hunts_per_day' => (int) ($hotel->max_hunts_per_day ?? 0),
         ];
     }
