@@ -29,6 +29,10 @@ class HotelOffersResource extends BaseJsonResource
                 'id' => $animal->id,
                 'title' => $animal->title,
             ])->values()->all(),
+            'hunting_methods' => ($hotel->huntingMethods ?? collect())->map(static fn ($method) => [
+                'id' => (int) $method->id,
+                'title' => $method->name,
+            ])->values()->all(),
             'location' => LocationResource::make($this->resource->location),
         ];
     }

@@ -9,12 +9,14 @@ class HotelSearchData
     /**
      * @param  list<int>|null  $locationIds
      * @param  list<int>|null  $animalIds
+     * @param  list<int>|null  $huntingMethodIds
      */
     public function __construct(
         public ?int $location_id,
         public ?array $locationIds,
         public ?int $animal_id,
         public ?array $animalIds,
+        public ?array $huntingMethodIds,
         public string $startDate,
         public string $endDate,
         public int $adults,
@@ -42,11 +44,17 @@ class HotelSearchData
             $animalIds = array_values(array_map('intval', $data['animal_ids']));
         }
 
+        $huntingMethodIds = null;
+        if (array_key_exists('hunting_method_ids', $data) && $data['hunting_method_ids'] !== null) {
+            $huntingMethodIds = array_values(array_unique(array_map('intval', $data['hunting_method_ids'])));
+        }
+
         return new self(
             location_id: isset($data['location_id']) ? (int) $data['location_id'] : null,
             locationIds: $locationIds,
             animal_id: isset($data['animal_id']) ? (int) $data['animal_id'] : null,
             animalIds: $animalIds,
+            huntingMethodIds: $huntingMethodIds,
             startDate: $data['check_in'],
             endDate: $data['check_out'],
             adults: $data['adults'] ?? 1,

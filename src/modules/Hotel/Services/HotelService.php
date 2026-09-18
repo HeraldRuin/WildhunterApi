@@ -48,6 +48,7 @@ class HotelService
                         ->where('bc_animals.status', 'publish')
                         ->wherePivot('status', 'available');
                 },
+                'huntingMethods',
             ])
             ->whereNotNull('location_id')
             ->where('location_id', '>', 0)

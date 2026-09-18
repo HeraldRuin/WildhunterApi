@@ -158,6 +158,18 @@ class LocationPath
                                     new OA\Property(property: "price", type: "number", format: "float", nullable: true),
                                     new OA\Property(property: "review_count", type: "integer"),
                                     new OA\Property(
+                                        property: "hunting_methods",
+                                        type: "array",
+                                        items: new OA\Items(
+                                            required: ["id", "title"],
+                                            properties: [
+                                                new OA\Property(property: "id", type: "integer", example: 1),
+                                                new OA\Property(property: "title", type: "string", example: "Загонная"),
+                                            ],
+                                            type: "object"
+                                        )
+                                    ),
+                                    new OA\Property(
                                         property: "location",
                                         required: ["id", "name", "slug"],
                                         properties: [

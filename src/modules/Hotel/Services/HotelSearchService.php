@@ -37,6 +37,7 @@ class HotelSearchService
                         ->where('bc_animals.status', 'publish')
                         ->wherePivot('status', 'available');
                 },
+                'huntingMethods',
             ]);
     }
 
@@ -46,6 +47,7 @@ class HotelSearchService
             \Modules\Hotel\Filters\LocationFilter::class,
             \Modules\Hotel\Filters\PriceFilter::class,
             \Modules\Hotel\Filters\AnimalFilter::class,
+            \Modules\Hotel\Filters\HuntingMethodFilter::class,
             \Modules\Hotel\Filters\StarRateFilter::class,
             \Modules\Hotel\Filters\DateAvailabilityFilter::class,
             \Modules\Hotel\Filters\TermFilter::class,

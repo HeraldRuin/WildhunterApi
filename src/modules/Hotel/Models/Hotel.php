@@ -143,6 +143,6 @@ class Hotel extends Bookable
             'bc_hotel_hunting_methods',
             'hotel_id',
             'hunting_method_id'
-        );
+        )->orderBy('bc_hunting_methods.sort_order')->orderBy('bc_hunting_methods.id');
     }
 }

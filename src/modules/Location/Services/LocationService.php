@@ -57,6 +57,7 @@ class LocationService
                         ->where('bc_animals.status', 'publish')
                         ->wherePivot('status', 'available');
                 },
+                'huntingMethods',
             ])
             ->get();
 
