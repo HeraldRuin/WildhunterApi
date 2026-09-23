@@ -110,7 +110,12 @@ class Animal extends Model
                     $q->select('id', 'animal_id', 'type')
                         ->whereHas('hotelPrices', function ($q2) use ($hotelId) {
                             $q2->where('hotel_id', $hotelId);
-                        });
+                        })
+                        ->with([
+                            'hotelPrices' => function ($q2) use ($hotelId) {
+                                $q2->where('hotel_id', $hotelId);
+                            },
+                        ]);
                 },
             ]);
     }

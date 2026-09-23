@@ -75,10 +75,11 @@ class BookingServicesPath
                                                         property: "trophies",
                                                         type: "array",
                                                         items: new OA\Items(
-                                                            required: ["id", "type"],
+                                                            required: ["id", "type", "price"],
                                                             properties: [
                                                                 new OA\Property(property: "id", type: "integer"),
                                                                 new OA\Property(property: "type", type: "string", example: "Клык"),
+                                                                new OA\Property(property: "price", type: "number", example: 5000),
                                                             ],
                                                             type: "object"
                                                         )
@@ -99,10 +100,11 @@ class BookingServicesPath
                                                         property: "fines",
                                                         type: "array",
                                                         items: new OA\Items(
-                                                            required: ["id", "type"],
+                                                            required: ["id", "type", "price"],
                                                             properties: [
                                                                 new OA\Property(property: "id", type: "integer"),
                                                                 new OA\Property(property: "type", type: "string", example: "Ранение"),
+                                                                new OA\Property(property: "price", type: "number", example: 5000),
                                                             ],
                                                             type: "object"
                                                         )
@@ -123,10 +125,11 @@ class BookingServicesPath
                                                         property: "preparations",
                                                         type: "array",
                                                         items: new OA\Items(
-                                                            required: ["id", "type"],
+                                                            required: ["id", "type", "price"],
                                                             properties: [
                                                                 new OA\Property(property: "id", type: "integer"),
                                                                 new OA\Property(property: "type", type: "string"),
+                                                                new OA\Property(property: "price", type: "number", example: 5000),
                                                             ],
                                                             type: "object"
                                                         )
@@ -185,13 +188,14 @@ class BookingServicesPath
                                             property: "trophies",
                                             type: "array",
                                             items: new OA\Items(
-                                                required: ["id", "animal_id", "animal_title", "type", "count"],
+                                                required: ["id", "animal_id", "animal_title", "type", "count", "price"],
                                                 properties: [
                                                     new OA\Property(property: "id", type: "integer"),
                                                     new OA\Property(property: "animal_id", type: "integer", nullable: true),
                                                     new OA\Property(property: "animal_title", type: "string"),
                                                     new OA\Property(property: "type", type: "string"),
                                                     new OA\Property(property: "count", type: "integer"),
+                                                    new OA\Property(property: "price", type: "number", example: 5000),
                                                 ],
                                                 type: "object"
                                             )
@@ -200,7 +204,7 @@ class BookingServicesPath
                                             property: "penalties",
                                             type: "array",
                                             items: new OA\Items(
-                                                required: ["id", "animal_title", "type", "hunter_id", "hunter_name"],
+                                                required: ["id", "animal_title", "type", "hunter_id", "hunter_name", "price"],
                                                 properties: [
                                                     new OA\Property(property: "id", type: "integer"),
                                                     new OA\Property(property: "animal_id", type: "integer", nullable: true),
@@ -209,6 +213,7 @@ class BookingServicesPath
                                                     new OA\Property(property: "count", type: "integer", example: 1),
                                                     new OA\Property(property: "hunter_id", type: "integer", nullable: true),
                                                     new OA\Property(property: "hunter_name", type: "string"),
+                                                    new OA\Property(property: "price", type: "number", example: 5000),
                                                 ],
                                                 type: "object"
                                             )
@@ -217,12 +222,13 @@ class BookingServicesPath
                                             property: "preparations",
                                             type: "array",
                                             items: new OA\Items(
-                                                required: ["id", "animal_title", "count"],
+                                                required: ["id", "animal_title", "count", "price"],
                                                 properties: [
                                                     new OA\Property(property: "id", type: "integer"),
                                                     new OA\Property(property: "animal_id", type: "integer", nullable: true),
                                                     new OA\Property(property: "animal_title", type: "string"),
                                                     new OA\Property(property: "count", type: "integer"),
+                                                    new OA\Property(property: "price", type: "number", example: 5000),
                                                 ],
                                                 type: "object"
                                             )
@@ -329,13 +335,14 @@ class BookingServicesPath
                         new OA\Property(property: "message", type: "string", example: "Услуга добавлена"),
                         new OA\Property(
                             property: "data",
-                            required: ["id", "animal_title", "type", "count"],
+                            required: ["id", "animal_title", "type", "count", "price"],
                             properties: [
                                 new OA\Property(property: "id", type: "integer"),
                                 new OA\Property(property: "animal_id", type: "integer"),
                                 new OA\Property(property: "animal_title", type: "string"),
                                 new OA\Property(property: "type", type: "string"),
                                 new OA\Property(property: "count", type: "integer"),
+                                new OA\Property(property: "price", type: "number", example: 5000),
                             ],
                             type: "object"
                         ),
@@ -392,7 +399,7 @@ class BookingServicesPath
                         new OA\Property(property: "message", type: "string", example: "Услуга добавлена"),
                         new OA\Property(
                             property: "data",
-                            required: ["id", "animal_title", "type", "hunter_name"],
+                            required: ["id", "animal_title", "type", "hunter_name", "price"],
                             properties: [
                                 new OA\Property(property: "id", type: "integer"),
                                 new OA\Property(property: "animal_id", type: "integer"),
@@ -401,6 +408,7 @@ class BookingServicesPath
                                 new OA\Property(property: "count", type: "integer", example: 1),
                                 new OA\Property(property: "hunter_id", type: "integer"),
                                 new OA\Property(property: "hunter_name", type: "string"),
+                                new OA\Property(property: "price", type: "number", example: 5000),
                             ],
                             type: "object"
                         ),
@@ -456,12 +464,13 @@ class BookingServicesPath
                         new OA\Property(property: "message", type: "string", example: "Услуга добавлена"),
                         new OA\Property(
                             property: "data",
-                            required: ["id", "animal_title", "count"],
+                            required: ["id", "animal_title", "count", "price"],
                             properties: [
                                 new OA\Property(property: "id", type: "integer"),
                                 new OA\Property(property: "animal_id", type: "integer"),
                                 new OA\Property(property: "animal_title", type: "string"),
                                 new OA\Property(property: "count", type: "integer"),
+                                new OA\Property(property: "price", type: "number", example: 5000),
                             ],
                             type: "object"
                         ),

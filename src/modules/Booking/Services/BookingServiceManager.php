@@ -97,6 +97,7 @@ class BookingServiceManager
             'animal_title' => $service->animal->title ?? '—',
             'type' => $service->type,
             'count' => $service->count,
+            'price' => $service->price,
         ];
     }
 
@@ -150,6 +151,7 @@ class BookingServiceManager
             'count' => 1,
             'hunter_id' => $service->hunter_id,
             'hunter_name' => $this->hunterName($service->hunter),
+            'price' => $service->price,
         ];
     }
 
@@ -213,6 +215,7 @@ class BookingServiceManager
             'animal_id' => $service->animal_id,
             'animal_title' => $service->animal->title ?? '—',
             'count' => $service->count,
+            'price' => $service->price,
         ];
     }
 
@@ -528,6 +531,7 @@ class BookingServiceManager
                     ->map(fn ($item) => [
                         'id' => $item->id,
                         'type' => $item->type,
+                        'price' => $item->hotelPrices->first()?->price,
                     ])
                     ->values()
                     ->all(),
@@ -616,6 +620,7 @@ class BookingServiceManager
                     'animal_title' => $service->animal->title ?? '—',
                     'type' => $service->type,
                     'count' => $service->count,
+                    'price' => $service->price,
                 ])
                 ->all(),
             'penalties' => $services
@@ -629,6 +634,7 @@ class BookingServiceManager
                     'count' => 1,
                     'hunter_id' => $service->hunter_id,
                     'hunter_name' => $this->hunterName($service->hunter),
+                    'price' => $service->price,
                 ])
                 ->all(),
             'preparations' => $services
@@ -639,6 +645,7 @@ class BookingServiceManager
                     'animal_id' => $service->animal_id,
                     'animal_title' => $service->animal->title ?? '—',
                     'count' => $service->count,
+                    'price' => $service->price,
                 ])
                 ->all(),
             'foods' => $services
