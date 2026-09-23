@@ -20,10 +20,24 @@ class AnimalResource extends BaseJsonResource
             'content' => $this->resource->content,
             'hunters_count' => $huntersCount,
             'max_hunters_count' => $maxHuntersCount > 0 ? $maxHuntersCount : $huntersCount,
+            'hunt_type' => $this->huntType(),
             'periods' => $this->whenLoaded(
                 'periods',
                 fn () => AnimalPricePeriodResource::collection($this->resource->periods)
             ),
+        ];
+    }
+
+    /**
+     * @return array{code: string, title: string}
+     */
+    private function huntType(): array
+    {
+        $code = $this->resource->huntTypeCode();
+
+        return [
+            'code' => $code,
+            'title' => __('animal.hunt_types.'.$code),
         ];
     }
 }

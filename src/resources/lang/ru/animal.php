@@ -55,6 +55,10 @@ return [
         'entity_id_must_be_integer' => 'ID должен быть числом',
         'entity_id_not_found' => 'Сущность не найдена',
     ],
+    'hunt_types' => [
+        'individual' => 'Индивидуальная',
+        'group' => 'Групповая',
+    ],
     'successes' => [
         'period_saved' => 'Период сохранен',
         'period_updated' => 'Период обновлен',

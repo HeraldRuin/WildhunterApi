@@ -17,6 +17,9 @@ class Animal extends Model
     public const string SERVICE_FINES = 'fines';
     public const string SERVICE_PREPARATIONS = 'preparations';
 
+    public const string HUNT_TYPE_INDIVIDUAL = 'individual';
+    public const string HUNT_TYPE_GROUP = 'group';
+
     protected $table = 'bc_animals';
 
     protected $fillable = [
@@ -25,6 +28,11 @@ class Animal extends Model
         'status',
         'faqs',
         'hotel_id',
+    ];
+
+    protected $casts = [
+        'hunt_individual' => 'boolean',
+        'hunt_group' => 'boolean',
     ];
 
     public static function isEnable(): bool
@@ -56,6 +64,13 @@ class Animal extends Model
     public function periods(): HasMany
     {
         return $this->hasMany(AnimalPricePeriod::class);
+    }
+
+    public function huntTypeCode(): string
+    {
+        $isIndividual = $this->hunt_individual && !$this->hunt_group;
+
+        return $isIndividual ? self::HUNT_TYPE_INDIVIDUAL : self::HUNT_TYPE_GROUP;
     }
 
     public function hotels(): BelongsToMany
