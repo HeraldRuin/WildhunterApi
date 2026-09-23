@@ -267,7 +267,7 @@ class BookingServicesPath
                                             property: "additionals",
                                             type: "array",
                                             items: new OA\Items(
-                                                required: ["id", "type", "count"],
+                                                required: ["id", "type", "count", "price"],
                                                 properties: [
                                                     new OA\Property(property: "id", type: "integer"),
                                                     new OA\Property(property: "type", type: "string"),
@@ -275,6 +275,7 @@ class BookingServicesPath
                                                     new OA\Property(property: "count", type: "integer"),
                                                     new OA\Property(property: "hunter_id", type: "integer", nullable: true),
                                                     new OA\Property(property: "hunter_name", type: "string"),
+                                                    new OA\Property(property: "price", type: "number", example: 1500),
                                                 ],
                                                 type: "object"
                                             )
@@ -614,7 +615,7 @@ class BookingServicesPath
                         new OA\Property(property: "message", type: "string", example: "Услуга добавлена"),
                         new OA\Property(
                             property: "data",
-                            required: ["id", "type", "count"],
+                            required: ["id", "type", "count", "price"],
                             properties: [
                                 new OA\Property(property: "id", type: "integer"),
                                 new OA\Property(property: "type", type: "string"),
@@ -622,6 +623,7 @@ class BookingServicesPath
                                 new OA\Property(property: "count", type: "integer"),
                                 new OA\Property(property: "hunter_id", type: "integer", nullable: true),
                                 new OA\Property(property: "hunter_name", type: "string"),
+                                new OA\Property(property: "price", type: "number", example: 1500),
                             ],
                             type: "object"
                         ),

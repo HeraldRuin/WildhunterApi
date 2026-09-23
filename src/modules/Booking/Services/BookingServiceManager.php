@@ -304,6 +304,7 @@ class BookingServiceManager
             'count' => $service->count,
             'hunter_id' => $service->hunter_id,
             'hunter_name' => $this->hunterName($service->hunter),
+            'price' => $service->price,
         ];
     }
 
@@ -686,6 +687,7 @@ class BookingServiceManager
                     'count' => $service->count,
                     'hunter_id' => $service->hunter_id,
                     'hunter_name' => $this->hunterName($service->hunter),
+                    'price' => $service->price,
                 ])
                 ->all(),
             'spendings' => $services
