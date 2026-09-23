@@ -61,6 +61,7 @@ class BookingServicesPath
                                         "preparation_animals",
                                         "hunters",
                                         "additionals",
+                                        "food",
                                     ],
                                     properties: [
                                         new OA\Property(
@@ -170,6 +171,21 @@ class BookingServicesPath
                                                 type: "object"
                                             )
                                         ),
+                                        new OA\Property(
+                                            property: "food",
+                                            type: "object",
+                                            nullable: true,
+                                            required: ["price"],
+                                            properties: [
+                                                new OA\Property(
+                                                    property: "price",
+                                                    description: "Цена питания за одного человека",
+                                                    type: "number",
+                                                    nullable: true,
+                                                    example: 1500
+                                                ),
+                                            ]
+                                        ),
                                     ],
                                     type: "object"
                                 ),
@@ -237,11 +253,12 @@ class BookingServicesPath
                                             property: "foods",
                                             type: "array",
                                             items: new OA\Items(
-                                                required: ["id", "count"],
+                                                required: ["id", "count", "price"],
                                                 properties: [
                                                     new OA\Property(property: "id", type: "integer"),
                                                     new OA\Property(property: "type", type: "string", example: "Питание"),
                                                     new OA\Property(property: "count", type: "integer"),
+                                                    new OA\Property(property: "price", type: "number", example: 3000),
                                                 ],
                                                 type: "object"
                                             )
@@ -529,11 +546,12 @@ class BookingServicesPath
                         new OA\Property(property: "message", type: "string", example: "Услуга добавлена"),
                         new OA\Property(
                             property: "data",
-                            required: ["id", "count"],
+                            required: ["id", "count", "price"],
                             properties: [
                                 new OA\Property(property: "id", type: "integer"),
                                 new OA\Property(property: "type", type: "string", example: "Питание"),
                                 new OA\Property(property: "count", type: "integer"),
+                                new OA\Property(property: "price", type: "number", example: 3000),
                             ],
                             type: "object"
                         ),

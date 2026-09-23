@@ -228,10 +228,7 @@ class BookingServiceManager
     {
         [$booking] = $this->findAuthorizedBooking($code, $user, AddetionalPrice::FOOD);
 
-        $price = AddetionalPrice::query()
-            ->where('type', AddetionalPrice::FOOD)
-            ->where('hotel_id', $booking->hotel_id)
-            ->value('price');
+        $price = $this->foodPrice($booking);
 
         if ($price === null) {
             throw new NotFoundException(
@@ -252,6 +249,7 @@ class BookingServiceManager
             'id' => $service->id,
             'type' => $service->type,
             'count' => $service->count,
+            'price' => $service->price,
         ];
     }
 
@@ -514,7 +512,18 @@ class BookingServiceManager
             'additionals' => in_array(AddetionalPrice::ADDETIONAL, $allowedTypes, true)
                 ? $this->additionalCatalog($booking)
                 : [],
+            'food' => in_array(AddetionalPrice::FOOD, $allowedTypes, true)
+                ? ['price' => $this->foodPrice($booking)]
+                : null,
         ];
+    }
+
+    private function foodPrice(Booking $booking): mixed
+    {
+        return AddetionalPrice::query()
+            ->where('hotel_id', $booking->hotel_id)
+            ->where('type', AddetionalPrice::FOOD)
+            ->value('price');
     }
 
     /**
@@ -655,6 +664,7 @@ class BookingServiceManager
                     'id' => $service->id,
                     'type' => $service->type,
                     'count' => $service->count,
+                    'price' => $service->price,
                 ])
                 ->all(),
             'additionals' => $services
