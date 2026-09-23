@@ -684,6 +684,20 @@ class Booking extends BaseModel
                     return $list_booking->whereRaw('0 = 1')->paginate(10);
                 }
 
+            } elseif ($booking_status === 'all') {
+
+                $list_booking->where(function ($q) use ($customer_id_or_name, $invitedBookingIds) {
+                    $q->where('create_user', $customer_id_or_name)
+                        ->orWhereHas('bookingHunters', function ($h) use ($customer_id_or_name) {
+                            $h->where('is_master', 1)
+                                ->where('invited_by', $customer_id_or_name);
+                        });
+
+                    if (!empty($invitedBookingIds)) {
+                        $q->orWhereIn('id', $invitedBookingIds);
+                    }
+                });
+
             } else {
                 // Обычные вкладки — создатель или мастер охоты
                 $list_booking->where(function ($q) use ($customer_id_or_name) {
@@ -700,7 +714,7 @@ class Booking extends BaseModel
             $list_booking->whereNotIn('status', ['collection']);
         }
 
-        if ($booking_status && $booking_status !== 'invitation') {
+        if ($booking_status && !in_array($booking_status, ['invitation', 'all'], true)) {
 
             if ($booking_status === Booking::PREPAYMENT_COLLECTION) {
 

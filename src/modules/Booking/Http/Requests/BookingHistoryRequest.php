@@ -17,6 +17,7 @@ class BookingHistoryRequest extends FormRequest
         $statuses = array_merge(config('booking.statuses', []), [
             'finish_prepayment',
             'finished_collection',
+            'all',
         ]);
 
         return [
