@@ -304,7 +304,7 @@ class BookingServiceManager
             'count' => $service->count,
             'hunter_id' => $service->hunter_id,
             'hunter_name' => $this->hunterName($service->hunter),
-            'price' => $service->price,
+            'price' => round((float) $service->price, 2),
         ];
     }
 
@@ -687,7 +687,7 @@ class BookingServiceManager
                     'count' => $service->count,
                     'hunter_id' => $service->hunter_id,
                     'hunter_name' => $this->hunterName($service->hunter),
-                    'price' => $service->price,
+                    'price' => round((float) $service->price, 2),
                 ])
                 ->all(),
             'spendings' => $services
