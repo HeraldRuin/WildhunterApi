@@ -263,11 +263,8 @@ class BookingServiceManager
     {
         [$booking] = $this->findAuthorizedBooking($code, $user, AddetionalPrice::ADDETIONAL);
 
-        $additional = AddetionalPrice::query()
+        $additional = $this->hotelAdditionals($booking)
             ->whereKey($data->additionalId)
-            ->where('hotel_id', $booking->hotel_id)
-            ->whereNull('type')
-            ->where('price', '>', 0)
             ->first();
 
         if (!$additional) {
@@ -582,15 +579,27 @@ class BookingServiceManager
             ->all();
     }
 
+    private function hotelAdditionals(Booking $booking)
+    {
+        return AddetionalPrice::query()
+            ->where('hotel_id', $booking->hotel_id)
+            ->where('price', '>', 0)
+            ->where(function ($query) {
+                $query->whereNull('type')
+                    ->orWhere('type', '!=', AddetionalPrice::FOOD);
+            })
+            ->where(function ($query) {
+                $query->whereNull('name')
+                    ->orWhere('name', '!=', AddetionalPrice::FOOD_NAME);
+            });
+    }
+
     /**
      * @return list<array{id: int, name: string, calculation_type: string|null, count: mixed, price: mixed}>
      */
     private function additionalCatalog(Booking $booking): array
     {
-        return AddetionalPrice::query()
-            ->whereNull('type')
-            ->where('hotel_id', $booking->hotel_id)
-            ->where('price', '>', 0)
+        return $this->hotelAdditionals($booking)
             ->get()
             ->map(fn (AddetionalPrice $item) => [
                 'id' => $item->id,
