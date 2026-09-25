@@ -68,10 +68,17 @@ class BookingServicesPath
                                             property: "trophy_animals",
                                             type: "array",
                                             items: new OA\Items(
-                                                required: ["id", "title", "trophies"],
+                                                required: ["id", "title", "price", "trophies"],
                                                 properties: [
                                                     new OA\Property(property: "id", type: "integer", example: 3),
                                                     new OA\Property(property: "title", type: "string", example: "Кабан"),
+                                                    new OA\Property(
+                                                        property: "price",
+                                                        description: "Сумма цен типов трофея. null, если цен нет",
+                                                        type: "number",
+                                                        nullable: true,
+                                                        example: 15000
+                                                    ),
                                                     new OA\Property(
                                                         property: "trophies",
                                                         type: "array",
@@ -93,10 +100,17 @@ class BookingServicesPath
                                             property: "penalty_animals",
                                             type: "array",
                                             items: new OA\Items(
-                                                required: ["id", "title", "fines"],
+                                                required: ["id", "title", "price", "fines"],
                                                 properties: [
                                                     new OA\Property(property: "id", type: "integer"),
                                                     new OA\Property(property: "title", type: "string"),
+                                                    new OA\Property(
+                                                        property: "price",
+                                                        description: "Сумма цен типов штрафа. null, если цен нет",
+                                                        type: "number",
+                                                        nullable: true,
+                                                        example: 15000
+                                                    ),
                                                     new OA\Property(
                                                         property: "fines",
                                                         type: "array",

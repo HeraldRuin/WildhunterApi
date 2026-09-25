@@ -525,26 +525,65 @@ class BookingServiceManager
     }
 
     /**
-     * @return list<array{id: int, title: string, trophies?: mixed, fines?: mixed, preparations?: mixed}>
+     * @return list<array{id: int, title: string, price?: float|null, trophies?: mixed, fines?: mixed, preparations?: mixed}>
      */
     private function mapAnimalsWithService(Booking $booking, string $relation): array
     {
+        $withAnimalPrice = in_array($relation, [Animal::SERVICE_TROPHIES, Animal::SERVICE_FINES], true);
+
         return Animal::forHotelWithService($booking->hotel_id, $relation)
             ->get()
-            ->map(fn (Animal $animal) => [
-                'id' => $animal->id,
-                'title' => $animal->title,
-                $relation => $animal->{$relation}
+            ->map(function (Animal $animal) use ($relation, $withAnimalPrice) {
+                $items = $animal->{$relation}
                     ->map(fn ($item) => [
                         'id' => $item->id,
                         'type' => $item->type,
-                        'price' => $item->hotelPrices->first()?->price,
+                        'price' => $this->moneyOrNull($item->hotelPrices->first()?->price),
                     ])
                     ->values()
-                    ->all(),
-            ])
+                    ->all();
+
+                $row = [
+                    'id' => $animal->id,
+                    'title' => $animal->title,
+                ];
+
+                if ($withAnimalPrice) {
+                    $row['price'] = $this->animalListPrice($items);
+                }
+
+                $row[$relation] = $items;
+
+                return $row;
+            })
             ->values()
             ->all();
+    }
+
+    /**
+     * @param  list<array{price: mixed}>  $items
+     */
+    private function animalListPrice(array $items): ?float
+    {
+        $prices = array_values(array_filter(
+            array_column($items, 'price'),
+            static fn ($price) => $price !== null,
+        ));
+
+        if ($prices === []) {
+            return null;
+        }
+
+        return round(array_sum($prices), 2);
+    }
+
+    private function moneyOrNull(mixed $price): ?float
+    {
+        if ($price === null || $price === '') {
+            return null;
+        }
+
+        return round((float) $price, 2);
     }
 
     /**
