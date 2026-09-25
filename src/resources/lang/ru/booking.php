@@ -196,6 +196,8 @@ return [
         'collection_finished_message' => 'По бронированию №:number сбор охотников завершён',
         'prepayment_started_title' => 'Начат сбор предоплаты',
         'prepayment_started_message' => 'По бронированию №:number начат сбор предоплаты',
+        'prepayment_incomplete_cancelled_title' => 'Не все внесли предоплату',
+        'prepayment_incomplete_cancelled_message' => 'Бронирование №:number отменяется, потому что не все участники внесли предоплату',
         'collection_cancelled_title' => 'Сбор охотников отменён',
         'collection_cancelled_message' => 'По бронированию №:number сбор охотников отменён',
         'hunter_invited_title' => 'Приглашение на охоту',

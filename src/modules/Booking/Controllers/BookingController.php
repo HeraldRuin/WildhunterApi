@@ -399,12 +399,19 @@ class BookingController extends Controller
 
     /**
      * Фиксация неоплаченных приглашений после окончания таймера предоплаты.
+     * Если оплатили не все — бронь переводится в «отменено».
      */
     public function expirePrepaymentCollection(string $code): JsonResponse
     {
-        $this->bookingCollectionService->expirePrepayment($code, Auth::user());
+        $booking = $this->bookingCollectionService->expirePrepayment($code, Auth::user());
 
-        return new SuccessResponse;
+        return new SuccessResponse(
+            data: [
+                'id' => $booking->id,
+                'code' => $booking->code,
+                'status' => $booking->status,
+            ],
+        );
     }
 
     public function storePrepayment(string $code): JsonResponse

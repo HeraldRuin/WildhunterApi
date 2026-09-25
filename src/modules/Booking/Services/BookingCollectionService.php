@@ -12,6 +12,7 @@ use Modules\Booking\Events\BookingUpdatedEvent;
 use Modules\Booking\Models\Booking;
 use Modules\Booking\Models\BookingHunter;
 use Modules\Booking\Models\BookingHunterInvitation;
+use Modules\Hotel\Events\RoomAvailabilityUpdatedEvent;
 
 class BookingCollectionService
 {
@@ -178,9 +179,9 @@ class BookingCollectionService
         return $result;
     }
 
-    public function expirePrepayment(string $code, User $user): void
+    public function expirePrepayment(string $code, User $user): Booking
     {
-        DB::transaction(function () use ($code, $user): void {
+        $booking = DB::transaction(function () use ($code, $user): Booking {
             $booking = $this->findForUpdate($code);
             $masterHunter = $this->ensureMasterHunter($booking, $user);
 
@@ -219,7 +220,30 @@ class BookingCollectionService
                     'prepayment_paid_status' => BookingHunterInvitation::PREPAYMENT_UNPAID,
                     'updated_at' => now(),
                 ]);
+
+            $accepted = $booking->countAcceptedHunters();
+            $paid = $booking->countAcceptedAndPaidHunters();
+
+            if ($accepted > 0 && $paid < $accepted) {
+                Booking::query()
+                    ->whereKey($booking->id)
+                    ->update(['status' => Booking::CANCELLED]);
+
+                $booking->status = Booking::CANCELLED;
+            }
+
+            return $booking;
         });
+
+        if ($booking->status === Booking::CANCELLED) {
+            $this->bookingNotificationService->sendPrepaymentIncompleteCancelled($booking);
+            BookingUpdatedEvent::dispatchSafely(
+                $booking,
+                RoomAvailabilityUpdatedEvent::ACTION_CANCELLED,
+            );
+        }
+
+        return $booking;
     }
 
     /**

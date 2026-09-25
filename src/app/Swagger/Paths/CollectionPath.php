@@ -299,7 +299,7 @@ class CollectionPath
         responses: [
             new OA\Response(
                 response: 200,
-                description: "Неоплаченные приглашения обновлены",
+                description: "Неоплаченные приглашения обновлены. Если оплатили не все, статус брони — cancelled",
                 content: new OA\JsonContent(
                     required: ["success", "message", "data"],
                     properties: [
@@ -311,8 +311,12 @@ class CollectionPath
                         ),
                         new OA\Property(
                             property: "data",
-                            type: "array",
-                            items: new OA\Items()
+                            properties: [
+                                new OA\Property(property: "id", type: "integer", example: 1),
+                                new OA\Property(property: "code", type: "string", example: "faa1c65d4b0de02146a27cea429340fb"),
+                                new OA\Property(property: "status", type: "string", example: "cancelled"),
+                            ],
+                            type: "object"
                         ),
                     ],
                     type: "object"

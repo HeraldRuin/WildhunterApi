@@ -278,6 +278,49 @@ class BookingNotificationService
         }
     }
 
+    public function sendPrepaymentIncompleteCancelled(Booking $booking): void
+    {
+        $payload = new NotificationPayloadData(
+            title: __('booking.notifications.prepayment_incomplete_cancelled_title'),
+            message: __('booking.notifications.prepayment_incomplete_cancelled_message', [
+                'number' => $this->bookingNumber($booking),
+            ]),
+            link: $this->bookingLink($booking),
+            category: 'booking',
+            entityType: 'booking',
+            entityId: (int) $booking->id,
+            event: 'booking.prepayment_incomplete_cancelled',
+        );
+
+        $masterHunter = $this->masterHunterUser($booking);
+        $baseAdmin = $this->baseAdmin($booking);
+        $notified = [];
+
+        if ($masterHunter) {
+            $this->sendSafely($masterHunter, $payload, forAdmin: false);
+            $notified[(int) $masterHunter->id] = true;
+        }
+
+        foreach ($this->acceptedHunters($booking) as $hunter) {
+            $hunterId = (int) $hunter->id;
+
+            if (isset($notified[$hunterId])) {
+                continue;
+            }
+
+            if ($baseAdmin && $hunterId === (int) $baseAdmin->id) {
+                continue;
+            }
+
+            $this->sendSafely($hunter, $payload, forAdmin: false);
+            $notified[$hunterId] = true;
+        }
+
+        if ($baseAdmin && !isset($notified[(int) $baseAdmin->id])) {
+            $this->sendSafely($baseAdmin, $payload, forAdmin: true);
+        }
+    }
+
     /**
      * @param  iterable<BookingHunterInvitation>  $invitations
      */
