@@ -204,6 +204,10 @@ return [
         'invitation_accepted_message' => ':name принял(а) приглашение по бронированию №:number',
         'invitation_declined_title' => 'Приглашение отклонено',
         'invitation_declined_message' => ':name отклонил(а) приглашение по бронированию №:number',
+        'hunt_scheduled_title' => 'Охота состоится',
+        'hunt_scheduled_message' => 'Охота по бронированию №:number состоится :date',
+        'check_in_scheduled_title' => 'Заезд состоится',
+        'check_in_scheduled_message' => 'Заезд по бронированию №:number состоится :date',
     ],
     'email' => [
         'hello' => 'Здравствуйте, :name',

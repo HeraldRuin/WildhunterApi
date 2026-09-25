@@ -119,6 +119,69 @@ class BookingNotificationService
         }
     }
 
+    public function sendHuntScheduled(Booking $booking): void
+    {
+        $hasHunt = $booking->type !== Booking::BookingTypeHotel;
+        $date = display_date($hasHunt
+            ? ($booking->start_date_animal ?: $booking->start_date)
+            : $booking->start_date);
+
+        if ($date === '') {
+            return;
+        }
+
+        if (!$hasHunt) {
+            $this->sendToCreator(
+                $booking,
+                title: __('booking.notifications.check_in_scheduled_title'),
+                message: __('booking.notifications.check_in_scheduled_message', [
+                    'number' => $this->bookingNumber($booking),
+                    'date' => $date,
+                ]),
+                event: 'booking.check_in_scheduled',
+            );
+
+            return;
+        }
+
+        $payload = new NotificationPayloadData(
+            title: __('booking.notifications.hunt_scheduled_title'),
+            message: __('booking.notifications.hunt_scheduled_message', [
+                'number' => $this->bookingNumber($booking),
+                'date' => $date,
+            ]),
+            link: $this->bookingLink($booking),
+            category: 'booking',
+            entityType: 'booking',
+            entityId: (int) $booking->id,
+            event: 'booking.hunt_scheduled',
+        );
+
+        $baseAdmin = $this->baseAdmin($booking);
+        $masterHunter = $this->masterHunterUser($booking);
+        $notified = [];
+
+        if ($masterHunter && (!$baseAdmin || (int) $masterHunter->id !== (int) $baseAdmin->id)) {
+            $this->sendSafely($masterHunter, $payload, forAdmin: false);
+            $notified[(int) $masterHunter->id] = true;
+        }
+
+        foreach ($this->acceptedHunters($booking) as $hunter) {
+            $hunterId = (int) $hunter->id;
+
+            if (isset($notified[$hunterId])) {
+                continue;
+            }
+
+            if ($baseAdmin && $hunterId === (int) $baseAdmin->id) {
+                continue;
+            }
+
+            $this->sendSafely($hunter, $payload, forAdmin: false);
+            $notified[$hunterId] = true;
+        }
+    }
+
     public function sendCollectionStarted(Booking $booking): void
     {
         $baseAdmin = $this->baseAdmin($booking);
