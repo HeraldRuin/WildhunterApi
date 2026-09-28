@@ -149,34 +149,49 @@ class BookingCollectionService
                 }
             }
 
-            if ($booking->type === Booking::BookingTypeAnimal) {
-                $booking->status = Booking::FINISHED_COLLECTION;
-                $booking->save();
-
-                return ['booking' => $booking];
-            }
-
-            $booking->status = Booking::PREPAYMENT_COLLECTION;
-            $booking->save();
-            $timer = $this->startPaidTimer($booking);
-
-            return [
-                'booking' => $booking,
-                ...$timer,
-            ];
+            return $this->finishGathering($booking);
         });
 
-        $this->bookingMailService->sendFinishCollection($result['booking']);
-
-        if ($result['booking']->status === Booking::PREPAYMENT_COLLECTION) {
-            $this->bookingNotificationService->sendPrepaymentCollectionStarted($result['booking']);
-        } else {
-            $this->bookingNotificationService->sendCollectionFinished($result['booking']);
-        }
-
-        BookingUpdatedEvent::dispatchSafely($result['booking']);
+        $this->notifyGatheringFinished($result['booking']);
 
         return $result;
+    }
+
+    /**
+     * То же завершение, что у кнопки «Завершить сбор»: без проверки прав и числа подтвердивших.
+     * Вызывающий держит бронь в транзакции с lockForUpdate.
+     *
+     * @return array{booking: Booking, start_at?: string, end_at?: string, hours?: int}
+     */
+    public function finishGathering(Booking $booking): array
+    {
+        if ($booking->type === Booking::BookingTypeAnimal) {
+            $booking->status = Booking::FINISHED_COLLECTION;
+            $booking->save();
+
+            return ['booking' => $booking];
+        }
+
+        $booking->status = Booking::PREPAYMENT_COLLECTION;
+        $booking->save();
+
+        return [
+            'booking' => $booking,
+            ...$this->startPaidTimer($booking),
+        ];
+    }
+
+    public function notifyGatheringFinished(Booking $booking): void
+    {
+        $this->bookingMailService->sendFinishCollection($booking);
+
+        if ($booking->status === Booking::PREPAYMENT_COLLECTION) {
+            $this->bookingNotificationService->sendPrepaymentCollectionStarted($booking);
+        } else {
+            $this->bookingNotificationService->sendCollectionFinished($booking);
+        }
+
+        BookingUpdatedEvent::dispatchSafely($booking);
     }
 
     public function expirePrepayment(string $code, User $user): Booking

@@ -287,15 +287,68 @@ class BookingInvitationService
     }
 
     /**
+     * @throws ConflictException
      * @throws NotFoundException
      */
     public function accept(string $code, User $user): BookingHunterInvitation
     {
-        [$booking, $invitation] = $this->findInvitation($code, $user);
-        $invitation->status = BookingHunterInvitation::STATUS_ACCEPTED;
-        $invitation->accepted_at = now();
-        $invitation->declined_at = null;
-        $invitation->save();
+        [$booking, $invitation, $gatheringFinished] = DB::transaction(function () use ($code, $user): array {
+            $booking = Booking::query()
+                ->where('code', $code)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$booking) {
+                throw new NotFoundException(
+                    errorCode: 'booking_not_found',
+                    domain: 'booking',
+                );
+            }
+
+            $invitation = BookingHunterInvitation::query()
+                ->whereHas('bookingHunter', function ($query) use ($booking) {
+                    $query->where('booking_id', $booking->id);
+                })
+                ->where('hunter_id', $user->id)
+                ->whereNotIn('status', [
+                    BookingHunterInvitation::STATUS_DECLINED,
+                    'removed',
+                ])
+                ->lockForUpdate()
+                ->first();
+
+            if (!$invitation) {
+                throw new NotFoundException(
+                    errorCode: 'booking_invitation_not_found',
+                    domain: 'booking',
+                );
+            }
+
+            $alreadyAccepted = $invitation->status === BookingHunterInvitation::STATUS_ACCEPTED;
+            $groupSize = (int) ($booking->total_hunting ?? 0);
+
+            if (!$alreadyAccepted && $groupSize > 0 && $booking->countAcceptedHunters() >= $groupSize) {
+                throw new ConflictException(
+                    errorCode: 'gathering_is_full',
+                    domain: 'booking',
+                );
+            }
+
+            $invitation->status = BookingHunterInvitation::STATUS_ACCEPTED;
+            $invitation->accepted_at = now();
+            $invitation->declined_at = null;
+            $invitation->save();
+
+            $gatheringFinished = $booking->status === Booking::START_COLLECTION
+                && $groupSize > 0
+                && $booking->countAcceptedHunters() >= $groupSize;
+
+            if ($gatheringFinished) {
+                $this->bookingCollectionService->finishGathering($booking);
+            }
+
+            return [$booking, $invitation, $gatheringFinished];
+        });
 
         $this->bookingNotificationService->sendInvitationAccepted($booking, $user);
         BookingInvitationUpdatedEvent::dispatchSafely(
@@ -303,6 +356,11 @@ class BookingInvitationService
             $invitation,
             BookingInvitationUpdatedEvent::ACTION_ACCEPTED,
         );
+
+        if ($gatheringFinished) {
+            $this->bookingCollectionService->notifyGatheringFinished($booking);
+            $this->bookingNotificationService->sendGatheringFilled($booking);
+        }
 
         return $invitation;
     }

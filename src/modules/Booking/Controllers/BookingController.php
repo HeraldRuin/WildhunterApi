@@ -320,7 +320,9 @@ class BookingController extends Controller
 
     /**
      * Принятие приглашения текущим охотником.
+     * Если подтвердивших стало не меньше размера группы, сбор завершается сам.
      *
+     * @throws ConflictException
      * @throws NotFoundException
      */
     public function acceptInvitation(string $code): JsonResponse

@@ -988,6 +988,23 @@ class BookingPath
                 ref: "#/components/responses/NotFoundResponse",
                 response: 404
             ),
+            new OA\Response(
+                response: 409,
+                description: "Сбор уже набран, присоединиться нельзя",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "error_code"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: false),
+                        new OA\Property(
+                            property: "message",
+                            type: "string",
+                            example: "Сбор уже набран, присоединиться нельзя"
+                        ),
+                        new OA\Property(property: "error_code", type: "string", example: "gathering_is_full"),
+                    ],
+                    type: "object"
+                )
+            ),
         ]
     )]
     public function AcceptBookingInvitation(): void

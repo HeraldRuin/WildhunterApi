@@ -375,6 +375,25 @@ class BookingNotificationService
         }
     }
 
+    public function sendGatheringFilled(Booking $booking): void
+    {
+        $payload = new NotificationPayloadData(
+            title: __('booking.notifications.gathering_filled_title'),
+            message: __('booking.notifications.gathering_filled_message', [
+                'number' => $this->bookingNumber($booking),
+            ]),
+            link: $this->bookingLink($booking),
+            category: 'booking',
+            entityType: 'booking',
+            entityId: (int) $booking->id,
+            event: 'booking.gathering_filled',
+        );
+
+        foreach ($this->pendingHunters($booking) as $hunter) {
+            $this->sendSafely($hunter, $payload, forAdmin: false);
+        }
+    }
+
     public function sendHunterInvited(Booking $booking, User $hunter): void
     {
         if ((int) $hunter->id === (int) $booking->create_user) {
@@ -526,6 +545,17 @@ class BookingNotificationService
                 BookingHunterInvitation::STATUS_DECLINED,
                 'removed',
             ],
+        );
+    }
+
+    /**
+     * @return list<User>
+     */
+    private function pendingHunters(Booking $booking): array
+    {
+        return $this->huntersFromInvitations(
+            $booking,
+            statuses: [BookingHunterInvitation::STATUS_PENDING],
         );
     }
 
