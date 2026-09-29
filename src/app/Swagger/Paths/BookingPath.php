@@ -495,7 +495,7 @@ class BookingPath
         responses: [
             new OA\Response(
                 response: 200,
-                description: "Бронь отмечена как оплаченная",
+                description: "Мероприятие по этой брони подтверждено",
                 content: new OA\JsonContent(
                     required: ["success", "message", "data"],
                     properties: [
@@ -503,7 +503,7 @@ class BookingPath
                         new OA\Property(
                             property: "message",
                             type: "string",
-                            example: "Бронь отмечена как оплаченная"
+                            example: "Мероприятие по этой брони подтверждено"
                         ),
                         new OA\Property(
                             property: "data",

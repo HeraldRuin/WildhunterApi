@@ -276,7 +276,7 @@ return [
         'customer_changed' => 'Заказчик изменён',
         'gathering_has_completed' => 'Сбор охотников завершён',
         'booking_confirmed' => 'Бронь успешно подтверждена',
-        'booking_marked_paid' => 'Бронь отмечена как оплаченная',
+        'booking_marked_paid' => 'Мероприятие по этой брони подтверждено',
         'hunter_gathering_cancelled' => 'Сбор охотников для этой брони отменён',
         'booking_invitation_sent' => 'Приглашение отправлено',
         'booking_created' => 'Бронирование создано',
