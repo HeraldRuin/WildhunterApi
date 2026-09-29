@@ -434,7 +434,10 @@ class BookingServiceManager
     private function allowedStatuses(Booking $booking, bool $isAdmin): array
     {
         if ($booking->type === Booking::BookingTypeAnimal) {
-            return [Booking::FINISHED_COLLECTION];
+            return [
+                Booking::FINISHED_COLLECTION,
+                Booking::PAID,
+            ];
         }
 
         if ($isAdmin) {
@@ -443,6 +446,7 @@ class BookingServiceManager
                 Booking::FINISHED_PREPAYMENT,
                 Booking::BED_COLLECTION,
                 Booking::FINISHED_BED,
+                Booking::PAID,
             ];
         }
 
@@ -450,6 +454,7 @@ class BookingServiceManager
             Booking::FINISHED_PREPAYMENT,
             Booking::BED_COLLECTION,
             Booking::FINISHED_BED,
+            Booking::PAID,
         ];
     }
 
