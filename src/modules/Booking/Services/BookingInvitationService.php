@@ -6,9 +6,11 @@ use App\Exceptions\ConflictException;
 use App\Exceptions\ForbiddenException;
 use App\Exceptions\NotFoundException;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Modules\Booking\Dto\ReplaceHunterData;
 use Modules\Booking\Dto\ReplaceHunterResultData;
+use Modules\Booking\Events\BookingGatheringCompletedEvent;
 use Modules\Booking\Events\BookingHistoryUpdatedEvent;
 use Modules\Booking\Events\BookingInvitationUpdatedEvent;
 use Modules\Booking\Models\Booking;
@@ -292,7 +294,7 @@ class BookingInvitationService
      */
     public function accept(string $code, User $user): BookingHunterInvitation
     {
-        [$booking, $invitation, $gatheringFinished] = DB::transaction(function () use ($code, $user): array {
+        [$booking, $invitation, $gatheringFinished, $droppedInvitations] = DB::transaction(function () use ($code, $user): array {
             $booking = Booking::query()
                 ->where('code', $code)
                 ->lockForUpdate()
@@ -318,10 +320,7 @@ class BookingInvitationService
                 ->first();
 
             if (!$invitation) {
-                throw new NotFoundException(
-                    errorCode: 'booking_invitation_not_found',
-                    domain: 'booking',
-                );
+                $this->throwMissingInvitation($booking);
             }
 
             $alreadyAccepted = $invitation->status === BookingHunterInvitation::STATUS_ACCEPTED;
@@ -343,11 +342,14 @@ class BookingInvitationService
                 && $groupSize > 0
                 && $booking->countAcceptedHunters() >= $groupSize;
 
+            $droppedInvitations = new Collection();
+
             if ($gatheringFinished) {
                 $this->bookingCollectionService->finishGathering($booking);
+                $droppedInvitations = $this->dropUnconfirmedInvitations($booking);
             }
 
-            return [$booking, $invitation, $gatheringFinished];
+            return [$booking, $invitation, $gatheringFinished, $droppedInvitations];
         });
 
         $this->bookingNotificationService->sendInvitationAccepted($booking, $user);
@@ -359,7 +361,8 @@ class BookingInvitationService
 
         if ($gatheringFinished) {
             $this->bookingCollectionService->notifyGatheringFinished($booking);
-            $this->bookingNotificationService->sendGatheringFilled($booking);
+            $this->notifyDroppedHunters($booking, $droppedInvitations);
+            $this->broadcastGatheringCompleted($booking, $droppedInvitations);
         }
 
         return $invitation;
@@ -383,6 +386,108 @@ class BookingInvitationService
         );
 
         return $invitation;
+    }
+
+    /**
+     * Неподтверждённые приглашения снимаются со сбора, когда последнее место уже занято.
+     *
+     * @return Collection<int, BookingHunterInvitation>
+     */
+    private function dropUnconfirmedInvitations(Booking $booking): Collection
+    {
+        $invitations = BookingHunterInvitation::query()
+            ->with('hunter')
+            ->whereHas('bookingHunter', function ($query) use ($booking) {
+                $query->where('booking_id', $booking->id);
+            })
+            ->where(function ($query) {
+                $query->where('status', BookingHunterInvitation::STATUS_PENDING)
+                    ->orWhereNull('status');
+            })
+            ->lockForUpdate()
+            ->get();
+
+        foreach ($invitations as $invitation) {
+            $invitation->forceDelete();
+        }
+
+        return $invitations;
+    }
+
+    /**
+     * @param  Collection<int, BookingHunterInvitation>  $invitations
+     */
+    private function notifyDroppedHunters(Booking $booking, Collection $invitations): void
+    {
+        if ($invitations->isEmpty()) {
+            return;
+        }
+
+        $this->bookingNotificationService->sendGatheringFilled($booking, $invitations);
+        $this->bookingMailService->sendGatheringClosed($booking, $invitations);
+
+        foreach ($invitations as $invitation) {
+            if (!$invitation->hunter_id) {
+                continue;
+            }
+
+            BookingHistoryUpdatedEvent::dispatchSafely(
+                $booking,
+                (int) $invitation->hunter_id,
+                BookingHistoryUpdatedEvent::ACTION_REMOVED,
+            );
+        }
+    }
+
+    /**
+     * @param  Collection<int, BookingHunterInvitation>  $invitations
+     */
+    private function broadcastGatheringCompleted(Booking $booking, Collection $invitations): void
+    {
+        $removedHunterIds = [];
+        $removedInvitationIds = [];
+
+        foreach ($invitations as $invitation) {
+            $removedInvitationIds[] = (int) $invitation->id;
+
+            if ($invitation->hunter_id) {
+                $removedHunterIds[] = (int) $invitation->hunter_id;
+            }
+        }
+
+        BookingGatheringCompletedEvent::dispatchSafely(
+            $booking,
+            $removedHunterIds,
+            $removedInvitationIds,
+        );
+    }
+
+    /**
+     * @throws ConflictException
+     * @throws NotFoundException
+     */
+    private function throwMissingInvitation(Booking $booking): never
+    {
+        if (in_array($booking->status, [
+            Booking::FINISHED_COLLECTION,
+            Booking::PREPAYMENT_COLLECTION,
+            Booking::FINISHED_PREPAYMENT,
+            Booking::BED_COLLECTION,
+            Booking::FINISHED_BED,
+            Booking::PAID,
+            Booking::PARTIAL_PAYMENT,
+            Booking::COMPLETED,
+        ], true)) {
+            throw new ConflictException(
+                errorCode: 'gathering_is_full',
+                domain: 'booking',
+            );
+        }
+
+        throw new NotFoundException(
+            errorCode: 'booking_invitation_not_found',
+            domain: 'booking',
+        );
     }
 
     /**

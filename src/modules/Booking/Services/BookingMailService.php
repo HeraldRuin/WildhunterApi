@@ -157,6 +157,36 @@ class BookingMailService
     /**
      * @param iterable<BookingHunterInvitation> $invitations
      */
+    public function sendGatheringClosed(Booking $booking, iterable $invitations): void
+    {
+        $this->withLocale($booking, function () use ($booking, $invitations): void {
+            $message = __('booking.email.gathering_closed_body', [
+                'number' => (string) ($booking->booking_number ?: $booking->code),
+            ]);
+
+            foreach ($invitations as $invitation) {
+                $hunter = $invitation->hunter;
+                $email = $hunter?->email ?: $invitation->email;
+
+                if (!$email) {
+                    continue;
+                }
+
+                $this->sendSafely(
+                    $email,
+                    fn () => new HunterMessageEmail(
+                        $booking,
+                        $hunter ?: $this->virtualHunter($email),
+                        $message,
+                    ),
+                );
+            }
+        });
+    }
+
+    /**
+     * @param iterable<BookingHunterInvitation> $invitations
+     */
     public function sendCollectionCancelled(Booking $booking, iterable $invitations): void
     {
         $this->withLocale($booking, function () use ($booking, $invitations): void {

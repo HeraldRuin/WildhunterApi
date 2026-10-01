@@ -320,7 +320,8 @@ class BookingController extends Controller
 
     /**
      * Принятие приглашения текущим охотником.
-     * Если подтвердивших стало не меньше размера группы, сбор завершается сам.
+     * Если подтвердивших стало не меньше размера группы, сбор завершается сам,
+     * неподтверждённые приглашения снимаются, а по вебсокету уходит booking.gathering.completed.
      *
      * @throws ConflictException
      * @throws NotFoundException

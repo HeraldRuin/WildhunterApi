@@ -375,7 +375,10 @@ class BookingNotificationService
         }
     }
 
-    public function sendGatheringFilled(Booking $booking): void
+    /**
+     * @param  iterable<BookingHunterInvitation>  $invitations
+     */
+    public function sendGatheringFilled(Booking $booking, iterable $invitations): void
     {
         $payload = new NotificationPayloadData(
             title: __('booking.notifications.gathering_filled_title'),
@@ -389,8 +392,17 @@ class BookingNotificationService
             event: 'booking.gathering_filled',
         );
 
-        foreach ($this->pendingHunters($booking) as $hunter) {
+        $notified = [];
+
+        foreach ($invitations as $invitation) {
+            $hunter = $invitation->hunter;
+
+            if (!$hunter || isset($notified[$hunter->id])) {
+                continue;
+            }
+
             $this->sendSafely($hunter, $payload, forAdmin: false);
+            $notified[$hunter->id] = true;
         }
     }
 
@@ -545,17 +557,6 @@ class BookingNotificationService
                 BookingHunterInvitation::STATUS_DECLINED,
                 'removed',
             ],
-        );
-    }
-
-    /**
-     * @return list<User>
-     */
-    private function pendingHunters(Booking $booking): array
-    {
-        return $this->huntersFromInvitations(
-            $booking,
-            statuses: [BookingHunterInvitation::STATUS_PENDING],
         );
     }
 
