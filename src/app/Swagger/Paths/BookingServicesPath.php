@@ -33,12 +33,18 @@ class BookingServicesPath
                         new OA\Property(property: "message", type: "string", example: ""),
                         new OA\Property(
                             property: "data",
-                            required: ["role", "booking_type", "allowed_types", "catalogs", "items"],
+                            required: ["role", "preliminary_total", "booking_type", "allowed_types", "catalogs", "items"],
                             properties: [
                                 new OA\Property(
                                     property: "role",
                                     type: "string",
                                     enum: ["baseadmin", "hunter"]
+                                ),
+                                new OA\Property(
+                                    property: "preliminary_total",
+                                    description: "Сумма всех услуг брони в рублях: трофеи, штрафы, разделка, питание (цена × число суток) и дополнительные услуги. Личные затраты охотников не входят",
+                                    type: "integer",
+                                    example: 741249
                                 ),
                                 new OA\Property(
                                     property: "booking_type",

@@ -7,6 +7,7 @@ use App\Exceptions\ForbiddenException;
 use App\Exceptions\NotFoundException;
 use App\Exceptions\ValidationException;
 use App\Models\User;
+use Illuminate\Support\Collection;
 use Modules\Animals\Models\Animal;
 use Modules\Animals\Models\AnimalFine;
 use Modules\Animals\Models\AnimalPreparation;
@@ -28,6 +29,7 @@ class BookingServiceManager
     /**
      * @return array{
      *     role: string,
+     *     preliminary_total: int,
      *     booking_type: string,
      *     allowed_types: list<string>,
      *     catalogs: array<string, mixed>,
@@ -42,12 +44,17 @@ class BookingServiceManager
     {
         [$booking, $isAdmin, $allowedTypes] = $this->findAuthorizedBooking($code, $user);
 
+        $services = BookingService::with(['hunter', 'animal'])
+            ->where('booking_id', $booking->id)
+            ->get();
+
         return [
             'role' => $isAdmin ? Role::ADMIN : Role::CUSTOMER,
+            'preliminary_total' => $this->preliminaryTotal($booking, $services),
             'booking_type' => $booking->type,
             'allowed_types' => $allowedTypes,
             'catalogs' => $this->catalogsFor($booking, $allowedTypes),
-            'items' => $this->savedItems($booking),
+            'items' => $this->savedItems($services),
         ];
     }
 
@@ -658,6 +665,33 @@ class BookingServiceManager
     }
 
     /**
+     * Сумма услуг брони в рублях.
+     * Цена питания в строке — за одни сутки, поэтому она умножается на число суток.
+     * Личные затраты охотников в сумму не входят.
+     */
+    private function preliminaryTotal(Booking $booking, Collection $services): int
+    {
+        $days = max(1, (int) $booking->duration_days);
+
+        $sum = $services->sum(function (BookingService $service) use ($days) {
+            if ($service->service_type === AddetionalPrice::SPENDING) {
+                return 0;
+            }
+
+            $price = (float) $service->price;
+
+            if ($service->service_type === AddetionalPrice::FOOD) {
+                return $price * $days;
+            }
+
+            return $price;
+        });
+
+        return (int) round($sum);
+    }
+
+    /**
+     * @param  Collection<int, BookingService>  $services
      * @return array{
      *     trophies: mixed,
      *     penalties: mixed,
@@ -667,12 +701,8 @@ class BookingServiceManager
      *     spendings: mixed
      * }
      */
-    private function savedItems(Booking $booking): array
+    private function savedItems(Collection $services): array
     {
-        $services = BookingService::with(['hunter', 'animal'])
-            ->where('booking_id', $booking->id)
-            ->get();
-
         return [
             'trophies' => $services
                 ->where('service_type', AddetionalPrice::TROPHY)
