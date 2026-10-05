@@ -366,6 +366,7 @@ class BookingPath
                                                             ),
                                                             new OA\Property(
                                                                 property: "total",
+                                                                description: "Всего по мероприятию без уже внесённой предоплаты",
                                                                 type: "number",
                                                                 format: "float"
                                                             ),
@@ -1987,9 +1988,10 @@ class BookingPath
                                 ),
                                 new OA\Property(
                                     property: "total",
+                                    description: "Всего по мероприятию без уже внесённой предоплаты",
                                     type: "number",
                                     format: "float",
-                                    example: 17000
+                                    example: 12000
                                 ),
                             ],
                             type: "object"

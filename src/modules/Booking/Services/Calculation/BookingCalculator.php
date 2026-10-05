@@ -385,10 +385,13 @@ class BookingCalculator
         }
 
         if ($booking->type === Booking::BookingTypeHotel || $booking->type === Booking::BookingTypeHotelAnimal) {
+            $prepaidTotal = $this->basePrepaymentMade($booking);
+            $eventTotal = $this->calculateBaseTotal($booking, $services, $huntersCount);
+
             return [
-                'prepaid_total' => $this->basePrepaymentMade($booking),
-                'base_total' => $booking->is_paid ? 0 : $this->calculateBaseTotal($booking, $services, $huntersCount),
-                'total' => $this->basePrepaymentMade($booking) + $this->calculateBaseTotal($booking, $services, $huntersCount),
+                'prepaid_total' => $prepaidTotal,
+                'base_total' => $booking->is_paid ? 0 : $eventTotal,
+                'total' => $eventTotal,
             ];
         }
 
