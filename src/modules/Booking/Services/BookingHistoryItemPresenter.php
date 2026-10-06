@@ -189,8 +189,10 @@ class BookingHistoryItemPresenter
      */
     private function buildDetails(Booking $booking, array $rooms, int $userId): array
     {
-        $amountHunting = $this->resolveHuntingTotal($booking);
-        $amountHuntingPerPerson = $this->resolveHuntingPricePerPerson($booking, $userId);
+        $amountHunting = $this->resolveOrganisationHuntingTotal($booking);
+        $amountHuntingPerPerson = $this->resolveOrganisationHuntingPricePerPerson($booking);
+        $amountHuntingWithServices = $this->resolveHuntingTotal($booking);
+        $amountHuntingWithServicesPerPerson = $this->resolveHuntingPricePerPerson($booking, $userId);
 
         return [
             'start_date' => $booking->start_date,
@@ -204,6 +206,8 @@ class BookingHistoryItemPresenter
             'total_hunting' => $booking->total_hunting,
             'amount_hunting' => $amountHunting,
             'amount_hunting_per_person' => $amountHuntingPerPerson,
+            'amount_hunting_with_services' => $amountHuntingWithServices,
+            'amount_hunting_with_services_per_person' => $amountHuntingWithServicesPerPerson,
             'animal' => $booking->animal ? [
                 'id' => $booking->animal->id,
                 'title' => $booking->animal->title,
@@ -306,6 +310,24 @@ class BookingHistoryItemPresenter
         }
 
         return (float) round($total / $personCount, 2);
+    }
+
+    private function resolveOrganisationHuntingTotal(Booking $booking): ?float
+    {
+        if ($booking->amount_hunting === null) {
+            return null;
+        }
+
+        return (float) $booking->amount_hunting;
+    }
+
+    private function resolveOrganisationHuntingPricePerPerson(Booking $booking): ?float
+    {
+        if ($booking->amount_hunting === null || !$booking->total_hunting) {
+            return null;
+        }
+
+        return $this->resolvePricePerPerson((float) $booking->amount_hunting, (int) $booking->total_hunting);
     }
 
     private function resolveHuntingTotal(Booking $booking): ?float

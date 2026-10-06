@@ -28,10 +28,12 @@ class BookingHistoryItemPresenterTest extends TestCase
 
         $details = $this->present($booking);
 
-        $this->assertSame(121476.0, $details['amount_hunting']);
-        $this->assertSame(30369.0, $details['amount_hunting_per_person']);
-        $this->assertSame(121476.0, $details['animal']['price_total']);
-        $this->assertSame(30369.0, $details['animal']['price_per_person']);
+        $this->assertSame(120000.0, $details['amount_hunting']);
+        $this->assertSame(30000.0, $details['amount_hunting_per_person']);
+        $this->assertSame(120000.0, $details['animal']['price_total']);
+        $this->assertSame(30000.0, $details['animal']['price_per_person']);
+        $this->assertSame(121476.0, $details['amount_hunting_with_services']);
+        $this->assertSame(30369.0, $details['amount_hunting_with_services_per_person']);
         $this->assertSame(120000.0, (float) $booking->amount_hunting);
     }
 
@@ -51,8 +53,10 @@ class BookingHistoryItemPresenterTest extends TestCase
 
         $details = $this->present($booking);
 
-        $this->assertSame(10650.0, $details['amount_hunting']);
-        $this->assertSame(5325.0, $details['amount_hunting_per_person']);
+        $this->assertSame(10000.0, $details['amount_hunting']);
+        $this->assertSame(5000.0, $details['amount_hunting_per_person']);
+        $this->assertSame(10650.0, $details['amount_hunting_with_services']);
+        $this->assertSame(5325.0, $details['amount_hunting_with_services_per_person']);
     }
 
     public function test_penalty_stays_in_full_on_the_charged_hunter(): void
@@ -69,10 +73,13 @@ class BookingHistoryItemPresenterTest extends TestCase
         $charged = $this->present($booking, 5);
         $other = $this->present($booking, 1);
 
-        $this->assertSame(121000.0, $charged['amount_hunting']);
-        $this->assertSame(121000.0, $other['amount_hunting']);
-        $this->assertSame(31000.0, $charged['amount_hunting_per_person']);
+        $this->assertSame(120000.0, $charged['amount_hunting']);
+        $this->assertSame(30000.0, $charged['amount_hunting_per_person']);
         $this->assertSame(30000.0, $other['amount_hunting_per_person']);
+        $this->assertSame(121000.0, $charged['amount_hunting_with_services']);
+        $this->assertSame(121000.0, $other['amount_hunting_with_services']);
+        $this->assertSame(31000.0, $charged['amount_hunting_with_services_per_person']);
+        $this->assertSame(30000.0, $other['amount_hunting_with_services_per_person']);
     }
 
     public function test_hunting_amounts_stay_empty_without_organisation_price(): void
@@ -90,6 +97,8 @@ class BookingHistoryItemPresenterTest extends TestCase
 
         $this->assertNull($details['amount_hunting']);
         $this->assertNull($details['amount_hunting_per_person']);
+        $this->assertNull($details['amount_hunting_with_services']);
+        $this->assertNull($details['amount_hunting_with_services_per_person']);
     }
 
     /**

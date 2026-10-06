@@ -225,6 +225,34 @@ class BookingPath
                                                                 nullable: true
                                                             ),
                                                             new OA\Property(
+                                                                property: "amount_hunting",
+                                                                description: "Организация охоты, без услуг. Блок «Охота»",
+                                                                type: "number",
+                                                                format: "float",
+                                                                nullable: true
+                                                            ),
+                                                            new OA\Property(
+                                                                property: "amount_hunting_per_person",
+                                                                description: "Организация охоты на человека (amount_hunting / total_hunting). Блок «Охота»",
+                                                                type: "number",
+                                                                format: "float",
+                                                                nullable: true
+                                                            ),
+                                                            new OA\Property(
+                                                                property: "amount_hunting_with_services",
+                                                                description: "Организация охоты плюс услуги брони. Для синего итога, не для блока «Охота»",
+                                                                type: "number",
+                                                                format: "float",
+                                                                nullable: true
+                                                            ),
+                                                            new OA\Property(
+                                                                property: "amount_hunting_with_services_per_person",
+                                                                description: "Доля охоты с услугами для текущего пользователя. Штраф целиком только у того, на кого повешен. Для синего итога",
+                                                                type: "number",
+                                                                format: "float",
+                                                                nullable: true
+                                                            ),
+                                                            new OA\Property(
                                                                 property: "animal",
                                                                 required: ["id", "title"],
                                                                 properties: [
