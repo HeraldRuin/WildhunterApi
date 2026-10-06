@@ -5,12 +5,15 @@ namespace Modules\Booking\Services;
 use App\Exceptions\ValidationException;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Modules\Animals\Models\Animal;
 use Modules\Animals\Models\AnimalPricePeriod;
 use Modules\Booking\Dto\CreateBookingData;
 use Modules\Booking\Models\BookedDay;
 use Modules\Booking\Models\Booking;
+use Modules\Booking\Services\Calculation\HuntingAmountCalculator;
 use Modules\Hotel\Events\RoomAvailabilityUpdatedEvent;
 use Modules\Hotel\Models\Hotel;
+use Modules\Hotel\Models\HotelAnimal;
 use Modules\Hotel\Models\HotelRoom;
 use Modules\Hotel\Models\HotelRoomBooking;
 use Modules\Hotel\Services\RoomService;
@@ -22,6 +25,7 @@ class BookingStoreService
         private BookingNumberService $bookingNumberService,
         private BookingMailService $bookingMailService,
         private BookingNotificationService $bookingNotificationService,
+        private HuntingAmountCalculator $huntingAmountCalculator,
     ) {
     }
 
@@ -133,7 +137,14 @@ class BookingStoreService
                 );
             }
 
-            $amountHunting = $hunters * (float) $period->price;
+            $limits = $this->hunterLimits($hotel->id, $animalId);
+            $amountHunting = $this->huntingAmountCalculator->calculate(
+                periodPrice: (float) $period->price,
+                isGroupHunt: $this->isGroupHunt($animalId),
+                hunters: $hunters,
+                minHunters: $limits['min'],
+                maxHunters: $limits['max'],
+            );
             $startDateAnimal = $startDate->copy();
         }
 
@@ -252,6 +263,44 @@ class BookingStoreService
         }
 
         return $booking;
+    }
+
+    private function isGroupHunt(int $animalId): bool
+    {
+        $animal = Animal::query()->find($animalId);
+
+        if (!$animal) {
+            return true;
+        }
+
+        return $animal->huntTypeCode() === Animal::HUNT_TYPE_GROUP;
+    }
+
+    /**
+     * @return array{min: int, max: int}
+     */
+    private function hunterLimits(int $hotelId, int $animalId): array
+    {
+        $link = HotelAnimal::query()
+            ->where('hotel_id', $hotelId)
+            ->where('animal_id', $animalId)
+            ->first();
+
+        $min = (int) ($link->hunters_count ?? 1);
+        $max = (int) ($link->max_hunters_count ?? 0);
+
+        if ($min < 1) {
+            $min = 1;
+        }
+
+        if ($max < 1) {
+            $max = $min;
+        }
+
+        return [
+            'min' => $min,
+            'max' => $max,
+        ];
     }
 
     private function applyDeposit(Hotel $hotel, Booking $booking, float $totalBeforeFees): void
