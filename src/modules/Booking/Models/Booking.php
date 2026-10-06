@@ -1548,6 +1548,11 @@ class Booking extends BaseModel
         return $this->hasMany(HotelRoomBooking::class, 'booking_id');
     }
 
+    public function bookingServices(): HasMany
+    {
+        return $this->hasMany(BookingService::class, 'booking_id');
+    }
+
     /** @deprecated use roomsBooking */
     public function hotelRooms(): HasMany
     {

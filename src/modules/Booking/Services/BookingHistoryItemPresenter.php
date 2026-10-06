@@ -4,9 +4,11 @@ namespace Modules\Booking\Services;
 
 use App\Models\User;
 use Illuminate\Support\Collection;
+use Modules\Attendance\Models\AddetionalPrice;
 use Modules\Booking\Dto\BookingHistoryItemData;
 use Modules\Booking\Models\Booking;
 use Modules\Booking\Models\BookingHunterInvitation;
+use Modules\Booking\Models\BookingService;
 use Modules\Hotel\Models\HotelRoom;
 use Modules\Hotel\Models\HotelRoomBooking;
 
@@ -312,19 +314,45 @@ class BookingHistoryItemPresenter
             return null;
         }
 
-        return (float) $booking->amount_hunting;
+        return (float) $booking->amount_hunting + $this->resolveServicesTotal($booking);
     }
 
     private function resolveHuntingPricePerPerson(Booking $booking): ?float
     {
-        $amountHunting = $booking->amount_hunting;
-        $totalHunting = $booking->total_hunting;
+        $amountHunting = $this->resolveHuntingTotal($booking);
 
-        if ($amountHunting === null || !$totalHunting) {
+        if ($amountHunting === null || !$booking->total_hunting) {
             return null;
         }
 
-        return $this->resolvePricePerPerson((float) $amountHunting, (int) $totalHunting);
+        return $this->resolvePricePerPerson($amountHunting, (int) $booking->total_hunting);
+    }
+
+    /**
+     * Трофеи, штрафы, разделка, питание (цена × сутки) и дополнительные услуги.
+     * Личные затраты охотников не входят. Колонка amount_hunting не меняется.
+     */
+    private function resolveServicesTotal(Booking $booking): float
+    {
+        $days = max(1, (int) $booking->duration_days);
+
+        $sum = $booking->bookingServices->sum(
+            static function (BookingService $service) use ($days): float {
+                if ($service->service_type === AddetionalPrice::SPENDING) {
+                    return 0.0;
+                }
+
+                $price = (float) $service->price;
+
+                if ($service->service_type === AddetionalPrice::FOOD) {
+                    return $price * $days;
+                }
+
+                return $price;
+            },
+        );
+
+        return (float) round($sum);
     }
 
     /**

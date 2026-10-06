@@ -15,6 +15,7 @@ class BookingHistoryUpdatedEvent implements ShouldBroadcast, ShouldDispatchAfter
 {
     public const string ACTION_ADDED = 'added';
     public const string ACTION_REMOVED = 'removed';
+    public const string ACTION_UPDATED = 'updated';
 
     use Dispatchable;
     use InteractsWithSockets;

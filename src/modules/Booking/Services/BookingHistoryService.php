@@ -131,6 +131,7 @@ class BookingHistoryService
         $collection->load([
             'hunterInvitations.hunter',
             'hunterInvitations.bookingHunter',
+            'bookingServices',
         ]);
 
         $timerMetaByBooking = $this->loadTimerMeta($collection->pluck('id')->all());

@@ -19,6 +19,7 @@ use Modules\Booking\Dto\StorePenaltyData;
 use Modules\Booking\Dto\StorePreparationData;
 use Modules\Booking\Dto\StoreSpendingData;
 use Modules\Booking\Dto\StoreTrophyData;
+use Modules\Booking\Events\BookingHistoryUpdatedEvent;
 use Modules\Booking\Models\Booking;
 use Modules\Booking\Models\BookingHunterInvitation;
 use Modules\Booking\Models\BookingService;
@@ -98,6 +99,8 @@ class BookingServiceManager
             'price' => round((float) $price * $data->count, 2),
         ])->load('animal');
 
+        $this->notifyHistoryUpdated($booking, $user);
+
         return [
             'id' => $service->id,
             'animal_id' => $service->animal_id,
@@ -149,6 +152,8 @@ class BookingServiceManager
             'animal_id' => $data->animalId,
             'price' => $price,
         ])->load(['hunter', 'animal']);
+
+        $this->notifyHistoryUpdated($booking, $user);
 
         return [
             'id' => $service->id,
@@ -217,6 +222,8 @@ class BookingServiceManager
             ])->load('animal');
         }
 
+        $this->notifyHistoryUpdated($booking, $user);
+
         return [
             'id' => $service->id,
             'animal_id' => $service->animal_id,
@@ -251,6 +258,8 @@ class BookingServiceManager
             'price' => round((float) $price * $data->count, 2),
             'count' => $data->count,
         ]);
+
+        $this->notifyHistoryUpdated($booking, $user);
 
         return [
             'id' => $service->id,
@@ -304,6 +313,8 @@ class BookingServiceManager
             'price' => round((float) $additional->price * $data->count, 2),
         ])->load('hunter');
 
+        $this->notifyHistoryUpdated($booking, $user);
+
         return [
             'id' => $service->id,
             'type' => $service->type,
@@ -334,6 +345,8 @@ class BookingServiceManager
             'service_id' => null,
             'hunter_id' => $data->hunterId,
         ])->load('hunter');
+
+        $this->notifyHistoryUpdated($booking, $user);
 
         return [
             'id' => $service->id,
@@ -373,6 +386,75 @@ class BookingServiceManager
         }
 
         $service->delete();
+
+        $this->notifyHistoryUpdated($booking, $user);
+    }
+
+    private function notifyHistoryUpdated(Booking $booking, User $actor): void
+    {
+        foreach ($this->historyRecipientIds($booking, $actor) as $userId) {
+            BookingHistoryUpdatedEvent::dispatchSafely(
+                $booking,
+                $userId,
+                BookingHistoryUpdatedEvent::ACTION_UPDATED,
+            );
+        }
+    }
+
+    /**
+     * Админы базы, заказчик и охотники, у которых бронь есть в истории,
+     * включая того, кто сохранил услугу.
+     *
+     * @return list<int>
+     */
+    private function historyRecipientIds(Booking $booking, User $actor): array
+    {
+        $ids = [(int) $actor->id];
+
+        $customerId = (int) ($booking->create_user ?: $booking->customer_id);
+        if ($customerId > 0) {
+            $ids[] = $customerId;
+        }
+
+        if ($booking->hotel_id) {
+            $adminIds = User::query()
+                ->whereHas('hotels', static function ($query) use ($booking): void {
+                    $query->whereKey($booking->hotel_id);
+                })
+                ->pluck('id');
+
+            foreach ($adminIds as $adminId) {
+                $ids[] = (int) $adminId;
+            }
+        }
+
+        $masterId = (int) ($booking->masterHunter()->value('invited_by') ?? 0);
+        if ($masterId > 0) {
+            $ids[] = $masterId;
+        }
+
+        $hunterIds = BookingHunterInvitation::query()
+            ->whereHas('bookingHunter', static function ($query) use ($booking): void {
+                $query->where('booking_id', $booking->id);
+            })
+            ->whereNotNull('hunter_id')
+            ->where(static function ($query): void {
+                $query->whereNull('status')
+                    ->orWhereNotIn('status', [
+                        BookingHunterInvitation::STATUS_DECLINED,
+                        'removed',
+                    ]);
+            })
+            ->pluck('hunter_id');
+
+        foreach ($hunterIds as $hunterId) {
+            $ids[] = (int) $hunterId;
+        }
+
+        return array_values(array_unique(array_filter(
+            $ids,
+            static fn (int $id): bool => $id > 0,
+        )));
     }
 
     /**
