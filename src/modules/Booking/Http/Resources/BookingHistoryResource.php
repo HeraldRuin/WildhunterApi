@@ -39,6 +39,7 @@ class BookingHistoryResource extends BaseJsonResource
                 'slug' => $booking->hotel->slug,
                 'location' => $booking->hotel->location ? [
                     'slug' => $booking->hotel->location->slug,
+                    'name' => $booking->hotel->location->name,
                 ] : null,
                 'collection_timer_hours' => $booking->hotel->collection_timer_hours ?? null,
                 'paid_timer_hours' => $booking->hotel->paid_timer_hours ?? null,

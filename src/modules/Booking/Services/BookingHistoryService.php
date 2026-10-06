@@ -48,6 +48,7 @@ class BookingHistoryService
                     'slug' => $hotel->slug,
                     'location' => $hotel->location ? [
                         'slug' => $hotel->location->slug,
+                        'name' => $hotel->location->name,
                     ] : null,
                 ] : null,
                 'statuses' => $this->bookingStatusService->getAllowedStatuses(Role::ADMIN),

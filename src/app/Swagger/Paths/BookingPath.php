@@ -73,9 +73,10 @@ class BookingPath
                                         new OA\Property(property: "slug", type: "string", nullable: true),
                                         new OA\Property(
                                             property: "location",
-                                            required: ["slug"],
+                                            required: ["slug", "name"],
                                             properties: [
                                                 new OA\Property(property: "slug", type: "string", nullable: true),
+                                                new OA\Property(property: "name", type: "string", nullable: true),
                                             ],
                                             type: "object",
                                             nullable: true
@@ -143,9 +144,10 @@ class BookingPath
                                                             new OA\Property(property: "slug", type: "string", nullable: true),
                                                             new OA\Property(
                                                                 property: "location",
-                                                                required: ["slug"],
+                                                                required: ["slug", "name"],
                                                                 properties: [
                                                                     new OA\Property(property: "slug", type: "string", nullable: true),
+                                                                    new OA\Property(property: "name", type: "string", nullable: true),
                                                                 ],
                                                                 type: "object",
                                                                 nullable: true
