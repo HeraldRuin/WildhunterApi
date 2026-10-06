@@ -17,6 +17,7 @@
     $huntersCount = (int) ($booking->total_hunting ?? 0);
     $paid = (float) ($booking->paid ?? 0);
     $total = (float) ($booking->total ?? 0);
+    $huntingTotal = (float) ($booking->amount_hunting ?? 0);
     $siteUrl = rtrim((string) (setting_item('site_url') ?: config('app.url')), '/');
     $hotelUrl = ($hotel?->location?->slug && $hotel?->slug)
         ? $siteUrl.'/hotel/'.$hotel->location->slug.'/'.$hotel->slug
@@ -148,16 +149,12 @@
             @endif
             <tr>
                 <td class="label fsz21">{{ __('booking.email.total') }}</td>
-                <td class="val fsz21"><strong style="color: #FA5636">{{ format_money($total) }}</strong></td>
+                <td class="val fsz21"><strong style="color: #FA5636">{{ format_money($huntingTotal) }}</strong></td>
             </tr>
-            <tr>
-                <td class="label fsz21">{{ __('booking.email.paid') }}</td>
-                <td class="val fsz21"><strong style="color: #FA5636">{{ format_money($paid) }}</strong></td>
-            </tr>
-            @if($total > $paid)
+            @if($huntingTotal > 0)
                 <tr>
                     <td class="label fsz21">{{ __('booking.email.remain') }}</td>
-                    <td class="val fsz21"><strong style="color: #FA5636">{{ format_money($total - $paid) }}</strong></td>
+                    <td class="val fsz21"><strong style="color: #FA5636">{{ format_money($huntingTotal) }}</strong></td>
                 </tr>
             @endif
         </table>
