@@ -53,7 +53,7 @@ class BookingHistoryItemPresenter
                 'paid_end_at' => ($timerMeta['paid_end_at'] ?? null) ?: null,
                 'beds_end_at' => ($timerMeta['beds_end_at'] ?? null) ?: null,
             ],
-            details: $this->buildDetails($booking, $rooms),
+            details: $this->buildDetails($booking, $rooms, (int) $user->id),
             payment: $this->buildPayment($booking),
             availableActions: $this->bookingHistoryActionService->getAvailableActions($booking, $role),
         );
@@ -187,10 +187,10 @@ class BookingHistoryItemPresenter
      * @param list<array<string, mixed>> $rooms
      * @return array<string, mixed>
      */
-    private function buildDetails(Booking $booking, array $rooms): array
+    private function buildDetails(Booking $booking, array $rooms, int $userId): array
     {
         $amountHunting = $this->resolveHuntingTotal($booking);
-        $amountHuntingPerPerson = $this->resolveHuntingPricePerPerson($booking);
+        $amountHuntingPerPerson = $this->resolveHuntingPricePerPerson($booking, $userId);
 
         return [
             'start_date' => $booking->start_date,
@@ -317,15 +317,20 @@ class BookingHistoryItemPresenter
         return (float) $booking->amount_hunting + $this->resolveServicesTotal($booking);
     }
 
-    private function resolveHuntingPricePerPerson(Booking $booking): ?float
+    private function resolveHuntingPricePerPerson(Booking $booking, int $userId): ?float
     {
-        $amountHunting = $this->resolveHuntingTotal($booking);
-
-        if ($amountHunting === null || !$booking->total_hunting) {
+        if ($booking->amount_hunting === null || !$booking->total_hunting) {
             return null;
         }
 
-        return $this->resolvePricePerPerson($amountHunting, (int) $booking->total_hunting);
+        $shared = (float) $booking->amount_hunting + $this->resolveSharedServicesTotal($booking);
+        $perPerson = $this->resolvePricePerPerson($shared, (int) $booking->total_hunting);
+
+        if ($perPerson === null) {
+            return null;
+        }
+
+        return $perPerson + $this->resolveOwnPenalties($booking, $userId);
     }
 
     /**
@@ -334,11 +339,48 @@ class BookingHistoryItemPresenter
      */
     private function resolveServicesTotal(Booking $booking): float
     {
+        return $this->sumServices($booking, includePenalties: true);
+    }
+
+    /**
+     * Услуги, которые делятся на всех охотников. Штраф сюда не входит:
+     * он целиком остаётся на том охотнике, на кого повешен.
+     */
+    private function resolveSharedServicesTotal(Booking $booking): float
+    {
+        return $this->sumServices($booking, includePenalties: false);
+    }
+
+    private function resolveOwnPenalties(Booking $booking, int $userId): float
+    {
+        $sum = $booking->bookingServices->sum(
+            static function (BookingService $service) use ($userId): float {
+                if ($service->service_type !== AddetionalPrice::PENALTY) {
+                    return 0.0;
+                }
+
+                if ((int) $service->hunter_id !== $userId) {
+                    return 0.0;
+                }
+
+                return (float) $service->price;
+            },
+        );
+
+        return (float) round($sum);
+    }
+
+    private function sumServices(Booking $booking, bool $includePenalties): float
+    {
         $days = max(1, (int) $booking->duration_days);
 
         $sum = $booking->bookingServices->sum(
-            static function (BookingService $service) use ($days): float {
+            static function (BookingService $service) use ($days, $includePenalties): float {
                 if ($service->service_type === AddetionalPrice::SPENDING) {
+                    return 0.0;
+                }
+
+                if (!$includePenalties && $service->service_type === AddetionalPrice::PENALTY) {
                     return 0.0;
                 }
 

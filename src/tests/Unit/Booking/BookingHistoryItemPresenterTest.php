@@ -42,7 +42,6 @@ class BookingHistoryItemPresenterTest extends TestCase
             totalHunting: 2,
             durationDays: 3,
             services: [
-                $this->service(AddetionalPrice::PENALTY, 200),
                 $this->service(AddetionalPrice::PREPARATION, 300),
                 $this->service(AddetionalPrice::FOOD, 100),
                 $this->service(AddetionalPrice::ADDETIONAL, 50),
@@ -52,8 +51,28 @@ class BookingHistoryItemPresenterTest extends TestCase
 
         $details = $this->present($booking);
 
-        $this->assertSame(10850.0, $details['amount_hunting']);
-        $this->assertSame(5425.0, $details['amount_hunting_per_person']);
+        $this->assertSame(10650.0, $details['amount_hunting']);
+        $this->assertSame(5325.0, $details['amount_hunting_per_person']);
+    }
+
+    public function test_penalty_stays_in_full_on_the_charged_hunter(): void
+    {
+        $booking = $this->booking(
+            amountHunting: 120000,
+            totalHunting: 4,
+            durationDays: 1,
+            services: [
+                $this->service(AddetionalPrice::PENALTY, 1000, 5),
+            ],
+        );
+
+        $charged = $this->present($booking, 5);
+        $other = $this->present($booking, 1);
+
+        $this->assertSame(121000.0, $charged['amount_hunting']);
+        $this->assertSame(121000.0, $other['amount_hunting']);
+        $this->assertSame(31000.0, $charged['amount_hunting_per_person']);
+        $this->assertSame(30000.0, $other['amount_hunting_per_person']);
     }
 
     public function test_hunting_amounts_stay_empty_without_organisation_price(): void
@@ -103,11 +122,12 @@ class BookingHistoryItemPresenterTest extends TestCase
         return $booking;
     }
 
-    private function service(string $type, float $price): BookingService
+    private function service(string $type, float $price, ?int $hunterId = null): BookingService
     {
         $service = new BookingService();
         $service->service_type = $type;
         $service->price = $price;
+        $service->hunter_id = $hunterId;
 
         return $service;
     }
@@ -115,13 +135,13 @@ class BookingHistoryItemPresenterTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    private function present(Booking $booking): array
+    private function present(Booking $booking, int $userId = 1): array
     {
         $actions = $this->createStub(BookingHistoryActionService::class);
         $actions->method('getAvailableActions')->willReturn([]);
 
         $user = new User();
-        $user->id = 1;
+        $user->id = $userId;
 
         return (new BookingHistoryItemPresenter($actions))
             ->present($booking, $user, 'customer')
