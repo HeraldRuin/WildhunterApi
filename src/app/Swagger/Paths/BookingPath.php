@@ -247,7 +247,7 @@ class BookingPath
                                                             ),
                                                             new OA\Property(
                                                                 property: "amount_hunting_with_services_per_person",
-                                                                description: "Доля охоты с услугами для текущего пользователя. Штраф целиком только у того, на кого повешен. Для синего итога",
+                                                                description: "Доля охоты с услугами для текущего пользователя. Штраф и индивидуальная доп. услуга целиком только у выбранного охотника. Для синего итога",
                                                                 type: "number",
                                                                 format: "float",
                                                                 nullable: true

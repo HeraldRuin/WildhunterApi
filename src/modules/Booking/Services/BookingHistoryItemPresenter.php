@@ -352,7 +352,7 @@ class BookingHistoryItemPresenter
             return null;
         }
 
-        return $perPerson + $this->resolveOwnPenalties($booking, $userId);
+        return $perPerson + $this->resolveOwnPersonalServices($booking, $userId);
     }
 
     /**
@@ -361,23 +361,23 @@ class BookingHistoryItemPresenter
      */
     private function resolveServicesTotal(Booking $booking): float
     {
-        return $this->sumServices($booking, includePenalties: true);
+        return $this->sumServices($booking, includePersonal: true);
     }
 
     /**
-     * Услуги, которые делятся на всех охотников. Штраф сюда не входит:
-     * он целиком остаётся на том охотнике, на кого повешен.
+     * Услуги, которые делятся на всех охотников. Штраф и индивидуальная
+     * доп. услуга сюда не входят: вся сумма остаётся выбранному охотнику.
      */
     private function resolveSharedServicesTotal(Booking $booking): float
     {
-        return $this->sumServices($booking, includePenalties: false);
+        return $this->sumServices($booking, includePersonal: false);
     }
 
-    private function resolveOwnPenalties(Booking $booking, int $userId): float
+    private function resolveOwnPersonalServices(Booking $booking, int $userId): float
     {
         $sum = $booking->bookingServices->sum(
-            static function (BookingService $service) use ($userId): float {
-                if ($service->service_type !== AddetionalPrice::PENALTY) {
+            function (BookingService $service) use ($userId): float {
+                if (!$this->isPersonalService($service)) {
                     return 0.0;
                 }
 
@@ -392,17 +392,17 @@ class BookingHistoryItemPresenter
         return (float) round($sum);
     }
 
-    private function sumServices(Booking $booking, bool $includePenalties): float
+    private function sumServices(Booking $booking, bool $includePersonal): float
     {
         $days = max(1, (int) $booking->duration_days);
 
         $sum = $booking->bookingServices->sum(
-            static function (BookingService $service) use ($days, $includePenalties): float {
+            function (BookingService $service) use ($days, $includePersonal): float {
                 if ($service->service_type === AddetionalPrice::SPENDING) {
                     return 0.0;
                 }
 
-                if (!$includePenalties && $service->service_type === AddetionalPrice::PENALTY) {
+                if (!$includePersonal && $this->isPersonalService($service)) {
                     return 0.0;
                 }
 
@@ -417,6 +417,20 @@ class BookingHistoryItemPresenter
         );
 
         return (float) round($sum);
+    }
+
+    /**
+     * Сумма не делится на всех: штраф и доп. услуга с типом «индивидуально»
+     * целиком остаются охотнику, которого выбрали в списке.
+     */
+    private function isPersonalService(BookingService $service): bool
+    {
+        if ($service->service_type === AddetionalPrice::PENALTY) {
+            return true;
+        }
+
+        return $service->service_type === AddetionalPrice::ADDETIONAL
+            && $service->calculation_type === AddetionalPrice::INDIVIDUAL;
     }
 
     /**

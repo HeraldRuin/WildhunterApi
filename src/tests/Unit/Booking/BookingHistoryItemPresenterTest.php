@@ -82,6 +82,29 @@ class BookingHistoryItemPresenterTest extends TestCase
         $this->assertSame(30000.0, $other['amount_hunting_with_services_per_person']);
     }
 
+    public function test_individual_additional_stays_on_the_selected_hunter(): void
+    {
+        $booking = $this->booking(
+            amountHunting: 120000,
+            totalHunting: 4,
+            durationDays: 1,
+            services: [
+                $this->service(AddetionalPrice::ADDETIONAL, 12000, 5, AddetionalPrice::INDIVIDUAL),
+                $this->service(AddetionalPrice::ADDETIONAL, 400, null, AddetionalPrice::PERSON),
+            ],
+        );
+
+        $selected = $this->present($booking, 5);
+        $other = $this->present($booking, 1);
+
+        $this->assertSame(120000.0, $selected['amount_hunting']);
+        $this->assertSame(30000.0, $selected['amount_hunting_per_person']);
+        $this->assertSame(132400.0, $selected['amount_hunting_with_services']);
+        $this->assertSame(132400.0, $other['amount_hunting_with_services']);
+        $this->assertSame(42100.0, $selected['amount_hunting_with_services_per_person']);
+        $this->assertSame(30100.0, $other['amount_hunting_with_services_per_person']);
+    }
+
     public function test_hunting_amounts_stay_empty_without_organisation_price(): void
     {
         $booking = $this->booking(
@@ -131,12 +154,17 @@ class BookingHistoryItemPresenterTest extends TestCase
         return $booking;
     }
 
-    private function service(string $type, float $price, ?int $hunterId = null): BookingService
-    {
+    private function service(
+        string $type,
+        float $price,
+        ?int $hunterId = null,
+        ?string $calculationType = null,
+    ): BookingService {
         $service = new BookingService();
         $service->service_type = $type;
         $service->price = $price;
         $service->hunter_id = $hunterId;
+        $service->calculation_type = $calculationType;
 
         return $service;
     }
