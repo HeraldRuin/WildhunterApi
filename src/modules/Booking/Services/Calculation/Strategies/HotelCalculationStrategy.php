@@ -42,7 +42,7 @@ class HotelCalculationStrategy implements BookingCalculationStrategy
         $spendingData = $this->bookingCalculator->getSpendings(collect($grouped['spending'] ?? []), $user, $paidCount);
 
         // === Подсчёты итогов ===
-        $accommodation = $this->bookingCalculator->getAccommodation($booking, $user, $paidCount);
+        $accommodation = $this->bookingCalculator->getAccommodation($booking, $user);
         $prepaymentMade = $this->bookingCalculator->getPrepaymentMade($booking, $paidCount);
         $balanceBase = $this->bookingCalculator->getBalanceBase($booking, $user, $services, $paidCount, $isBaseAdmin);
         $paymentDisplayData = $this->bookingCalculator->getBookingTotal($booking, $services, $paidCount);
