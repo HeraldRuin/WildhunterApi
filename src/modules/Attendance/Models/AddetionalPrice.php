@@ -17,6 +17,7 @@ class AddetionalPrice extends BaseModel
         'end_date',
         'price',
         'type',
+        'is_visible',
         'is_system',
         'calculation_type',
         'count',
@@ -24,6 +25,7 @@ class AddetionalPrice extends BaseModel
 
     protected $casts = [
         'is_system' => 'boolean',
+        'is_visible' => 'boolean',
     ];
 
     public const string INDIVIDUAL = 'individual';
