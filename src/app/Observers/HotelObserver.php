@@ -12,20 +12,10 @@ class HotelObserver
     {
         $authUser = Auth::user();
 
-        if ($authUser && $authUser->hasRole('baseadmin')) {
-            $exists = AddetionalPrice::where('user_id', $authUser->id)
-                ->where('name', 'Питание')
-                ->exists();
-
-            if (!$exists) {
-                AddetionalPrice::create([
-                    'name'     => 'Питание',
-                    'type'    => 'food',
-                    'price'    => 0,
-                    'user_id'  => $authUser->id,
-                    'hotel_id' => $hotel->id ?? null,
-                ]);
-            }
+        if ($authUser && $authUser->hasRole('baseadmin') && $hotel->id) {
+            AddetionalPrice::query()
+                ->where('type', AddetionalPrice::FOOD)
+                ->update(['hotel_id' => $hotel->id]);
         }
 
         BookingCounter::firstOrCreate(
