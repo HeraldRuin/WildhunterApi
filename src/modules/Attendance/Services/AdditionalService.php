@@ -90,6 +90,27 @@ class AdditionalService
     }
 
     /**
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     */
+    public function updateVisibility(AddetionalPrice $additional, bool $isVisible, User $user): array
+    {
+        $hotel = $this->resolveHotel($user);
+        $this->assertBelongsToHotel($additional, $hotel);
+
+        $additional->update([
+            'is_visible' => $isVisible,
+        ]);
+
+        return [
+            'code' => 'additional_visibility_updated',
+            'data' => [
+                'additional' => $additional->fresh(),
+            ],
+        ];
+    }
+
+    /**
      * @throws ConflictException
      * @throws ForbiddenException
      * @throws NotFoundException

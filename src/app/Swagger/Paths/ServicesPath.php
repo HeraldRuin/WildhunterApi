@@ -47,6 +47,7 @@ class ServicesPath
                                         enum: ["individual", "per_person"]
                                     ),
                                     new OA\Property(property: "price", type: "number", format: "float", example: 0),
+                                    new OA\Property(property: "is_visible", type: "boolean", example: true),
                                     new OA\Property(property: "can_delete", type: "boolean", example: true),
                                     new OA\Property(property: "can_edit_name", type: "boolean", example: true),
                                 ],
@@ -337,6 +338,81 @@ class ServicesPath
         ]
     )]
     public function update(): void
+    {
+    }
+
+    #[OA\Patch(
+        path: "/api/" . ApiConfig::VERSION . "/services/additionals/{additional}/visibility",
+        description: "Доступно админу базы. Включает или скрывает услугу на сайте. Скрытая услуга не попадает в каталог брони.",
+        summary: "Показать или скрыть услугу",
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["is_visible"],
+                properties: [
+                    new OA\Property(property: "is_visible", type: "boolean", example: false),
+                ]
+            )
+        ),
+        tags: ["Services"],
+        parameters: [
+            new OA\Parameter(
+                name: "additional",
+                description: "ID услуги",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(type: "integer", example: 1)
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Видимость обновлена",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: "Видимость услуги обновлена"),
+                        new OA\Property(
+                            property: "data",
+                            required: ["additional"],
+                            properties: [
+                                new OA\Property(
+                                    property: "additional",
+                                    properties: [
+                                        new OA\Property(property: "id", type: "integer", example: 1),
+                                        new OA\Property(property: "name", type: "string", example: "Завтрак"),
+                                        new OA\Property(property: "is_visible", type: "boolean", example: false),
+                                    ],
+                                    type: "object"
+                                ),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(
+                ref: "#/components/responses/AuthResponse",
+                response: 401
+            ),
+            new OA\Response(
+                response: 403,
+                description: "Нет прав baseAdmin или у пользователя нет отеля"
+            ),
+            new OA\Response(
+                ref: "#/components/responses/NotFoundResponse",
+                response: 404
+            ),
+            new OA\Response(
+                ref: "#/components/responses/ValidationError",
+                response: 422
+            ),
+        ]
+    )]
+    public function updateVisibility(): void
     {
     }
 

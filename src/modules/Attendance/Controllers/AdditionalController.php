@@ -13,6 +13,7 @@ use Modules\Attendance\Dto\StoreAdditionalData;
 use Modules\Attendance\Dto\UpdateAdditionalData;
 use Modules\Attendance\Http\Requests\StoreAdditionalRequest;
 use Modules\Attendance\Http\Requests\UpdateAdditionalRequest;
+use Modules\Attendance\Http\Requests\UpdateAdditionalVisibilityRequest;
 use Modules\Attendance\Http\Resources\AdditionalResource;
 use Modules\Attendance\Http\Resources\SystemServiceResource;
 use Modules\Attendance\Models\AddetionalPrice;
@@ -69,6 +70,27 @@ class AdditionalController extends Controller
     {
         $data = UpdateAdditionalData::fromRequest($request);
         $result = $this->additionalService->update($additional, $data, Auth::user());
+
+        return new SuccessResponse(
+            code: $result['code'],
+            domain: 'additional',
+            data: [
+                'additional' => (new AdditionalResource($result['data']['additional']))->resolve(),
+            ],
+        );
+    }
+
+    /**
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     */
+    public function updateVisibility(UpdateAdditionalVisibilityRequest $request, AddetionalPrice $additional): JsonResponse
+    {
+        $result = $this->additionalService->updateVisibility(
+            $additional,
+            $request->boolean('is_visible'),
+            Auth::user(),
+        );
 
         return new SuccessResponse(
             code: $result['code'],

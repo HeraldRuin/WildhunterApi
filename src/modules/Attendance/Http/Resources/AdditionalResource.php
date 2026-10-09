@@ -19,6 +19,7 @@ class AdditionalResource extends BaseJsonResource
                 ? (float) $this->resource->price
                 : 0.0,
             'type' => $this->resource->type,
+            'is_visible' => (bool) $this->resource->is_visible,
             'is_system' => $this->resource->isSystem(),
             'can_delete' => !$this->resource->isFood(),
             'can_edit_name' => !$this->resource->isFood(),

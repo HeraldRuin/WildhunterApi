@@ -8,5 +8,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/services/system', [AdditionalController::class, 'systemIndex']);
     Route::post('/services/additionals', [AdditionalController::class, 'store']);
     Route::put('/services/additionals/{additional}', [AdditionalController::class, 'update']);
+    Route::patch('/services/additionals/{additional}/visibility', [AdditionalController::class, 'updateVisibility']);
     Route::delete('/services/additionals/{additional}', [AdditionalController::class, 'destroy']);
 });

@@ -20,6 +20,8 @@ return [
         'calculation_type_invalid' => 'Некорректный тип расчёта',
         'is_system_required' => 'Поле «системная услуга» обязательно для заполнения',
         'is_system_must_be_boolean' => 'Поле «системная услуга» должно быть булевым',
+        'is_visible_required' => 'Поле «видимость» обязательно для заполнения',
+        'is_visible_must_be_boolean' => 'Поле «видимость» должно быть булевым',
         'is_additional_required' => 'Поле «дополнительная услуга» обязательно для заполнения',
         'is_additional_must_be_boolean' => 'Поле «дополнительная услуга» должно быть булевым',
         'service_type_invalid' => 'Услуга должна быть либо системной, либо дополнительной',
@@ -29,6 +31,7 @@ return [
     'successes' => [
         'additional_saved' => 'Услуга сохранена',
         'additional_updated' => 'Услуга обновлена',
+        'additional_visibility_updated' => 'Видимость услуги обновлена',
         'additional_deleted' => 'Услуга удалена',
     ],
 ];

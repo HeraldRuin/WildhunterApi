@@ -615,6 +615,7 @@ class BookingServiceManager
         return AddetionalPrice::query()
             ->where('hotel_id', $booking->hotel_id)
             ->where('type', AddetionalPrice::FOOD)
+            ->where('is_visible', true)
             ->value('price');
     }
 
@@ -717,6 +718,7 @@ class BookingServiceManager
     {
         return AddetionalPrice::query()
             ->where('hotel_id', $booking->hotel_id)
+            ->where('is_visible', true)
             ->where('price', '>', 0)
             ->where(function ($query) {
                 $query->whereNull('type')
