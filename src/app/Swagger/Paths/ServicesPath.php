@@ -240,7 +240,7 @@ class ServicesPath
 
     #[OA\Put(
         path: "/api/" . ApiConfig::VERSION . "/services/additionals/{additional}",
-        description: "Обновляет название, количество, тип расчёта и стоимость. Для «Питание» меняется только цена.",
+        description: "Обновляет название, количество, тип расчёта и стоимость. У питания название и количество не меняются. calculation_type у питания записывается, если в теле individual или per_person; пустое значение поле не затирает.",
         summary: "Сохранить дополнительную услугу",
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(

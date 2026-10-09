@@ -77,6 +77,8 @@ class AdditionalService
             $payload['name'] = $data->name;
             $payload['count'] = $data->count;
             $payload['calculation_type'] = $data->calculationType;
+        } elseif ($data->calculationType !== null) {
+            $payload['calculation_type'] = $data->calculationType;
         }
 
         $additional->update($payload);
