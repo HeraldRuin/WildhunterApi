@@ -193,18 +193,22 @@ class BookingServicesPath
                                         ),
                                         new OA\Property(
                                             property: "food",
-                                            type: "object",
-                                            nullable: true,
-                                            required: ["price"],
-                                            properties: [
-                                                new OA\Property(
-                                                    property: "price",
-                                                    description: "Цена питания за одного человека",
-                                                    type: "number",
-                                                    nullable: true,
-                                                    example: 1500
-                                                ),
-                                            ]
+                                            description: "Типы питания базы, которые включены и имеют цену",
+                                            type: "array",
+                                            items: new OA\Items(
+                                                required: ["id", "name", "price"],
+                                                properties: [
+                                                    new OA\Property(property: "id", type: "integer", example: 3),
+                                                    new OA\Property(property: "name", type: "string", example: "Завтрак"),
+                                                    new OA\Property(
+                                                        property: "price",
+                                                        description: "Цена за одного человека",
+                                                        type: "number",
+                                                        example: 1500
+                                                    ),
+                                                ],
+                                                type: "object"
+                                            )
                                         ),
                                     ],
                                     type: "object"
@@ -534,8 +538,14 @@ class BookingServicesPath
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ["count"],
+                required: ["food_id", "count"],
                 properties: [
+                    new OA\Property(
+                        property: "food_id",
+                        description: "ID типа питания из catalogs.food",
+                        type: "integer",
+                        example: 3
+                    ),
                     new OA\Property(
                         property: "count",
                         description: "Количество человек",

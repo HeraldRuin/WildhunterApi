@@ -242,9 +242,11 @@ class BookingServiceManager
     {
         [$booking] = $this->findAuthorizedBooking($code, $user, AddetionalPrice::FOOD);
 
-        $price = $this->foodPrice($booking);
+        $food = $this->hotelFoods($booking)
+            ->whereKey($data->foodId)
+            ->first();
 
-        if ($price === null) {
+        if (!$food) {
             throw new NotFoundException(
                 errorCode: 'service_price_not_found',
                 domain: 'booking',
@@ -254,8 +256,9 @@ class BookingServiceManager
         $service = BookingService::create([
             'booking_id' => $booking->id,
             'service_type' => AddetionalPrice::FOOD,
-            'type' => 'Питание',
-            'price' => round((float) $price * $data->count, 2),
+            'service_id' => $food->id,
+            'type' => $food->name,
+            'price' => round((float) $food->price * $data->count, 2),
             'count' => $data->count,
         ]);
 
@@ -605,18 +608,35 @@ class BookingServiceManager
                 ? $this->additionalCatalog($booking)
                 : [],
             'food' => in_array(AddetionalPrice::FOOD, $allowedTypes, true)
-                ? ['price' => $this->foodPrice($booking)]
-                : null,
+                ? $this->foodCatalog($booking)
+                : [],
         ];
     }
 
-    private function foodPrice(Booking $booking): mixed
+    private function hotelFoods(Booking $booking)
     {
         return AddetionalPrice::query()
             ->where('hotel_id', $booking->hotel_id)
             ->where('type', AddetionalPrice::FOOD)
             ->where('is_visible', true)
-            ->value('price');
+            ->where('price', '>', 0);
+    }
+
+    /**
+     * @return list<array{id: int, name: string, price: mixed}>
+     */
+    private function foodCatalog(Booking $booking): array
+    {
+        return $this->hotelFoods($booking)
+            ->orderBy('id')
+            ->get()
+            ->map(fn (AddetionalPrice $item) => [
+                'id' => $item->id,
+                'name' => $item->name,
+                'price' => $item->price,
+            ])
+            ->values()
+            ->all();
     }
 
     /**

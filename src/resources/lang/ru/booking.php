@@ -170,6 +170,8 @@ return [
         'preparation_id_required' => 'Укажите разделку',
         'preparation_id_must_be_integer' => 'ID разделки должен быть числом',
         'preparation_id_not_found' => 'Разделка не найдена',
+        'food_id_required' => 'Укажите тип питания',
+        'food_id_must_be_integer' => 'ID питания должен быть числом',
         'additional_id_required' => 'Укажите дополнительную услугу',
         'additional_id_must_be_integer' => 'ID дополнительной услуги должен быть числом',
         'additional_id_not_found' => 'Дополнительная услуга не найдена',
