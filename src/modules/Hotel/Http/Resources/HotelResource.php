@@ -35,17 +35,41 @@ class HotelResource extends BaseJsonResource
 
     private function serviceTerms(Hotel $hotel): array
     {
-        if (!$hotel->relationLoaded('terms') || $hotel->terms->isEmpty()) {
+        $items = collect();
+
+        if ($hotel->relationLoaded('terms')) {
+            $items = $items->concat(
+                $hotel->terms
+                    ->reject(fn ($term) => $this->isAccommodationType($term))
+                    ->map(fn ($term) => [
+                        'id' => $term->id,
+                        'title' => $term->name,
+                    ])
+            );
+        }
+
+        if ($hotel->relationLoaded('huntingMethods')) {
+            $items = $items->concat($hotel->huntingMethods->map(fn ($method) => [
+                'id' => $method->id,
+                'title' => $method->name,
+            ]));
+        }
+
+        if ($items->isEmpty()) {
             return [];
         }
 
         return [[
             'id' => $hotel->terms->first()->attr_id ?? $hotel->id,
             'title' => 'Услуги на базе',
-            'terms' => $hotel->terms->map(fn ($term) => [
-                'id' => $term->id,
-                'title' => $term->name,
-            ])->values()->all(),
+            'terms' => $items->values()->all(),
         ]];
+    }
+
+    private function isAccommodationType($term): bool
+    {
+        $name = mb_strtolower((string) ($term->attribute->name ?? ''));
+
+        return str_contains($name, 'размещен');
     }
 }
