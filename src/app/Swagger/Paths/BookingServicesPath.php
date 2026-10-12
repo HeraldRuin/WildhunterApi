@@ -288,7 +288,12 @@ class BookingServicesPath
                                                         enum: ["individual", "per_person"]
                                                     ),
                                                     new OA\Property(property: "count", type: "integer"),
-                                                    new OA\Property(property: "price", type: "number", example: 3000),
+                                                    new OA\Property(
+                                                        property: "price",
+                                                        description: "Сумма за все сутки проживания: цена за человека × количество × дни",
+                                                        type: "number",
+                                                        example: 3000
+                                                    ),
                                                 ],
                                                 type: "object"
                                             )
@@ -594,7 +599,12 @@ class BookingServicesPath
                                     enum: ["individual", "per_person"]
                                 ),
                                 new OA\Property(property: "count", type: "integer"),
-                                new OA\Property(property: "price", type: "number", example: 3000),
+                                new OA\Property(
+                                    property: "price",
+                                    description: "Сумма за все сутки проживания: цена за человека × количество × дни",
+                                    type: "number",
+                                    example: 3000
+                                ),
                             ],
                             type: "object"
                         ),

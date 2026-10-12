@@ -55,7 +55,7 @@ class BookingServiceManager
             'booking_type' => $booking->type,
             'allowed_types' => $allowedTypes,
             'catalogs' => $this->catalogsFor($booking, $allowedTypes),
-            'items' => $this->savedItems($services),
+            'items' => $this->savedItems($booking, $services),
         ];
     }
 
@@ -270,7 +270,7 @@ class BookingServiceManager
             'type' => $service->type,
             'calculation_type' => $service->calculation_type,
             'count' => $service->count,
-            'price' => $service->price,
+            'price' => $this->foodStayPrice($booking, $service),
         ];
     }
 
@@ -807,7 +807,14 @@ class BookingServiceManager
      *     spendings: mixed
      * }
      */
-    private function savedItems(Collection $services): array
+    private function foodStayPrice(Booking $booking, BookingService $service): float
+    {
+        $days = max(1, (int) $booking->duration_days);
+
+        return round((float) $service->price * $days, 2);
+    }
+
+    private function savedItems(Booking $booking, Collection $services): array
     {
         return [
             'trophies' => $services
@@ -855,7 +862,7 @@ class BookingServiceManager
                     'type' => $service->type,
                     'calculation_type' => $service->calculation_type,
                     'count' => $service->count,
-                    'price' => $service->price,
+                    'price' => $this->foodStayPrice($booking, $service),
                 ])
                 ->all(),
             'additionals' => $services
