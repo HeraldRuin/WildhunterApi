@@ -258,6 +258,7 @@ class BookingServiceManager
             'service_type' => AddetionalPrice::FOOD,
             'service_id' => $food->id,
             'type' => $food->name,
+            'calculation_type' => $food->calculation_type,
             'price' => round((float) $food->price * $data->count, 2),
             'count' => $data->count,
         ]);
@@ -267,6 +268,7 @@ class BookingServiceManager
         return [
             'id' => $service->id,
             'type' => $service->type,
+            'calculation_type' => $service->calculation_type,
             'count' => $service->count,
             'price' => $service->price,
         ];
@@ -851,6 +853,7 @@ class BookingServiceManager
                 ->map(fn (BookingService $service) => [
                     'id' => $service->id,
                     'type' => $service->type,
+                    'calculation_type' => $service->calculation_type,
                     'count' => $service->count,
                     'price' => $service->price,
                 ])

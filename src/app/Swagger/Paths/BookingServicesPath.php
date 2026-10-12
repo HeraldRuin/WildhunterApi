@@ -277,10 +277,16 @@ class BookingServicesPath
                                             property: "foods",
                                             type: "array",
                                             items: new OA\Items(
-                                                required: ["id", "count", "price"],
+                                                required: ["id", "type", "count", "price"],
                                                 properties: [
                                                     new OA\Property(property: "id", type: "integer"),
-                                                    new OA\Property(property: "type", type: "string", example: "Питание"),
+                                                    new OA\Property(property: "type", type: "string", example: "Завтрак"),
+                                                    new OA\Property(
+                                                        property: "calculation_type",
+                                                        type: "string",
+                                                        nullable: true,
+                                                        enum: ["individual", "per_person"]
+                                                    ),
                                                     new OA\Property(property: "count", type: "integer"),
                                                     new OA\Property(property: "price", type: "number", example: 3000),
                                                 ],
@@ -577,10 +583,16 @@ class BookingServicesPath
                         new OA\Property(property: "message", type: "string", example: "Услуга добавлена"),
                         new OA\Property(
                             property: "data",
-                            required: ["id", "count", "price"],
+                            required: ["id", "type", "count", "price"],
                             properties: [
                                 new OA\Property(property: "id", type: "integer"),
-                                new OA\Property(property: "type", type: "string", example: "Питание"),
+                                new OA\Property(property: "type", type: "string", example: "Завтрак"),
+                                new OA\Property(
+                                    property: "calculation_type",
+                                    type: "string",
+                                    nullable: true,
+                                    enum: ["individual", "per_person"]
+                                ),
                                 new OA\Property(property: "count", type: "integer"),
                                 new OA\Property(property: "price", type: "number", example: 3000),
                             ],
