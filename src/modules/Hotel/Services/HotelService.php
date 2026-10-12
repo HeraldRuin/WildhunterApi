@@ -251,6 +251,7 @@ class HotelService
         $currentMonthStart = Carbon::now()->startOfMonth()->toDateString();
 
         $hotel->load([
+            'terms',
             'animals' => function ($query) use ($currentMonthStart) {
                 $query->where('bc_animals.status', 'publish')
                     ->wherePivot('status', 'available')

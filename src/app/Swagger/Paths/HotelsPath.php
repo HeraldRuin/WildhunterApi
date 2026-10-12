@@ -208,6 +208,31 @@ class HotelsPath
                                     type: "object",
                                     nullable: true
                                 ),
+                                new OA\Property(
+                                    property: "terms",
+                                    description: "Услуги конкретной базы. Пустой массив — на фронте показывается заглушка",
+                                    type: "array",
+                                    items: new OA\Items(
+                                        required: ["id", "title", "terms"],
+                                        properties: [
+                                            new OA\Property(property: "id", type: "integer", example: 1),
+                                            new OA\Property(property: "title", type: "string", example: "Услуги на базе"),
+                                            new OA\Property(
+                                                property: "terms",
+                                                type: "array",
+                                                items: new OA\Items(
+                                                    required: ["id", "title"],
+                                                    properties: [
+                                                        new OA\Property(property: "id", type: "integer", example: 10),
+                                                        new OA\Property(property: "title", type: "string", example: "Wi-Fi"),
+                                                    ],
+                                                    type: "object"
+                                                )
+                                            ),
+                                        ],
+                                        type: "object"
+                                    )
+                                ),
                             ],
                             type: "object"
                         ),

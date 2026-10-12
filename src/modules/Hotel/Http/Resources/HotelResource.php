@@ -29,6 +29,23 @@ class HotelResource extends BaseJsonResource
             'rooms' => HotelRoomResource::collection($hotel->available_rooms ?? []),
             'animals' => AnimalResource::collection($hotel->animals ?? []),
             'location' => LocationResource::make($this->resource->location),
+            'terms' => $this->serviceTerms($hotel),
         ];
+    }
+
+    private function serviceTerms(Hotel $hotel): array
+    {
+        if (!$hotel->relationLoaded('terms') || $hotel->terms->isEmpty()) {
+            return [];
+        }
+
+        return [[
+            'id' => $hotel->terms->first()->attr_id ?? $hotel->id,
+            'title' => 'Услуги на базе',
+            'terms' => $hotel->terms->map(fn ($term) => [
+                'id' => $term->id,
+                'title' => $term->name,
+            ])->values()->all(),
+        ]];
     }
 }
