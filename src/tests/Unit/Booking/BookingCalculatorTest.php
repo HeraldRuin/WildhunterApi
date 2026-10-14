@@ -246,7 +246,7 @@ class BookingCalculatorTest extends TestCase
         $open = $this->calculator->getBookingTotal($booking, $services, 3);
 
         $this->assertMoney(900, $open['prepaid_total']);
-        $this->assertMoney(6000, $open['base_total']);
+        $this->assertMoney(5100, $open['base_total']);
         $this->assertMoney(6000, $open['total']);
 
         $booking->is_paid = true;
