@@ -389,9 +389,11 @@ class BookingCalculator
             $eventTotal = $this->calculateBaseTotal($booking, $services, $huntersCount);
             $baseTotal = max(0, round($eventTotal - $prepaidTotal));
 
+            $balanceSettled = in_array($booking->status, [Booking::PAID, Booking::COMPLETED], true);
+
             return [
                 'prepaid_total' => $prepaidTotal,
-                'base_total' => $booking->is_paid ? 0 : $baseTotal,
+                'base_total' => $balanceSettled ? 0 : $baseTotal,
                 'total' => $eventTotal,
             ];
         }
