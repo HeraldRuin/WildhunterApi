@@ -250,17 +250,11 @@ class BookingCalculatorTest extends TestCase
         $this->assertMoney(6000, $open['total']);
 
         $booking->is_paid = true;
-        $confirmed = $this->calculator->getBookingTotal($booking, $services, 3);
-
-        $this->assertMoney(900, $confirmed['prepaid_total']);
-        $this->assertMoney(5100, $confirmed['base_total']);
-        $this->assertMoney(6000, $confirmed['total']);
-
         $booking->status = Booking::PAID;
         $paid = $this->calculator->getBookingTotal($booking, $services, 3);
 
         $this->assertMoney(900, $paid['prepaid_total']);
-        $this->assertSame(0, $paid['base_total']);
+        $this->assertMoney(5100, $paid['base_total']);
         $this->assertMoney(6000, $paid['total']);
     }
 

@@ -387,13 +387,10 @@ class BookingCalculator
         if ($booking->type === Booking::BookingTypeHotel || $booking->type === Booking::BookingTypeHotelAnimal) {
             $prepaidTotal = $this->basePrepaymentMade($booking);
             $eventTotal = $this->calculateBaseTotal($booking, $services, $huntersCount);
-            $baseTotal = max(0, round($eventTotal - $prepaidTotal));
-
-            $balanceSettled = in_array($booking->status, [Booking::PAID, Booking::COMPLETED], true);
 
             return [
                 'prepaid_total' => $prepaidTotal,
-                'base_total' => $balanceSettled ? 0 : $baseTotal,
+                'base_total' => max(0, round($eventTotal - $prepaidTotal)),
                 'total' => $eventTotal,
             ];
         }
