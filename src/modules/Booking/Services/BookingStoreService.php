@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Modules\Animals\Models\Animal;
 use Modules\Animals\Models\AnimalPricePeriod;
 use Modules\Booking\Dto\CreateBookingData;
+use Modules\Booking\Events\BookingHistoryUpdatedEvent;
 use Modules\Booking\Models\BookedDay;
 use Modules\Booking\Models\Booking;
 use Modules\Booking\Services\Calculation\HuntingAmountCalculator;
@@ -250,6 +251,7 @@ class BookingStoreService
 
         $this->bookingMailService->sendNewBooking($booking);
         $this->bookingNotificationService->sendNewBooking($booking);
+        $this->broadcastHistoryAdded($booking, $hotel);
 
         if (!empty($selectedRooms)) {
             RoomAvailabilityUpdatedEvent::dispatchSafely(
@@ -263,6 +265,22 @@ class BookingStoreService
         }
 
         return $booking;
+    }
+
+    private function broadcastHistoryAdded(Booking $booking, Hotel $hotel): void
+    {
+        $recipientIds = array_values(array_unique(array_filter([
+            (int) ($booking->create_user ?? $booking->customer_id),
+            (int) ($hotel->admin_base ?? 0),
+        ])));
+
+        foreach ($recipientIds as $recipientId) {
+            BookingHistoryUpdatedEvent::dispatchSafely(
+                $booking,
+                $recipientId,
+                BookingHistoryUpdatedEvent::ACTION_ADDED,
+            );
+        }
     }
 
     private function isGroupHunt(int $animalId): bool
