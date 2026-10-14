@@ -88,9 +88,6 @@ class Hotel extends Bookable
         return $this->hasOne(UserWishList::class, 'object_id', 'id')->where('object_model', $this->type)->where('user_id', Auth::id() ?? 0);
     }
 
-    /**
-     * Исключает отели с заблокированными комнатами в диапазоне дат
-     */
     public function scopeExcludeBlockedForDates(Builder $query, string $rangeStart, string $rangeEndForDays): Builder
     {
         $blockedHotelIds = DB::table('bc_hotel_rooms as r')

@@ -601,7 +601,7 @@ class AnimalsPath
 
     #[OA\Put(
         path: "/api/" . ApiConfig::VERSION . "/animals/periods/{period}",
-        description: "Обновляет даты и стоимость периода. Поле стоимости — amount (как в booking_core).",
+        description: "Обновляет даты и стоимость периода. Поле стоимости — amount.",
         summary: "Сохранить ценовой период",
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(

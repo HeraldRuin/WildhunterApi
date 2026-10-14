@@ -65,7 +65,7 @@ class RoomsPath
 
     #[OA\Get(
         path: "/api/" . ApiConfig::VERSION . "/rooms/availability",
-        description: "Аналог loadDates в booking_core. id=summary — сводный календарь, иначе ID номера. Realtime: private channel hotel.{hotel_id}.room-availability, event .room.availability.updated (создана/отменена бронь с номерами) — после события перезапросить этот endpoint.",
+        description: "id=summary — сводный календарь, иначе ID номера. Realtime: private channel hotel.{hotel_id}.room-availability, event .room.availability.updated (создана/отменена бронь с номерами) — после события перезапросить этот endpoint.",
         summary: "Календарь доступности номеров",
         security: [['bearerAuth' => []]],
         tags: ["Rooms"],
@@ -192,7 +192,7 @@ class RoomsPath
 
     #[OA\Post(
         path: "/api/" . ApiConfig::VERSION . "/rooms/{room}/availability",
-        description: "Аналог store в booking_core (модалка «Информация о дате»). Сохраняет переопределения цены, количества и доступности по дням в bc_hotel_room_dates. Диапазон разворачивается в отдельные записи на каждый день; day_of_week_select (1=пн … 7=вс) ограничивает, какие дни в диапазоне обновляются. После сохранения перезапросить GET /rooms/availability.",
+        description: "Сохраняет переопределения цены, количества и доступности по дням в bc_hotel_room_dates. Диапазон разворачивается в отдельные записи на каждый день; day_of_week_select (1=пн … 7=вс) ограничивает, какие дни в диапазоне обновляются. После сохранения перезапросить GET /rooms/availability.",
         summary: "Сохранить доступность номера по датам",
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(

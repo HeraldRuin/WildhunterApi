@@ -11,8 +11,6 @@ class LocationFilter
         $query = $payload['query'];
         $dto = $payload['dto'];
 
-        // location_id — иерархический фильтр (форма поиска), locationIds — точное совпадение (сайдбар, OR).
-        // Если переданы оба — пересечение (AND): отель должен попасть в дерево location_id и в location_ids.
         if (!empty($dto->location_id)) {
             $location = Location::query()
                 ->where('id', $dto->location_id)

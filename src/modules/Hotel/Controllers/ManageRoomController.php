@@ -23,8 +23,6 @@ class ManageRoomController extends Controller
     }
 
     /**
-     * Данные номера для формы редактирования.
-     *
      * @throws ForbiddenException
      * @throws NotFoundException
      */
@@ -38,8 +36,6 @@ class ManageRoomController extends Controller
     }
 
     /**
-     * Создать номер у отеля текущего админа базы.
-     *
      * @throws ForbiddenException
      */
     public function store(StoreRoomManageRequest $request): JsonResponse
@@ -55,8 +51,6 @@ class ManageRoomController extends Controller
     }
 
     /**
-     * Сохранить редактирование номера.
-     *
      * @throws ForbiddenException
      * @throws NotFoundException
      */
@@ -73,8 +67,6 @@ class ManageRoomController extends Controller
     }
 
     /**
-     * Опубликовать номер (status = publish).
-     *
      * @throws ForbiddenException
      * @throws NotFoundException
      */
@@ -90,8 +82,6 @@ class ManageRoomController extends Controller
     }
 
     /**
-     * Скрыть номер (status = draft).
-     *
      * @throws ForbiddenException
      * @throws NotFoundException
      */
@@ -107,8 +97,6 @@ class ManageRoomController extends Controller
     }
 
     /**
-     * Удалить номер (soft delete).
-     *
      * @throws ForbiddenException
      * @throws NotFoundException
      */

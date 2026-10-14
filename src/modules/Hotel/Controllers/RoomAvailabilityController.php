@@ -24,8 +24,6 @@ class RoomAvailabilityController extends Controller
     }
 
     /**
-     * Список номеров отеля для вкладок календаря (аналог index в booking_core).
-     *
      * @throws ForbiddenException
      */
     public function index(): JsonResponse
@@ -39,8 +37,6 @@ class RoomAvailabilityController extends Controller
     }
 
     /**
-     * Дни календаря доступности (аналог loadDates в booking_core).
-     *
      * @throws ForbiddenException
      * @throws NotFoundException
      */
@@ -53,8 +49,6 @@ class RoomAvailabilityController extends Controller
     }
 
     /**
-     * Сохранение параметров доступности по дням (аналог store в booking_core).
-     *
      * @throws ForbiddenException
      * @throws NotFoundException
      */
