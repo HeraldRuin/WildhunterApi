@@ -20,6 +20,7 @@ use Modules\Booking\Dto\StorePreparationData;
 use Modules\Booking\Dto\StoreSpendingData;
 use Modules\Booking\Dto\StoreTrophyData;
 use Modules\Booking\Events\BookingHistoryUpdatedEvent;
+use Modules\Booking\Events\BookingServicesUpdatedEvent;
 use Modules\Booking\Models\Booking;
 use Modules\Booking\Models\BookingHunterInvitation;
 use Modules\Booking\Models\BookingService;
@@ -407,6 +408,8 @@ class BookingServiceManager
                 BookingHistoryUpdatedEvent::ACTION_UPDATED,
             );
         }
+
+        BookingServicesUpdatedEvent::dispatchSafely($booking);
     }
 
     /**
