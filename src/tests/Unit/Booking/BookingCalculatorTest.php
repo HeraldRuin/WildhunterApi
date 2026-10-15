@@ -246,16 +246,16 @@ class BookingCalculatorTest extends TestCase
         $open = $this->calculator->getBookingTotal($booking, $services, 3);
 
         $this->assertMoney(900, $open['prepaid_total']);
-        $this->assertMoney(5100, $open['base_total']);
-        $this->assertMoney(6000, $open['total']);
+        $this->assertMoney(6000, $open['base_total']);
+        $this->assertMoney(6900, $open['total']);
 
         $booking->is_paid = true;
         $booking->status = Booking::PAID;
         $paid = $this->calculator->getBookingTotal($booking, $services, 3);
 
         $this->assertMoney(900, $paid['prepaid_total']);
-        $this->assertMoney(5100, $paid['base_total']);
-        $this->assertMoney(6000, $paid['total']);
+        $this->assertMoney(6000, $paid['base_total']);
+        $this->assertMoney(6900, $paid['total']);
     }
 
     public function test_history_totals_for_hunting_have_no_prepayment(): void
@@ -299,7 +299,7 @@ class BookingCalculatorTest extends TestCase
         $balance = $this->calculator->getBalanceBase($booking, $this->user(4), collect(), 2);
 
         $this->assertSame('Остаток базе', $balance['title_name']);
-        $this->assertMoney(109990, $balance['total_cost']);
+        $this->assertMoney(110000, $balance['total_cost']);
         $this->assertMoney(54995, $balance['my_cost']);
     }
 
