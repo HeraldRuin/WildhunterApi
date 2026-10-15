@@ -287,6 +287,22 @@ class BookingCalculatorTest extends TestCase
         );
     }
 
+    public function test_hunter_balance_subtracts_their_prepayment(): void
+    {
+        $booking = $this->booking([
+            'type' => Booking::BookingTypeHotelAnimal,
+            'total' => 10,
+            'amount_hunting' => 110000,
+            'total_hunting' => 2,
+        ]);
+
+        $balance = $this->calculator->getBalanceBase($booking, $this->user(4), collect(), 2);
+
+        $this->assertSame('Остаток базе', $balance['title_name']);
+        $this->assertMoney(109990, $balance['total_cost']);
+        $this->assertMoney(54995, $balance['my_cost']);
+    }
+
     public function test_confirmed_hunting_balance_stays_calculated(): void
     {
         $booking = $this->booking([

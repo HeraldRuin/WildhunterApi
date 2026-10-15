@@ -209,7 +209,11 @@ class BookingCalculationStrategyTest extends TestCase
         );
         $this->assertMoney(1000, $result['prepaid_total']);
         $this->assertMoney(4000, $result['items'][1]['total_cost']);
-        $this->assertMoney(4000, $result['base_total']);
+        $this->assertMoney(2000, $result['items'][1]['my_cost']);
+        $this->assertMoney(500, $result['all_items'][0]['my_cost']);
+        $this->assertMoney(3000, $result['all_items'][1]['total_cost']);
+        $this->assertMoney(1500, $result['all_items'][1]['my_cost']);
+        $this->assertMoney(3000, $result['base_total']);
         $this->assertMoney(4000, $result['total']);
     }
 

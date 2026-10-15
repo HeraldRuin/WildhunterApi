@@ -297,12 +297,13 @@ class BookingCalculator
     }
     public function calculateMyBaseTotal(Booking $booking, User $user, $services, int $huntersCount): float
     {
-        $myAccommodationCost = $this->getMyAccommodationCost($booking, $user);
-        $myOrganizationCost = $this->calculateMyOrganisationHunting($booking, $huntersCount);
         $result = $this->getServiceMyCount($booking, $user, $huntersCount, $services, ['trophy', 'penalty', 'food', 'preparation', 'addetional']);
-        $myPrepaymentMade = $this->myPrepaymentMade($booking->total, $huntersCount);
 
-        return ($myAccommodationCost + $myOrganizationCost + $result['total']) - $myPrepaymentMade;
+        return round(
+            $this->calculateMyOrganisationHunting($booking, $huntersCount)
+            + $result['total']
+            - $this->myPrepaymentMade($booking->total, $huntersCount)
+        );
     }
     public function calculateMyBaseTotalOnlyHunting(Booking $booking, User $user, $services, int $huntersCount): float
     {
