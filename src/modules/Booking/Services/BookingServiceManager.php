@@ -625,7 +625,7 @@ class BookingServiceManager
     }
 
     /**
-     * @return list<array{id: int, name: string, price: mixed}>
+     * @return list<array{id: int, name: string, price: mixed, calculation_type: string|null}>
      */
     private function foodCatalog(Booking $booking): array
     {
@@ -636,6 +636,7 @@ class BookingServiceManager
                 'id' => $item->id,
                 'name' => $item->name,
                 'price' => $item->price,
+                'calculation_type' => $item->calculation_type,
             ])
             ->values()
             ->all();

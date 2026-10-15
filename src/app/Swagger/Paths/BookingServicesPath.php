@@ -206,6 +206,12 @@ class BookingServicesPath
                                                         type: "number",
                                                         example: 1500
                                                     ),
+                                                    new OA\Property(
+                                                        property: "calculation_type",
+                                                        type: "string",
+                                                        nullable: true,
+                                                        enum: ["individual", "per_person"]
+                                                    ),
                                                 ],
                                                 type: "object"
                                             )
