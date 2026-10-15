@@ -4,6 +4,8 @@ namespace Modules\Booking\Services;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Models\User;
+use Modules\Booking\Events\BookingHistoryUpdatedEvent;
 use Modules\Booking\Models\Booking;
 use Modules\Booking\Models\BookingRoomPlace;
 use Modules\Booking\Events\BookingUpdatedEvent;
@@ -137,7 +139,72 @@ class BookingBedAllocatorService
             ]);
 
             BookingUpdatedEvent::dispatchSafely($booking);
+            $this->notifyHistoryUpdated($booking);
         }
+    }
+
+    private function notifyHistoryUpdated(Booking $booking): void
+    {
+        foreach ($this->historyRecipientIds($booking) as $userId) {
+            BookingHistoryUpdatedEvent::dispatchSafely(
+                $booking,
+                $userId,
+                BookingHistoryUpdatedEvent::ACTION_UPDATED,
+            );
+        }
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function historyRecipientIds(Booking $booking): array
+    {
+        $ids = [];
+
+        $customerId = (int) ($booking->create_user ?: $booking->customer_id);
+        if ($customerId > 0) {
+            $ids[] = $customerId;
+        }
+
+        if ($booking->hotel_id) {
+            $adminIds = User::query()
+                ->whereHas('hotels', static function ($query) use ($booking): void {
+                    $query->whereKey($booking->hotel_id);
+                })
+                ->pluck('id');
+
+            foreach ($adminIds as $adminId) {
+                $ids[] = (int) $adminId;
+            }
+        }
+
+        $masterId = (int) ($booking->masterHunter()->value('invited_by') ?? 0);
+        if ($masterId > 0) {
+            $ids[] = $masterId;
+        }
+
+        $hunterIds = BookingHunterInvitation::query()
+            ->whereHas('bookingHunter', static function ($query) use ($booking): void {
+                $query->where('booking_id', $booking->id);
+            })
+            ->whereNotNull('hunter_id')
+            ->where(static function ($query): void {
+                $query->whereNull('status')
+                    ->orWhereNotIn('status', [
+                        BookingHunterInvitation::STATUS_DECLINED,
+                        'removed',
+                    ]);
+            })
+            ->pluck('hunter_id');
+
+        foreach ($hunterIds as $hunterId) {
+            $ids[] = (int) $hunterId;
+        }
+
+        return array_values(array_unique(array_filter(
+            $ids,
+            static fn (int $id): bool => $id > 0,
+        )));
     }
 }
 
