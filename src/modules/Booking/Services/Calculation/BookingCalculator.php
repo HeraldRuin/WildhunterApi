@@ -360,7 +360,7 @@ class BookingCalculator
     {
         return [
             'title_name' =>  'Остаток базе',
-            'total_cost' => $this->calculateBaseTotal($booking, $services, $huntersCount),
+            'total_cost' => max(0, round($this->calculateBaseTotal($booking, $services, $huntersCount) - $this->basePrepaymentMade($booking))),
             'my_cost' => $this->calculateMyBaseTotal($booking, $user, $services, $huntersCount),
         ];
     }
