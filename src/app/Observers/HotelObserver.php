@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use Illuminate\Support\Facades\Auth;
+use Modules\Attendance\Models\AdditionalSystem;
 use Modules\Attendance\Models\AddetionalPrice;
 use Modules\Booking\Models\BookingCounter;
 
@@ -13,7 +14,9 @@ class HotelObserver
         $authUser = Auth::user();
 
         if ($authUser && $authUser->hasRole('baseadmin') && $hotel->id) {
-            foreach (['Завтрак', 'Обед', 'Ужин'] as $mealName) {
+            $mealNames = AdditionalSystem::query()->orderBy('id')->pluck('name');
+
+            foreach ($mealNames as $mealName) {
                 AddetionalPrice::query()->firstOrCreate(
                     [
                         'hotel_id' => $hotel->id,
