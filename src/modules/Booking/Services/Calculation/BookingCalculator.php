@@ -356,19 +356,19 @@ class BookingCalculator
     {
         return round($bookingTotal / $huntersCount);
     }
-    public function getBalanceBase(Booking $booking, User $user, $services, int $huntersCount, bool $isBaseAdmin): array
+    public function getBalanceBase(Booking $booking, User $user, $services, int $huntersCount): array
     {
         return [
             'title_name' =>  'Остаток базе',
-            'total_cost' => ($isBaseAdmin && $booking->is_paid)? 0: $this->calculateBaseTotal($booking, $services, $huntersCount),
+            'total_cost' => $this->calculateBaseTotal($booking, $services, $huntersCount),
             'my_cost' => $this->calculateMyBaseTotal($booking, $user, $services, $huntersCount),
         ];
     }
-    public function getBalanceBaseHunting(Booking $booking, User $user, $services, int $huntersCount, bool $isBaseAdmin): array
+    public function getBalanceBaseHunting(Booking $booking, User $user, $services, int $huntersCount): array
     {
         return [
             'title_name' =>  'Остаток базе',
-            'total_cost' => ($isBaseAdmin && $booking->is_paid)? 0 : $this->calculateBaseTotal($booking, $services, $huntersCount),
+            'total_cost' => $this->calculateBaseTotal($booking, $services, $huntersCount),
             'my_cost' => $this->calculateMyBaseTotalOnlyHunting($booking, $user, $services, $huntersCount),
         ];
     }
@@ -379,7 +379,7 @@ class BookingCalculator
         if ($booking->type === Booking::BookingTypeAnimal) {
             return [
                 'prepaid_total' => 0,
-                'base_total' => $booking->is_paid ? 0 : $this->calculateBaseTotal($booking, $services, $huntersCount),
+                'base_total' => $this->calculateBaseTotal($booking, $services, $huntersCount),
                 'total' => 0,
             ];
         }

@@ -274,7 +274,7 @@ class BookingCalculatorTest extends TestCase
 
         $booking->is_paid = true;
 
-        $this->assertSame(0, $this->calculator->getBookingTotal($booking, collect(), 3)['base_total']);
+        $this->assertMoney(6000, $this->calculator->getBookingTotal($booking, collect(), 3)['base_total']);
     }
 
     public function test_unknown_booking_type_has_empty_history_totals(): void
@@ -287,19 +287,20 @@ class BookingCalculatorTest extends TestCase
         );
     }
 
-    public function test_paid_hunting_balance_for_base_admin_is_zero(): void
+    public function test_confirmed_hunting_balance_stays_calculated(): void
     {
         $booking = $this->booking([
             'type' => Booking::BookingTypeAnimal,
             'amount_hunting' => 8000,
             'total_hunting' => 4,
             'is_paid' => true,
+            'status' => Booking::PAID,
         ]);
 
-        $balance = $this->calculator->getBalanceBaseHunting($booking, $this->user(4), collect(), 3, true);
+        $balance = $this->calculator->getBalanceBaseHunting($booking, $this->user(4), collect(), 3);
 
         $this->assertSame('Остаток базе', $balance['title_name']);
-        $this->assertSame(0, $balance['total_cost']);
+        $this->assertMoney(6000, $balance['total_cost']);
         $this->assertMoney(2000, $balance['my_cost']);
     }
 

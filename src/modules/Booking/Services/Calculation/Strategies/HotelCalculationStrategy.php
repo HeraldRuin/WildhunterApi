@@ -18,7 +18,6 @@ class HotelCalculationStrategy implements BookingCalculationStrategy
         $services = $data['services'];
         $grouped = $services->groupBy('service_type');
         $paidCount = $data['paidCount'];
-        $isBaseAdmin = $data['isBaseAdmin'];
 
         if ($data['paidCount'] <= 0) {
             return [
@@ -44,7 +43,7 @@ class HotelCalculationStrategy implements BookingCalculationStrategy
         // === Подсчёты итогов ===
         $accommodation = $this->bookingCalculator->getAccommodation($booking, $user);
         $prepaymentMade = $this->bookingCalculator->getPrepaymentMade($booking, $paidCount);
-        $balanceBase = $this->bookingCalculator->getBalanceBase($booking, $user, $services, $paidCount, $isBaseAdmin);
+        $balanceBase = $this->bookingCalculator->getBalanceBase($booking, $user, $services, $paidCount);
         $paymentDisplayData = $this->bookingCalculator->getBookingTotal($booking, $services, $paidCount);
 
         // === Формируем итоговые массивы ===
