@@ -212,6 +212,13 @@ class BookingServicesPath
                                                         nullable: true,
                                                         enum: ["individual", "per_person"]
                                                     ),
+                                                    new OA\Property(
+                                                        property: "unit_price",
+                                                        description: "Цена на человека за всё проживание. Для типа «На всех» общая сумма делится на число людей в охоте.",
+                                                        type: "number",
+                                                        nullable: true,
+                                                        example: 5000
+                                                    ),
                                                 ],
                                                 type: "object"
                                             )

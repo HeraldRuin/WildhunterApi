@@ -265,12 +265,15 @@ class BookingServiceManager
 
         $this->notifyHistoryUpdated($booking, $user);
 
+        $price = $this->foodStayPrice($booking, $service);
+
         return [
             'id' => $service->id,
             'type' => $service->type,
             'calculation_type' => $service->calculation_type,
             'count' => $service->count,
-            'price' => $this->foodStayPrice($booking, $service),
+            'price' => $price,
+            'unit_price' => $this->foodUnitPrice($booking, $price, $service->calculation_type),
         ];
     }
 
@@ -625,7 +628,7 @@ class BookingServiceManager
     }
 
     /**
-     * @return list<array{id: int, name: string, price: mixed, calculation_type: string|null}>
+     * @return list<array{id: int, name: string, price: mixed, calculation_type: string|null, unit_price: float|null}>
      */
     private function foodCatalog(Booking $booking): array
     {
@@ -637,6 +640,11 @@ class BookingServiceManager
                 'name' => $item->name,
                 'price' => $item->price,
                 'calculation_type' => $item->calculation_type,
+                'unit_price' => $this->foodUnitPrice(
+                    $booking,
+                    round((float) $item->price * max(1, (int) $booking->duration_days), 2),
+                    $item->calculation_type,
+                ),
             ])
             ->values()
             ->all();
@@ -815,6 +823,21 @@ class BookingServiceManager
         return round((float) $service->price * $days, 2);
     }
 
+    /**
+     * Для «На всех» цена на человека — общая сумма, делённая на число людей в охоте.
+     * Для проживания без охоты берётся число гостей.
+     */
+    private function foodUnitPrice(Booking $booking, float $stayTotal, ?string $calculationType): ?float
+    {
+        if ($calculationType !== AddetionalPrice::PERSON) {
+            return null;
+        }
+
+        $people = max(1, $booking->getNeededHuntersCount());
+
+        return round($stayTotal / $people, 2);
+    }
+
     private function savedItems(Booking $booking, Collection $services): array
     {
         return [
@@ -858,13 +881,18 @@ class BookingServiceManager
             'foods' => $services
                 ->where('service_type', AddetionalPrice::FOOD)
                 ->values()
-                ->map(fn (BookingService $service) => [
-                    'id' => $service->id,
-                    'type' => $service->type,
-                    'calculation_type' => $service->calculation_type,
-                    'count' => $service->count,
-                    'price' => $this->foodStayPrice($booking, $service),
-                ])
+                ->map(function (BookingService $service) use ($booking) {
+                    $price = $this->foodStayPrice($booking, $service);
+
+                    return [
+                        'id' => $service->id,
+                        'type' => $service->type,
+                        'calculation_type' => $service->calculation_type,
+                        'count' => $service->count,
+                        'price' => $price,
+                        'unit_price' => $this->foodUnitPrice($booking, $price, $service->calculation_type),
+                    ];
+                })
                 ->all(),
             'additionals' => $services
                 ->where('service_type', AddetionalPrice::ADDETIONAL)
