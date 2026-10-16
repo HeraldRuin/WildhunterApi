@@ -238,6 +238,7 @@ class BookingServiceManager
      * @throws ConflictException
      * @throws ForbiddenException
      * @throws NotFoundException
+     * @throws ValidationException
      */
     public function createFood(string $code, StoreFoodData $data, User $user): array
     {
@@ -254,6 +255,19 @@ class BookingServiceManager
             );
         }
 
+        $hunterId = null;
+        if ($food->calculation_type === AddetionalPrice::INDIVIDUAL) {
+            if (!$data->hunterId) {
+                throw new ValidationException(
+                    message: __('booking.validation.hunter_id_required'),
+                    errorCode: 'hunter_id_required',
+                    domain: 'booking',
+                );
+            }
+            $this->assertHunterInBooking($booking, $data->hunterId);
+            $hunterId = $data->hunterId;
+        }
+
         $service = BookingService::create([
             'booking_id' => $booking->id,
             'service_type' => AddetionalPrice::FOOD,
@@ -262,7 +276,8 @@ class BookingServiceManager
             'calculation_type' => $food->calculation_type,
             'price' => round((float) $food->price * $data->count, 2),
             'count' => $data->count,
-        ]);
+            'hunter_id' => $hunterId,
+        ])->load('hunter');
 
         $this->notifyHistoryUpdated($booking, $user);
 
@@ -273,6 +288,8 @@ class BookingServiceManager
             'type' => $service->type,
             'calculation_type' => $service->calculation_type,
             'count' => $service->count,
+            'hunter_id' => $service->hunter_id,
+            'hunter_name' => $this->hunterName($service->hunter),
             'price' => $price,
             'unit_price' => $this->foodUnitPrice($booking, $price, $service->calculation_type),
         ];
@@ -892,6 +909,8 @@ class BookingServiceManager
                         'type' => $service->type,
                         'calculation_type' => $service->calculation_type,
                         'count' => $service->count,
+                        'hunter_id' => $service->hunter_id,
+                        'hunter_name' => $this->hunterName($service->hunter),
                         'price' => $price,
                         'unit_price' => $this->foodUnitPrice($booking, $price, $service->calculation_type),
                     ];

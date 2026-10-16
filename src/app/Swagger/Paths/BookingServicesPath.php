@@ -301,6 +301,8 @@ class BookingServicesPath
                                                         enum: ["individual", "per_person"]
                                                     ),
                                                     new OA\Property(property: "count", type: "integer"),
+                                                    new OA\Property(property: "hunter_id", type: "integer", nullable: true),
+                                                    new OA\Property(property: "hunter_name", type: "string"),
                                                     new OA\Property(
                                                         property: "price",
                                                         description: "Сумма за все сутки проживания: цена за человека × количество × дни",
@@ -556,7 +558,7 @@ class BookingServicesPath
 
     #[OA\Post(
         path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/services/foods",
-        description: "Админ базы и мастер-охотник.",
+        description: "Админ базы и мастер-охотник. Для calculation_type=individual обязателен hunter_id; для per_person охотник не нужен.",
         summary: "Добавить питание",
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
@@ -575,6 +577,13 @@ class BookingServicesPath
                         description: "Количество человек",
                         type: "integer",
                         example: 2
+                    ),
+                    new OA\Property(
+                        property: "hunter_id",
+                        description: "Обязателен, если calculation_type питания — individual",
+                        type: "integer",
+                        example: 12,
+                        nullable: true
                     ),
                 ],
                 type: "object"
@@ -612,6 +621,8 @@ class BookingServicesPath
                                     enum: ["individual", "per_person"]
                                 ),
                                 new OA\Property(property: "count", type: "integer"),
+                                new OA\Property(property: "hunter_id", type: "integer", nullable: true),
+                                new OA\Property(property: "hunter_name", type: "string"),
                                 new OA\Property(
                                     property: "price",
                                     description: "Сумма за все сутки проживания: цена за человека × количество × дни",

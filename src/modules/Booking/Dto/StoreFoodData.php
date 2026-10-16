@@ -9,6 +9,7 @@ class StoreFoodData
     public function __construct(
         public int $foodId,
         public int $count,
+        public ?int $hunterId,
     ) {}
 
     public static function fromRequest(StoreFoodRequest $request): self
@@ -18,6 +19,7 @@ class StoreFoodData
         return new self(
             foodId: (int) $data['food_id'],
             count: (int) $data['count'],
+            hunterId: isset($data['hunter_id']) ? (int) $data['hunter_id'] : null,
         );
     }
 }
