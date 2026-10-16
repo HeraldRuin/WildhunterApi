@@ -52,6 +52,7 @@ class BookingCalculatorTest extends TestCase
             collect([$this->service(AddetionalPrice::FOOD, 400, ['type' => 'Завтрак'])]),
             0,
             $this->booking(),
+            $this->user(1),
         );
 
         $this->assertSame('Завтрак', $meals[0]['name']);
@@ -65,10 +66,44 @@ class BookingCalculatorTest extends TestCase
             collect([$this->service(AddetionalPrice::FOOD, 100)]),
             3,
             $this->booking(end: '2026-10-06'),
+            $this->user(1),
         );
 
         $this->assertMoney(100, $meals[0]['total_cost']);
         $this->assertMoney(33, $meals[0]['my_cost']);
+    }
+
+    public function test_individual_meals_of_the_same_name_are_one_line_and_charged_to_their_hunter(): void
+    {
+        $mine = $this->service(AddetionalPrice::FOOD, 1500, [
+            'type' => 'Обед',
+            'calculation_type' => AddetionalPrice::INDIVIDUAL,
+            'hunter_id' => 4,
+        ]);
+        $theirs = $this->service(AddetionalPrice::FOOD, 1500, [
+            'type' => 'Обед',
+            'calculation_type' => AddetionalPrice::INDIVIDUAL,
+            'hunter_id' => 9,
+        ]);
+        $booking = $this->booking(end: '2026-10-06');
+        $user = $this->user(4);
+
+        $meals = $this->calculator->calculateMeals(collect([$mine, $theirs]), 2, $booking, $user);
+
+        $this->assertCount(1, $meals);
+        $this->assertSame('Обед', $meals[0]['name']);
+        $this->assertMoney(3000, $meals[0]['total_cost']);
+        $this->assertMoney(1500, $meals[0]['my_cost']);
+
+        $totals = $this->calculator->getServiceMyCount(
+            $booking,
+            $user,
+            2,
+            collect([$mine, $theirs]),
+            [AddetionalPrice::FOOD],
+        );
+
+        $this->assertMoney(1500, $totals['food']);
     }
 
     public function test_trophies_and_preparations_are_not_split_when_there_are_no_hunters(): void

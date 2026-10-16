@@ -56,8 +56,13 @@ class BookingCalculator
             $sum = $items->sum(function ($item) use ($booking, $type, $user, $huntersCount) {
 
                 if ($type === AddetionalPrice::FOOD) {
+                    $line = $item->price * max(1, (int) $booking->duration_days);
 
-                    return $item->price * max(1, $booking->duration_days) / $huntersCount;
+                    if ($item->calculation_type === AddetionalPrice::INDIVIDUAL) {
+                        return (int) $item->hunter_id === (int) $user->id ? $line : 0;
+                    }
+
+                    return $huntersCount > 0 ? $line / $huntersCount : 0;
                 }
                 if ($type === AddetionalPrice::ADDETIONAL) {
 
@@ -154,23 +159,39 @@ class BookingCalculator
         return $result;
     }
 
-    public function calculateMeals(Collection $meals, int $huntersCount, Booking $booking): array
+    public function calculateMeals(Collection $meals, int $huntersCount, Booking $booking, User $user): array
     {
         $result = [];
 
-        foreach ($meals as $food) {
-            $totalCost = round(
-                $food->price * $booking->duration_days
-            );
+        $grouped = $meals->groupBy(
+            fn ($food) => ($food->type ?? '') . '|' . ($food->calculation_type ?? ''),
+        );
+
+        foreach ($grouped as $items) {
+            $first = $items->first();
+            $totalCost = round($items->sum(fn ($food) => $this->foodLineTotal($booking, $food)));
+
+            if ($first->calculation_type === AddetionalPrice::INDIVIDUAL) {
+                $myCost = round($items
+                    ->filter(fn ($food) => (int) $food->hunter_id === (int) $user->id)
+                    ->sum(fn ($food) => $this->foodLineTotal($booking, $food)));
+            } else {
+                $myCost = $huntersCount > 0 ? round($totalCost / $huntersCount) : 0;
+            }
 
             $result[] = [
-                'name' => $food->type,
+                'name' => $first->type,
                 'total_cost' => $totalCost,
-                'my_cost' => $huntersCount > 0 ? round($totalCost / $huntersCount): 0,
+                'my_cost' => $myCost,
             ];
         }
 
         return $result;
+    }
+
+    private function foodLineTotal(Booking $booking, $food): float
+    {
+        return (float) $food->price * max(1, (int) $booking->duration_days);
     }
     public function calculatePenalties(Collection $penalties, User $user): array
     {

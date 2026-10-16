@@ -36,7 +36,7 @@ class HotelHuntingCalculationStrategy implements BookingCalculationStrategy
         $addetionals = $this->bookingCalculator->calculateAdditional(collect($grouped['addetional'] ?? []), $user, $paidCount);
 
         // === Питание ===
-        $meals = $this->bookingCalculator->calculateMeals(collect($grouped['food'] ?? []), $paidCount, $booking);
+        $meals = $this->bookingCalculator->calculateMeals(collect($grouped['food'] ?? []), $paidCount, $booking, $user);
 
         // === Разделка ===
         $preparations = $this->bookingCalculator->calculatePreparations(collect($grouped['preparation'] ?? []), $paidCount);
