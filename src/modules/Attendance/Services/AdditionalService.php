@@ -47,6 +47,8 @@ class AdditionalService
         $additional = AddetionalPrice::create([
             'name' => $data->name,
             'price' => $data->price,
+            'count' => $data->count,
+            'calculation_type' => $data->calculationType,
             'hotel_id' => $hotel->id,
             'user_id' => $user->id,
             'is_system' => $data->isSystem,

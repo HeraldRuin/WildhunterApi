@@ -170,10 +170,18 @@ class ServicesPath
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ["name", "price"],
+                required: ["name", "price", "count", "calculation_type", "is_system"],
                 properties: [
-                    new OA\Property(property: "name", type: "string", example: "Администратор отеля", maxLength: 255),
-                    new OA\Property(property: "price", type: "number", format: "float", example: 0, minimum: 0),
+                    new OA\Property(property: "name", type: "string", example: "Батут", maxLength: 255),
+                    new OA\Property(property: "count", type: "integer", example: 1, minimum: 0),
+                    new OA\Property(
+                        property: "calculation_type",
+                        type: "string",
+                        example: "individual",
+                        enum: ["individual", "per_person"]
+                    ),
+                    new OA\Property(property: "price", type: "number", format: "float", example: 1500, minimum: 0),
+                    new OA\Property(property: "is_system", type: "boolean", example: false),
                 ]
             )
         ),
@@ -204,9 +212,9 @@ class ServicesPath
                                     ],
                                     properties: [
                                         new OA\Property(property: "id", type: "integer", example: 12),
-                                        new OA\Property(property: "name", type: "string", example: "Администратор отеля"),
-                                        new OA\Property(property: "count", type: "integer", example: null, nullable: true),
-                                        new OA\Property(property: "calculation_type", type: "string", example: null, nullable: true),
+                                        new OA\Property(property: "name", type: "string", example: "Батут"),
+                                        new OA\Property(property: "count", type: "integer", example: 1, nullable: true),
+                                        new OA\Property(property: "calculation_type", type: "string", example: "individual", nullable: true, enum: ["individual", "per_person"]),
                                         new OA\Property(property: "price", type: "number", format: "float", example: 0),
                                         new OA\Property(property: "can_delete", type: "boolean", example: true),
                                         new OA\Property(property: "can_edit_name", type: "boolean", example: true),
