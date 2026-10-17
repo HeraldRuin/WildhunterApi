@@ -240,12 +240,14 @@ class UserService
             'phone' => $dto->phone,
             'city' => $dto->city,
             'address' => $dto->address,
-            'birthday' => date("Y-m-d", strtotime($dto->birthday)),
             'hunter_billet_number' => $dto->hunter_billet_number,
             'identity_document' => $dto->identity_document,
         ], fn($v) => $v !== null);
 
         $profileData['patronymic'] = $dto->patronymic;
+        $profileData['birthday'] = filled($dto->birthday)
+            ? date('Y-m-d', strtotime($dto->birthday))
+            : null;
 
         $user->fill($profileData);
 
