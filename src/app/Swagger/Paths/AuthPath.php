@@ -86,8 +86,7 @@ class AuthPath
             required: true,
             content: new OA\JsonContent(
                 required: [
-                    "first_name",
-                    "last_name",
+                    "base_name",
                     "email",
                     "password",
                     "phone",
@@ -95,8 +94,9 @@ class AuthPath
                     "term"
                 ],
                 properties: [
-                    new OA\Property(property: "first_name", type: "string", example: "John"),
-                    new OA\Property(property: "last_name", type: "string", example: "Doe"),
+                    new OA\Property(property: "first_name", type: "string", example: "John", nullable: true),
+                    new OA\Property(property: "last_name", type: "string", example: "Doe", nullable: true),
+                    new OA\Property(property: "base_name", type: "string", example: "Охотбаза Север"),
                     new OA\Property(property: "email", type: "string", format: "email", example: "test@test.com"),
                     new OA\Property(property: "password", type: "string", format: "password", example: "Secret123"),
                     new OA\Property(property: "phone", type: "string", example: "+7 (996) 579-72-42"),

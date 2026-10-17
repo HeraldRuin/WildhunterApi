@@ -5,6 +5,7 @@ namespace Tests\Feature\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Modules\Role\Models\Role;
 use Tests\Support\PreparesAuthDatabase;
 use Tests\TestCase;
 
@@ -105,6 +106,39 @@ class AuthServiceTest extends TestCase
         ]);
     }
 
+    public function test_register_creates_draft_hotel_from_base_name(): void
+    {
+        Http::fake([
+            'api.pwnedpasswords.com/*' => Http::response('', 200),
+        ]);
+
+        Role::query()->create([
+            'name' => 'Администратор базы',
+            'code' => 'baseadmin',
+        ]);
+
+        $response = $this->postJson('/api/v1/register', [
+            'role' => 'baseadmin',
+            'base_name' => 'Охотбаза Север',
+            'phone' => '+79990001122',
+            'email' => 'admin@example.com',
+            'password' => 'Secret123',
+            'term' => true,
+        ]);
+
+        $response->assertOk();
+
+        $userId = User::query()->where('email', 'admin@example.com')->value('id');
+
+        $this->assertDatabaseHas('bc_hotels', [
+            'title' => 'Охотбаза Север',
+            'status' => 'draft',
+            'admin_base' => $userId,
+            'author_id' => $userId,
+            'create_user' => $userId,
+        ]);
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -113,6 +147,7 @@ class AuthServiceTest extends TestCase
         return [
             'first_name' => 'Иван',
             'last_name' => 'Петров',
+            'base_name' => 'Охотбаза Север',
             'role' => 'hunter',
             'phone' => '+79990001122',
             'email' => 'ivan@example.com',

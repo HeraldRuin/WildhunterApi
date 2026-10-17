@@ -26,14 +26,14 @@ class RegisterRequestTest extends TestCase
             ->assertUnprocessable()
             ->assertJsonPath('error_code', 'validation_error')
             ->assertJsonValidationErrors([
-                'first_name',
-                'last_name',
+                'base_name',
                 'role',
                 'phone',
                 'email',
                 'password',
                 'term',
-            ]);
+            ])
+            ->assertJsonMissingValidationErrors(['first_name', 'last_name']);
     }
 
     public function test_register_rejects_unknown_role(): void
@@ -140,6 +140,7 @@ class RegisterRequestTest extends TestCase
         return array_merge([
             'first_name' => 'Иван',
             'last_name' => 'Петров',
+            'base_name' => 'Охотбаза Север',
             'role' => 'hunter',
             'phone' => '+79990001122',
             'email' => 'ivan@example.com',

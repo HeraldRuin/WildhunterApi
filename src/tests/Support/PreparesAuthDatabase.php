@@ -78,6 +78,11 @@ trait PreparesAuthDatabase
             $table->string('slug');
             $table->string('title')->nullable();
             $table->string('status')->nullable();
+            $table->unsignedBigInteger('admin_base')->nullable();
+            $table->unsignedBigInteger('author_id')->nullable();
+            $table->unsignedBigInteger('create_user')->nullable();
+            $table->softDeletes();
+            $table->timestamps();
         });
 
         Schema::create('bc_hotel_rooms', function (Blueprint $table) {
