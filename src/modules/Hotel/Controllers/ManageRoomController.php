@@ -70,6 +70,21 @@ class ManageRoomController extends Controller
      * @throws ForbiddenException
      * @throws NotFoundException
      */
+    public function copy(HotelRoom $room): JsonResponse
+    {
+        $result = $this->manageRoomService->copy($room, Auth::user());
+
+        return new SuccessResponse(
+            code: $result['code'],
+            domain: 'hotel',
+            data: new RoomManageEditResource($result['data']),
+        );
+    }
+
+    /**
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     */
     public function publish(HotelRoom $room): JsonResponse
     {
         $result = $this->manageRoomService->publish($room, Auth::user());

@@ -24,6 +24,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/rooms', [ManageRoomController::class, 'store']);
     Route::get('/rooms/{room}', [ManageRoomController::class, 'show'])->whereNumber('room');
     Route::put('/rooms/{room}', [ManageRoomController::class, 'update'])->whereNumber('room');
+    Route::post('/rooms/{room}/copy', [ManageRoomController::class, 'copy'])->whereNumber('room');
     Route::post('/rooms/{room}/publish', [ManageRoomController::class, 'publish'])->whereNumber('room');
     Route::post('/rooms/{room}/hide', [ManageRoomController::class, 'hide'])->whereNumber('room');
     Route::delete('/rooms/{room}', [ManageRoomController::class, 'destroy'])->whereNumber('room');

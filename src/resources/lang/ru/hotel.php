@@ -146,6 +146,7 @@ return [
         'hotel_updated' => 'Данные сохранены',
         'hotel_created' => 'База создана',
         'room_created' => 'Номер создан',
+        'room_copied' => 'Номер скопирован',
         'room_updated' => 'Данные номера сохранены',
         'room_published' => 'Номер опубликован',
         'room_hidden' => 'Номер скрыт',

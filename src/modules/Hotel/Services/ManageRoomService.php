@@ -106,6 +106,45 @@ class ManageRoomService
     }
 
     /**
+     * Копия полей номера, удобств и ссылок на фото. Календарь и брони не копируются.
+     * Копия всегда черновик.
+     *
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     */
+    public function copy(HotelRoom $room, User $user): array
+    {
+        $hotel = $this->resolveHotel($user);
+        $this->assertRoomBelongsToHotel($room, $hotel);
+
+        $copy = DB::transaction(function () use ($room, $user) {
+            $room->load('terms');
+
+            $copy = $room->replicate([
+                'created_at',
+                'updated_at',
+                'deleted_at',
+            ]);
+            $copy->status = 'draft';
+            $copy->title = $this->copyTitle($room->title);
+            $copy->create_user = $user->id;
+            $copy->update_user = null;
+            $copy->save();
+
+            $copy->terms()->sync($room->terms->pluck('id')->all());
+
+            return $copy;
+        });
+
+        $copy->load('terms');
+
+        return [
+            'code' => 'room_copied',
+            'data' => $copy,
+        ];
+    }
+
+    /**
      * @throws ForbiddenException
      * @throws NotFoundException
      */
@@ -189,6 +228,24 @@ class ManageRoomService
         }
 
         return $hotel;
+    }
+
+    private function copyTitle(?string $title): ?string
+    {
+        $title = trim((string) $title);
+
+        if ($title === '') {
+            return null;
+        }
+
+        $suffix = ' (копия)';
+        $max = 255;
+
+        if (mb_strlen($title . $suffix) <= $max) {
+            return $title . $suffix;
+        }
+
+        return mb_substr($title, 0, $max - mb_strlen($suffix)) . $suffix;
     }
 
     /**

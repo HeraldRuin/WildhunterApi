@@ -852,6 +852,57 @@ class RoomsPath
     }
 
     #[OA\Post(
+        path: "/api/" . ApiConfig::VERSION . "/rooms/{room}/copy",
+        description: "Доступно админу базы. Копирует номер своего отеля: поля, удобства, обложку и галерею (те же файлы media_files). Календарь доступности и брони не копируются. Копия создаётся со статусом draft, к названию добавляется « (копия)».",
+        summary: "Скопировать номер",
+        security: [['bearerAuth' => []]],
+        tags: ["Rooms"],
+        parameters: [
+            new OA\Parameter(
+                name: "room",
+                description: "ID номера",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(type: "integer", example: 12)
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Номер скопирован",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: "Номер скопирован"),
+                        new OA\Property(
+                            property: "data",
+                            description: "Те же поля, что у GET /rooms/{room}. id — новый номер.",
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(
+                ref: "#/components/responses/AuthResponse",
+                response: 401
+            ),
+            new OA\Response(
+                response: 403,
+                description: "Нет прав baseAdmin или у пользователя нет отеля"
+            ),
+            new OA\Response(
+                ref: "#/components/responses/NotFoundResponse",
+                response: 404
+            ),
+        ]
+    )]
+    public function copy(): void
+    {
+    }
+
+    #[OA\Post(
         path: "/api/" . ApiConfig::VERSION . "/rooms/{room}/publish",
         description: "Доступно админу базы. Аналог кнопки «Опубликовать»: status = publish. Номер становится видимым в поиске и на карточке отеля.",
         summary: "Опубликовать номер",
