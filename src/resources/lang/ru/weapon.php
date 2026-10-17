@@ -32,6 +32,10 @@ return [
         'hunter_license_number_required' => 'Лицензия обязательна',
         'hunter_license_number_string' => 'Номер лицензии должен быть строкой',
 
+        'hunter_license_series_required' => 'Серия лицензии обязательна',
+        'hunter_license_series_string' => 'Серия лицензии должна быть строкой',
+        'hunter_license_series_max' => 'Серия лицензии не должна превышать 255 символов',
+
         'hunter_license_date_required' => 'Дата лицензии обязательна',
         'hunter_license_date_invalid' => 'Неверная дата лицензии',
 

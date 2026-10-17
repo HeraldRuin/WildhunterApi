@@ -11,6 +11,7 @@ class UserWeaponResource extends BaseJsonResource
         return [
             'id' => $this->resource->id,
             'hunter_license_number' => $this->resource->hunter_license_number,
+            'hunter_license_series' => $this->resource->hunter_license_series,
             'hunter_license_date' => $this->resource->hunter_license_date?->translatedFormat('d F Y г.'),
             'weapon_type' => $this->resource->type?->title,
             'weapon_type_id' => $this->resource->weapon_type_id,

@@ -37,6 +37,7 @@ class WeaponService
             UserWeapon::create([
                 'user_id' => $userId,
                 'hunter_license_number' => $dto->hunter_license_number,
+                'hunter_license_series' => $dto->hunter_license_series,
                 'hunter_license_date' => $dto->hunter_license_date,
                 'weapon_type_id' => $dto->weapon_type_id,
                 'caliber_id' => $dto->caliber_id,
@@ -69,6 +70,7 @@ class WeaponService
 
             $weapon->update([
                 'hunter_license_number' => $dto->hunter_license_number,
+                'hunter_license_series' => $dto->hunter_license_series,
                 'hunter_license_date' => $dto->hunter_license_date,
                 'weapon_type_id' => $dto->weapon_type_id,
                 'caliber_id' => $dto->caliber_id,

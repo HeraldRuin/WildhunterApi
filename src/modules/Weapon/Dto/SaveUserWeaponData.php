@@ -14,6 +14,7 @@ class SaveUserWeaponData
         public ?Carbon $hunter_billet_issue_date,
         public ?string $identity_document,
         public ?string $hunter_license_number,
+        public ?string $hunter_license_series,
         public ?Carbon $hunter_license_date,
         public ?int $weapon_type_id,
         public ?int $caliber_id,
@@ -32,6 +33,7 @@ class SaveUserWeaponData
                 : null,
             identity_document: $data['identity_document'] ?? null,
             hunter_license_number: $data['hunter_license_number'] ?? null,
+            hunter_license_series: $data['hunter_license_series'] ?? null,
             hunter_license_date: isset($data['hunter_license_date'])
                 ? Carbon::parse($data['hunter_license_date'])
                 : null,
@@ -52,6 +54,7 @@ class SaveUserWeaponData
     public function hasWeaponData(): bool
     {
         return $this->hunter_license_number !== null
+            && $this->hunter_license_series !== null
             && $this->hunter_license_date !== null
             && $this->weapon_type_id !== null
             && $this->caliber_id !== null;

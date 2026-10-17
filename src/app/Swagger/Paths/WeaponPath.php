@@ -129,6 +129,7 @@ class WeaponPath
                                         required: [
                                             "id",
                                             "hunter_license_number",
+                                            "hunter_license_series",
                                             "hunter_license_date",
                                             "weapon_type",
                                             "weapon_type_id",
@@ -138,6 +139,7 @@ class WeaponPath
                                         properties: [
                                             new OA\Property(property: "id", type: "integer"),
                                             new OA\Property(property: "hunter_license_number", type: "string", nullable: true),
+                                            new OA\Property(property: "hunter_license_series", type: "string", nullable: true),
                                             new OA\Property(property: "hunter_license_date", type: "string", nullable: true),
                                             new OA\Property(property: "weapon_type", type: "string", nullable: true),
                                             new OA\Property(property: "weapon_type_id", type: "integer", nullable: true),
@@ -211,6 +213,13 @@ class WeaponPath
                         property: "hunter_license_number",
                         type: "string",
                         example: "7891011",
+                        nullable: true
+                    ),
+                    new OA\Property(
+                        property: "hunter_license_series",
+                        description: "Серия лицензии",
+                        type: "string",
+                        example: "GF",
                         nullable: true
                     ),
                     new OA\Property(
@@ -307,6 +316,13 @@ class WeaponPath
                         property: "hunter_license_number",
                         type: "string",
                         example: "7891011",
+                        nullable: true
+                    ),
+                    new OA\Property(
+                        property: "hunter_license_series",
+                        description: "Серия лицензии",
+                        type: "string",
+                        example: "GF",
                         nullable: true
                     ),
                     new OA\Property(

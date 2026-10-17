@@ -16,6 +16,7 @@ class UserWeapon extends Model
         'user_id',
         'hunter_billet_number',
         'hunter_license_number',
+        'hunter_license_series',
         'hunter_license_date',
         'weapon_type_id',
         'caliber_id',
