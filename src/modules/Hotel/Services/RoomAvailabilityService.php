@@ -291,26 +291,23 @@ class RoomAvailabilityService
                 ->get()
                 ->keyBy(fn ($row) => date('Y-m-d', strtotime($row->start_date)));
 
+            $roomBookings = $room->getBookingsInRange($data->start, $data->end);
+
             foreach ($period as $dt) {
                 $dateKey = $dt->format('Y-m-d');
                 $day = &$allDates[$dateKey];
                 $price = $room->price;
-                $number = $room->number;
+                $number = (int) $room->number;
+                $active = true;
 
                 if (isset($customDates[$dateKey])) {
                     $row = $customDates[$dateKey];
                     $price = $row->price ?: $price;
                     $number = $row->number !== null ? (int) $row->number : $number;
+                    $active = (int) $row->active === 1;
                 }
 
-                $day['number'] += $number;
-                $day['extendedProps']['max_number'] += $room->number;
-                $day['price'] = $day['price'] ?: $price;
-
-                $priceHtml = $data->forSingle ? format_money($day['price']) : format_money_main($day['price']);
-                $day['title'] = $priceHtml . ' x ' . $day['number'];
-
-                $roomBookings = $room->getBookingsInRange($data->start, $data->end);
+                $occupied = 0;
                 foreach ($roomBookings as $rb) {
                     $booking = Booking::find($rb->booking_id);
                     if (!$booking) {
@@ -332,9 +329,17 @@ class RoomAvailabilityService
                         ];
                         if ($isCheckout) {
                             $day['is_checkout_day'] = true;
+                        } else {
+                            $occupied += (int) ($rb->number ?? 0);
                         }
                     }
                 }
+
+                $free = $active ? max($number - $occupied, 0) : 0;
+                $day['number'] += $free;
+                $day['extendedProps']['max_number'] += (int) $room->number;
+                $day['price'] = $day['price'] ?: $price;
+                $day['title'] = (string) $day['number'];
             }
             unset($day);
         }
