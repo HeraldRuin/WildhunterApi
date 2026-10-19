@@ -107,6 +107,17 @@ class HotelService
      */
     private function resolveListHotelSettings(HotelFilterData $dto): array
     {
+        if ($dto->all) {
+            return [
+                'is_featured' => false,
+                'custom_ids' => [],
+                'location_id' => $dto->location_id,
+                'limit' => null,
+                'order_by' => $dto->order_by,
+                'order_direction' => $dto->order_direction ?? 'desc',
+            ];
+        }
+
         $settings = [
             'is_featured' => true,
             'custom_ids' => [],

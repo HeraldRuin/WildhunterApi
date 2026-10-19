@@ -16,6 +16,7 @@ class HotelFilterData
         public ?bool $is_featured = null,
         public ?array $custom_ids = null,
         public ?int $location_id = null,
+        public bool $all = false,
     ) {}
 
     public static function fromRequest(Request $request): self
@@ -39,6 +40,7 @@ class HotelFilterData
             is_featured: $isFeatured,
             custom_ids: $customIds,
             location_id: isset($data['location_id']) ? (int) $data['location_id'] : null,
+            all: filter_var($data['all'] ?? false, FILTER_VALIDATE_BOOLEAN),
         );
     }
 }

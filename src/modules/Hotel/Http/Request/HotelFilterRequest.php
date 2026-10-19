@@ -21,6 +21,7 @@ class HotelFilterRequest extends FormRequest
             'custom_ids' => ['nullable', 'array'],
             'custom_ids.*' => ['integer', 'min:1'],
             'location_id' => ['nullable', 'integer', 'min:1'],
+            'all' => ['nullable', 'boolean'],
         ];
     }
 
@@ -51,6 +52,15 @@ class HotelFilterRequest extends FormRequest
         if ($this->has('custom_ids') && is_string($this->input('custom_ids'))) {
             $ids = array_filter(array_map('trim', explode(',', $this->input('custom_ids'))));
             $this->merge(['custom_ids' => $ids]);
+        }
+
+        if ($this->has('all') && is_string($this->input('all'))) {
+            $value = strtolower($this->input('all'));
+            if (in_array($value, ['1', 'true', 'on', 'yes'], true)) {
+                $this->merge(['all' => true]);
+            } elseif (in_array($value, ['0', 'false', 'off', 'no'], true)) {
+                $this->merge(['all' => false]);
+            }
         }
 
         if ($this->has('is_featured') && is_string($this->input('is_featured'))) {
