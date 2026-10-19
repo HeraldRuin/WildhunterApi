@@ -17,9 +17,9 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'first_name' => ['nullable', 'string', 'max:255'],
-            'last_name'  => ['nullable', 'string', 'max:255'],
-            'base_name'  => ['required', 'string', 'max:255'],
+            'first_name' => ['required_if:role,'.Role::CUSTOMER, 'nullable', 'string', 'max:255'],
+            'last_name'  => ['required_if:role,'.Role::CUSTOMER, 'nullable', 'string', 'max:255'],
+            'base_name'  => ['required_if:role,'.Role::ADMIN, 'nullable', 'string', 'max:255'],
 
             'role' => ['required', Rule::in([Role::CUSTOMER, Role::ADMIN])],
 
@@ -42,8 +42,10 @@ class RegisterRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'first_name.required_if' => __('auth.validation.first_name_required'),
             'first_name.string' => __('auth.validation.first_name_string'),
             'first_name.max'    => __('auth.validation.first_name_max'),
+            'last_name.required_if' => __('auth.validation.last_name_required'),
             'last_name.string'  => __('auth.validation.last_name_string'),
             'last_name.max'     => __('auth.validation.last_name_max'),
             'base_name.required' => __('auth.validation.base_name_required'),

@@ -14,8 +14,10 @@ return [
         'registration_disabled' => 'Регистрация отключена',
     ],
     'validation' => [
+        'first_name_required' => 'Имя обязательно',
         'first_name_string' => 'Имя должно быть строкой',
         'first_name_max'    => 'Имя не должно превышать 255 символов',
+        'last_name_required' => 'Фамилия обязательна',
         'last_name_string'  => 'Фамилия должна быть строкой',
         'last_name_max'     => 'Фамилия не должна превышать 255 символов',
         'base_name_required' => 'Название базы обязательно',

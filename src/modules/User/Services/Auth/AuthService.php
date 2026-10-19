@@ -69,14 +69,16 @@ class AuthService
 
             $user->assignRole($dto->role);
 
-            $hotel = new Hotel();
-            $hotel->title = $dto->base_name;
-            $hotel->slug = $this->uniqueHotelSlug($dto->base_name);
-            $hotel->status = 'draft';
-            $hotel->admin_base = $user->id;
-            $hotel->author_id = $user->id;
-            $hotel->create_user = $user->id;
-            $hotel->save();
+            if ($dto->base_name !== null) {
+                $hotel = new Hotel();
+                $hotel->title = $dto->base_name;
+                $hotel->slug = $this->uniqueHotelSlug($dto->base_name);
+                $hotel->status = 'draft';
+                $hotel->admin_base = $user->id;
+                $hotel->author_id = $user->id;
+                $hotel->create_user = $user->id;
+                $hotel->save();
+            }
 
             return $user;
         });
@@ -97,7 +99,7 @@ class AuthService
     private function uniqueUserName(RegisterData $dto): string
     {
         $name = trim(($dto->first_name ?? '').' '.($dto->last_name ?? ''));
-        $source = $name !== '' ? $name : $dto->base_name;
+        $source = $name !== '' ? $name : ($dto->base_name ?? '');
         $base = Str::slug($source, '_');
 
         if ($base === '') {

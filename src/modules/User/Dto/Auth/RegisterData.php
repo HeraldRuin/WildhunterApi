@@ -9,7 +9,7 @@ class RegisterData
     public function __construct(
         public ?string $first_name,
         public ?string $last_name,
-        public string $base_name,
+        public ?string $base_name,
         public string $email,
         public string $password,
         public string $phone,
@@ -24,7 +24,7 @@ class RegisterData
         return new self(
             first_name: self::blankToNull($data['first_name'] ?? null),
             last_name: self::blankToNull($data['last_name'] ?? null),
-            base_name: trim($data['base_name']),
+            base_name: self::blankToNull($data['base_name'] ?? null),
             email: $data['email'],
             password: $data['password'],
             phone: $data['phone'],

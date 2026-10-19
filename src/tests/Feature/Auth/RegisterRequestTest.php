@@ -26,13 +26,42 @@ class RegisterRequestTest extends TestCase
             ->assertUnprocessable()
             ->assertJsonPath('error_code', 'validation_error')
             ->assertJsonValidationErrors([
-                'base_name',
                 'role',
                 'phone',
                 'email',
                 'password',
                 'term',
             ])
+            ->assertJsonMissingValidationErrors(['first_name', 'last_name', 'base_name']);
+    }
+
+    public function test_register_hunter_requires_name_and_allows_empty_base(): void
+    {
+        $response = $this->postJson('/api/v1/register', $this->payload([
+            'role' => 'hunter',
+            'first_name' => '',
+            'last_name' => null,
+            'base_name' => '',
+        ]));
+
+        $response
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['first_name', 'last_name'])
+            ->assertJsonMissingValidationErrors(['base_name']);
+    }
+
+    public function test_register_baseadmin_requires_base_name(): void
+    {
+        $response = $this->postJson('/api/v1/register', $this->payload([
+            'role' => 'baseadmin',
+            'first_name' => null,
+            'last_name' => null,
+            'base_name' => '',
+        ]));
+
+        $response
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['base_name'])
             ->assertJsonMissingValidationErrors(['first_name', 'last_name']);
     }
 
