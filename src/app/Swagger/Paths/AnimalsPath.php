@@ -164,12 +164,28 @@ class AnimalsPath
                                     property: "animals",
                                     type: "array",
                                     items: new OA\Items(
-                                        required: ["id", "title", "hunters_count", "max_hunters_count"],
+                                        required: ["id", "title", "hunters_count", "max_hunters_count", "hunt_type"],
                                         properties: [
                                             new OA\Property(property: "id", type: "integer", example: 1),
                                             new OA\Property(property: "title", type: "string", example: "Косуля европейская"),
                                             new OA\Property(property: "hunters_count", type: "integer", example: 2),
                                             new OA\Property(property: "max_hunters_count", type: "integer", example: 8),
+                                            new OA\Property(
+                                                property: "hunt_type",
+                                                description: "Тип охоты: индивидуальная или групповая. null, если тип не задан",
+                                                nullable: true,
+                                                required: ["code", "title"],
+                                                properties: [
+                                                    new OA\Property(
+                                                        property: "code",
+                                                        type: "string",
+                                                        enum: ["individual", "group"],
+                                                        example: "individual"
+                                                    ),
+                                                    new OA\Property(property: "title", type: "string", example: "Индивидуальная"),
+                                                ],
+                                                type: "object"
+                                            ),
                                         ],
                                         type: "object"
                                     )
@@ -233,12 +249,28 @@ class AnimalsPath
                         new OA\Property(property: "message", type: "string", example: "Животное добавлено"),
                         new OA\Property(
                             property: "data",
-                            required: ["id", "title", "hunters_count", "max_hunters_count"],
+                            required: ["id", "title", "hunters_count", "max_hunters_count", "hunt_type"],
                             properties: [
                                 new OA\Property(property: "id", type: "integer", example: 5),
                                 new OA\Property(property: "title", type: "string", example: "Медведь бурый"),
                                 new OA\Property(property: "hunters_count", type: "integer", example: 1),
                                 new OA\Property(property: "max_hunters_count", type: "integer", example: 1),
+                                new OA\Property(
+                                    property: "hunt_type",
+                                    description: "Тип охоты: индивидуальная или групповая. null, если тип не задан",
+                                    nullable: true,
+                                    required: ["code", "title"],
+                                    properties: [
+                                        new OA\Property(
+                                            property: "code",
+                                            type: "string",
+                                            enum: ["individual", "group"],
+                                            example: "individual"
+                                        ),
+                                        new OA\Property(property: "title", type: "string", example: "Индивидуальная"),
+                                    ],
+                                    type: "object"
+                                ),
                             ],
                             type: "object"
                         ),
@@ -316,12 +348,28 @@ class AnimalsPath
                                     property: "animals",
                                     type: "array",
                                     items: new OA\Items(
-                                        required: ["id", "title", "hunters_count", "max_hunters_count"],
+                                        required: ["id", "title", "hunters_count", "max_hunters_count", "hunt_type"],
                                         properties: [
                                             new OA\Property(property: "id", type: "integer", example: 1),
                                             new OA\Property(property: "title", type: "string", example: "Косуля европейская"),
                                             new OA\Property(property: "hunters_count", type: "integer", example: 2),
                                             new OA\Property(property: "max_hunters_count", type: "integer", example: 8),
+                                            new OA\Property(
+                                                property: "hunt_type",
+                                                description: "Тип охоты: индивидуальная или групповая. null, если тип не задан",
+                                                nullable: true,
+                                                required: ["code", "title"],
+                                                properties: [
+                                                    new OA\Property(
+                                                        property: "code",
+                                                        type: "string",
+                                                        enum: ["individual", "group"],
+                                                        example: "individual"
+                                                    ),
+                                                    new OA\Property(property: "title", type: "string", example: "Индивидуальная"),
+                                                ],
+                                                type: "object"
+                                            ),
                                         ],
                                         type: "object"
                                     )
@@ -390,12 +438,28 @@ class AnimalsPath
                         new OA\Property(property: "message", type: "string", example: "Количество охотников сохранено"),
                         new OA\Property(
                             property: "data",
-                            required: ["id", "title", "hunters_count", "max_hunters_count"],
+                            required: ["id", "title", "hunters_count", "max_hunters_count", "hunt_type"],
                             properties: [
                                 new OA\Property(property: "id", type: "integer", example: 1),
                                 new OA\Property(property: "title", type: "string", example: "Косуля европейская"),
                                 new OA\Property(property: "hunters_count", type: "integer", example: 2),
                                 new OA\Property(property: "max_hunters_count", type: "integer", example: 8),
+                                new OA\Property(
+                                    property: "hunt_type",
+                                    description: "Тип охоты: индивидуальная или групповая. null, если тип не задан",
+                                    nullable: true,
+                                    required: ["code", "title"],
+                                    properties: [
+                                        new OA\Property(
+                                            property: "code",
+                                            type: "string",
+                                            enum: ["individual", "group"],
+                                            example: "individual"
+                                        ),
+                                        new OA\Property(property: "title", type: "string", example: "Индивидуальная"),
+                                    ],
+                                    type: "object"
+                                ),
                             ],
                             type: "object"
                         ),

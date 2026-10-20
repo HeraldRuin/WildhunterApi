@@ -213,6 +213,7 @@ class ManageAnimalService
             'title' => $animal->title,
             'hunters_count' => $huntersCount,
             'max_hunters_count' => $maxHuntersCount,
+            'hunt_type' => $animal->huntTypePayload(),
         ];
     }
 

@@ -73,6 +73,23 @@ class Animal extends Model
         return $isIndividual ? self::HUNT_TYPE_INDIVIDUAL : self::HUNT_TYPE_GROUP;
     }
 
+    /**
+     * @return array{code: string, title: string}|null
+     */
+    public function huntTypePayload(): ?array
+    {
+        if (!$this->hunt_individual && !$this->hunt_group) {
+            return null;
+        }
+
+        $code = $this->huntTypeCode();
+
+        return [
+            'code' => $code,
+            'title' => __('animal.hunt_types.'.$code),
+        ];
+    }
+
     public function hotels(): BelongsToMany
     {
         return $this->belongsToMany(Hotel::class, 'bc_hotel_animals', 'animal_id', 'hotel_id')

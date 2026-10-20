@@ -17,6 +17,7 @@ class ManagedAnimalResource extends BaseJsonResource
             'title' => $this->resource->title,
             'hunters_count' => $huntersCount,
             'max_hunters_count' => $maxHuntersCount > 0 ? $maxHuntersCount : $huntersCount,
+            'hunt_type' => $this->resource->huntTypePayload(),
         ];
     }
 }
