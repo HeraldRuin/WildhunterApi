@@ -14,11 +14,11 @@ class WeaponService
 {
     public function gertWeapons(): Collection
     {
-        return WeaponType::all();
+        return WeaponType::query()->where('status', '!=', 'draft')->get();
     }
     public function gertCalibers(): Collection
     {
-        return Caliber::all();
+        return Caliber::query()->where('status', '!=', 'draft')->get();
     }
 
     public function getUserWeapons(int $userId): Collection
