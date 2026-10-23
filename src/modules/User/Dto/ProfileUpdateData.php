@@ -13,6 +13,7 @@ class ProfileUpdateData
         public ?string $patronymic,
         public ?string $nik,
         public ?string $birthday,
+        public bool $hasBirthday,
         public string $email,
         public ?string $phone,
         public ?string $city,
@@ -34,6 +35,7 @@ class ProfileUpdateData
             patronymic: filled($data['patronymic'] ?? null) ? $data['patronymic'] : null,
             nik: $data['nik'] ?? null,
             birthday: $data['birthday'] ?? null,
+            hasBirthday: array_key_exists('birthday', $data) && filled($data['birthday'] ?? null),
 
             email: $data['email'],
 

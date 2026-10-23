@@ -88,13 +88,19 @@ class WeaponService
             return;
         }
 
-        User::where('id', $userId)->update([
+        $attributes = [
             'hunter_billet_number' => $dto->hunter_billet_number,
             'hunter_billet_issuing_authority' => $dto->hunter_billet_issuing_authority,
             'hunter_billet_rf_subject' => $dto->hunter_billet_rf_subject,
             'hunter_billet_issue_date' => $dto->hunter_billet_issue_date,
             'identity_document' => $dto->identity_document,
-        ]);
+        ];
+
+        if ($dto->birthday !== null) {
+            $attributes['birthday'] = date('Y-m-d', strtotime($dto->birthday));
+        }
+
+        User::where('id', $userId)->update($attributes);
     }
 
     /**

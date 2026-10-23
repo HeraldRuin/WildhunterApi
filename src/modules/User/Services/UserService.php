@@ -245,9 +245,10 @@ class UserService
         ], fn($v) => $v !== null);
 
         $profileData['patronymic'] = $dto->patronymic;
-        $profileData['birthday'] = filled($dto->birthday)
-            ? date('Y-m-d', strtotime($dto->birthday))
-            : null;
+
+        if ($dto->hasBirthday) {
+            $profileData['birthday'] = date('Y-m-d', strtotime($dto->birthday));
+        }
 
         $user->fill($profileData);
 
