@@ -18,7 +18,14 @@ class MediaImageService
 
     public function absoluteOriginalPath(MediaFile $file): string
     {
-        return Storage::disk('public')->path('uploads/' . ltrim($file->file_path, '/'));
+        $relative = ltrim((string) $file->file_path, '/');
+        $uploadsPath = Storage::disk('uploads')->path($relative);
+
+        if (is_file($uploadsPath)) {
+            return $uploadsPath;
+        }
+
+        return Storage::disk('public')->path('uploads/' . $relative);
     }
 
     public function cacheRelativePath(MediaFile $file, string $size): string
