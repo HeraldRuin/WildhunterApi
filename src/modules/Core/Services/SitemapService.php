@@ -14,6 +14,7 @@ class SitemapService
      */
     private const STATIC_PATHS = [
         '/',
+        '/bases',
         '/bases/map',
         '/blog',
         '/hunters',
@@ -121,7 +122,14 @@ class SitemapService
 
     private function absolute(string $path): string
     {
-        return rtrim((string) config('app.url'), '/') . $path;
+        $origin = rtrim((string) config('app.url'), '/');
+        $path = '/' . trim($path, '/');
+
+        if ($path === '/') {
+            return $origin;
+        }
+
+        return $origin . strtolower($path) . '/';
     }
 
     private function escape(string $value): string
