@@ -3,6 +3,7 @@
 namespace Modules\Hotel\Models;
 
 use App\Observers\HotelObserver;
+use Carbon\Carbon;
 use Modules\Animals\Models\Animal;
 use Modules\Review\Models\Review;
 use Illuminate\Support\Facades\Auth;
@@ -90,20 +91,50 @@ class Hotel extends Bookable
 
     public function scopeExcludeBlockedForDates(Builder $query, string $rangeStart, string $rangeEndForDays): Builder
     {
-        $blockedHotelIds = DB::table('bc_hotel_rooms as r')
-            ->join('bc_hotel_room_dates as d', function ($join) use ($rangeStart, $rangeEndForDays) {
-                $join->on('d.target_id', '=', 'r.id')
-                    ->whereBetween(DB::raw('DATE(d.start_date)'), [$rangeStart, $rangeEndForDays]);
-            })
-            ->select('r.parent_id')
-            ->groupBy('r.parent_id')
-            ->havingRaw('SUM(d.active) = 0')
-            ->pluck('r.parent_id')
-            ->all();
+        $nights = (int) Carbon::parse($rangeStart)->startOfDay()->diffInDays(
+            Carbon::parse($rangeEndForDays)->startOfDay()
+        ) + 1;
 
-        if (!empty($blockedHotelIds)) {
-            $query->whereNotIn('bc_hotels.id', $blockedHotelIds);
-        }
+        $closedNight = function ($dates) use ($rangeStart, $rangeEndForDays) {
+            $dates->select(DB::raw(1))
+                ->from('bc_hotel_room_dates as d')
+                ->whereColumn('d.target_id', 'r.id')
+                ->whereBetween(DB::raw('DATE(d.start_date)'), [$rangeStart, $rangeEndForDays])
+                ->where(function ($rule) {
+                    $rule->where('d.active', '=', 0)
+                        ->orWhere(function ($zeroNumber) {
+                            $zeroNumber->whereNotNull('d.number')->where('d.number', '<=', 0);
+                        });
+                });
+        };
+
+        $availableHotels = DB::table('bc_hotel_rooms as r')
+            ->select('r.parent_id')
+            ->where('r.status', 'publish')
+            ->where(function ($rooms) use ($rangeStart, $rangeEndForDays, $nights, $closedNight) {
+                $rooms->where(function ($openByDefault) use ($closedNight) {
+                    $openByDefault
+                        ->where('r.number', '>', 0)
+                        ->whereNotExists($closedNight);
+                })->orWhere(function ($closedByDefault) use ($rangeStart, $rangeEndForDays, $nights) {
+                    $closedByDefault
+                        ->where(function ($noStock) {
+                            $noStock->whereNull('r.number')->orWhere('r.number', '<=', 0);
+                        })
+                        ->whereRaw(
+                            '(select count(distinct date(d.start_date)) from bc_hotel_room_dates as d where d.target_id = r.id and date(d.start_date) between ? and ? and d.active = 1 and d.number > 0) >= ?',
+                            [$rangeStart, $rangeEndForDays, $nights]
+                        );
+                });
+            });
+
+        $blockedHotelIds = DB::table('bc_hotel_rooms as rooms')
+            ->select('rooms.parent_id')
+            ->where('rooms.status', 'publish')
+            ->whereNotIn('rooms.parent_id', $availableHotels)
+            ->distinct();
+
+        $query->whereNotIn('bc_hotels.id', $blockedHotelIds);
 
         return $query;
     }
