@@ -164,13 +164,13 @@ class ServicesPath
 
     #[OA\Post(
         path: "/api/" . ApiConfig::VERSION . "/services/additionals",
-        description: "Создаёт дополнительную услугу каталога. Доступно админу базы. Количество можно не передавать: проверка обязательности — при сохранении.",
+        description: "Создаёт дополнительную услугу каталога. Доступно админу базы. Количество, тип расчёта и стоимость можно не передавать: проверка обязательности — при сохранении.",
         summary: "Добавить дополнительную услугу",
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ["name", "price", "calculation_type", "is_system"],
+                required: ["name", "is_system"],
                 properties: [
                     new OA\Property(property: "name", type: "string", example: "Батут", maxLength: 255),
                     new OA\Property(property: "count", type: "integer", example: 1, nullable: true, minimum: 0),
@@ -178,9 +178,10 @@ class ServicesPath
                         property: "calculation_type",
                         type: "string",
                         example: "individual",
+                        nullable: true,
                         enum: ["individual", "per_person"]
                     ),
-                    new OA\Property(property: "price", type: "number", format: "float", example: 1500, minimum: 0),
+                    new OA\Property(property: "price", type: "number", format: "float", example: 1500, nullable: true, minimum: 0),
                     new OA\Property(property: "is_system", type: "boolean", example: false),
                 ]
             )
@@ -254,7 +255,7 @@ class ServicesPath
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ["name", "price", "count"],
+                required: ["name", "price", "count", "calculation_type"],
                 properties: [
                     new OA\Property(property: "name", type: "string", example: "Администратор отеля", maxLength: 255),
                     new OA\Property(property: "price", type: "number", format: "float", example: 1500, minimum: 0),
@@ -264,6 +265,7 @@ class ServicesPath
                         type: "string",
                         example: "per_person",
                         nullable: true,
+                        description: "Обязательно, кроме питания",
                         enum: ["individual", "per_person"]
                     ),
                 ]

@@ -18,16 +18,24 @@ class StoreAdditionalRequest extends FormRequest
         if ($this->has('count') && $this->input('count') === '') {
             $this->merge(['count' => null]);
         }
+
+        if ($this->has('price') && $this->input('price') === '') {
+            $this->merge(['price' => null]);
+        }
+
+        if ($this->has('calculation_type') && $this->input('calculation_type') === '') {
+            $this->merge(['calculation_type' => null]);
+        }
     }
 
     public function rules(): array
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'price' => ['required', 'numeric', 'min:0'],
+            'price' => ['nullable', 'numeric', 'min:0'],
             'count' => ['nullable', 'integer', 'min:0'],
             'calculation_type' => [
-                'required',
+                'nullable',
                 'string',
                 Rule::in([AddetionalPrice::INDIVIDUAL, AddetionalPrice::PERSON]),
             ],
@@ -41,12 +49,10 @@ class StoreAdditionalRequest extends FormRequest
             'name.required' => __('additional.validation.name_required'),
             'name.string' => __('additional.validation.name_must_be_string'),
             'name.max' => __('additional.validation.name_max'),
-            'price.required' => __('additional.validation.price_required'),
             'price.numeric' => __('additional.validation.price_must_be_numeric'),
             'price.min' => __('additional.validation.price_min'),
             'count.integer' => __('additional.validation.count_must_be_integer'),
             'count.min' => __('additional.validation.count_min'),
-            'calculation_type.required' => __('additional.validation.calculation_type_required'),
             'calculation_type.in' => __('additional.validation.calculation_type_invalid'),
             'is_system.required' => __('additional.validation.is_system_required'),
             'is_system.boolean' => __('additional.validation.is_system_must_be_boolean'),
