@@ -9,7 +9,7 @@ readonly class StoreAdditionalData
     public function __construct(
         public string $name,
         public float $price,
-        public int $count,
+        public ?int $count,
         public string $calculationType,
         public bool $isSystem,
     ) {}
@@ -21,7 +21,9 @@ readonly class StoreAdditionalData
         return new self(
             name: (string) $data['name'],
             price: (float) $data['price'],
-            count: (int) $data['count'],
+            count: array_key_exists('count', $data) && $data['count'] !== null && $data['count'] !== ''
+                ? (int) $data['count']
+                : null,
             calculationType: (string) $data['calculation_type'],
             isSystem: (bool) $data['is_system'],
         );

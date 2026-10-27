@@ -28,12 +28,14 @@ class UpdateAdditionalRequest extends FormRequest
     {
         /** @var AddetionalPrice|null $additional */
         $additional = $this->route('additional');
-        $isSystem = (bool) $additional?->isSystem();
+        $countRules = $additional?->isFood()
+            ? ['nullable', 'integer', 'min:0']
+            : ['required', 'integer', 'min:0'];
 
         return [
             'name' => ['required', 'string', 'max:255'],
             'price' => ['required', 'numeric', 'min:0'],
-            'count' => ['nullable', 'integer', 'min:0'],
+            'count' => $countRules,
             'calculation_type' => [
                 'nullable',
                 'string',
@@ -52,6 +54,7 @@ class UpdateAdditionalRequest extends FormRequest
             'price.required' => __('additional.validation.price_required'),
             'price.numeric' => __('additional.validation.price_must_be_numeric'),
             'price.min' => __('additional.validation.price_min'),
+            'count.required' => __('additional.validation.count_required'),
             'count.integer' => __('additional.validation.count_must_be_integer'),
             'count.min' => __('additional.validation.count_min'),
             'calculation_type.in' => __('additional.validation.calculation_type_invalid'),

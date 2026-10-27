@@ -164,16 +164,16 @@ class ServicesPath
 
     #[OA\Post(
         path: "/api/" . ApiConfig::VERSION . "/services/additionals",
-        description: "Создаёт дополнительную услугу каталога. Доступно админу базы.",
+        description: "Создаёт дополнительную услугу каталога. Доступно админу базы. Количество можно не передавать: проверка обязательности — при сохранении.",
         summary: "Добавить дополнительную услугу",
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ["name", "price", "count", "calculation_type", "is_system"],
+                required: ["name", "price", "calculation_type", "is_system"],
                 properties: [
                     new OA\Property(property: "name", type: "string", example: "Батут", maxLength: 255),
-                    new OA\Property(property: "count", type: "integer", example: 1, minimum: 0),
+                    new OA\Property(property: "count", type: "integer", example: 1, nullable: true, minimum: 0),
                     new OA\Property(
                         property: "calculation_type",
                         type: "string",
@@ -248,17 +248,17 @@ class ServicesPath
 
     #[OA\Put(
         path: "/api/" . ApiConfig::VERSION . "/services/additionals/{additional}",
-        description: "Обновляет название, количество, тип расчёта и стоимость. У питания название и количество не меняются. calculation_type у питания записывается, если в теле individual или per_person; пустое значение поле не затирает.",
+        description: "Обновляет название, количество, тип расчёта и стоимость. Количество обязательно, кроме питания: у него название и количество не меняются. calculation_type у питания записывается, если в теле individual или per_person; пустое значение поле не затирает.",
         summary: "Сохранить дополнительную услугу",
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ["name", "price"],
+                required: ["name", "price", "count"],
                 properties: [
                     new OA\Property(property: "name", type: "string", example: "Администратор отеля", maxLength: 255),
                     new OA\Property(property: "price", type: "number", format: "float", example: 1500, minimum: 0),
-                    new OA\Property(property: "count", type: "integer", example: 2, nullable: true, minimum: 0),
+                    new OA\Property(property: "count", type: "integer", example: 2, nullable: true, minimum: 0, description: "Обязательно, кроме питания"),
                     new OA\Property(
                         property: "calculation_type",
                         type: "string",
