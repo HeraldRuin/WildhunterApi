@@ -26,6 +26,13 @@ use OpenApi\Attributes as OA;
             example: 2500
         ),
         new OA\Property(
+            property: "place",
+            description: "Место оказания из bc_addetional_prices.place: на базе или на охоте. Есть у питания и системных доп. услуг.",
+            type: "string",
+            example: "base",
+            nullable: true
+        ),
+        new OA\Property(
             property: "has_tooltip",
             type: "boolean",
             example: true

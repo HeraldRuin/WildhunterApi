@@ -332,6 +332,7 @@ class BookingServiceManager
         $service = BookingService::create([
             'booking_id' => $booking->id,
             'service_type' => AddetionalPrice::ADDETIONAL,
+            'service_id' => $additional->id,
             'type' => $data->name,
             'calculation_type' => $additional->calculation_type,
             'count' => $data->count,

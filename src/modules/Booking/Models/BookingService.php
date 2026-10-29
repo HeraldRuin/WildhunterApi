@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\Animals\Models\Animal;
+use Modules\Attendance\Models\AddetionalPrice;
 
 class BookingService extends Model
 {
@@ -35,5 +36,10 @@ class BookingService extends Model
     public function animal(): BelongsTo
     {
         return $this->belongsTo(Animal::class, 'animal_id');
+    }
+
+    public function catalogPrice(): BelongsTo
+    {
+        return $this->belongsTo(AddetionalPrice::class, 'service_id');
     }
 }

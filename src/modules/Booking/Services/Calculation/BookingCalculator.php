@@ -164,7 +164,7 @@ class BookingCalculator
         $result = [];
 
         $grouped = $meals->groupBy(
-            fn ($food) => ($food->type ?? '') . '|' . ($food->calculation_type ?? ''),
+            fn ($food) => ($food->type ?? '') . '|' . ($food->calculation_type ?? '') . '|' . ($this->servicePlace($food) ?? ''),
         );
 
         foreach ($grouped as $items) {
@@ -181,6 +181,7 @@ class BookingCalculator
 
             $result[] = [
                 'name' => $first->type,
+                'place' => $this->servicePlace($first),
                 'total_cost' => $totalCost,
                 'my_cost' => $myCost,
             ];
@@ -244,14 +245,36 @@ class BookingCalculator
             $totalCost = round($item->price);
             $myCost = $this->calculateAddetionalByType($item, $user, $huntersCount);
 
-            $result[] = [
+            $line = [
                 'name' => $item->type,
                 'total_cost' => $totalCost,
                 'my_cost' => $myCost,
             ];
+
+            if ($this->isSystemCatalogService($item)) {
+                $line['place'] = $this->servicePlace($item);
+            }
+
+            $result[] = $line;
         }
 
         return $result;
+    }
+
+    private function isSystemCatalogService($item): bool
+    {
+        return (bool) ($item->catalogPrice?->is_system ?? false);
+    }
+
+    private function servicePlace($item): ?string
+    {
+        $place = $item->catalogPrice?->place ?? null;
+
+        if ($place === null || $place === '') {
+            return null;
+        }
+
+        return (string) $place;
     }
 
     public function calculateAddetionalByType($item, User $user, $huntersCount)
