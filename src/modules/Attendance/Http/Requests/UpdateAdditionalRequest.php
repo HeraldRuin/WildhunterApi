@@ -22,6 +22,10 @@ class UpdateAdditionalRequest extends FormRequest
         if ($this->has('count') && $this->input('count') === '') {
             $this->merge(['count' => null]);
         }
+
+        if (!$this->filled('place')) {
+            $this->merge(['place' => AddetionalPrice::PLACE_BASE]);
+        }
     }
 
     public function rules(): array
@@ -42,6 +46,7 @@ class UpdateAdditionalRequest extends FormRequest
             'count' => $countRules,
             'calculation_type' => $calculationTypeRules,
             'is_system' => ['required', 'boolean'],
+            'place' => ['required', 'string', Rule::in(AddetionalPrice::PLACES)],
         ];
     }
 
@@ -60,7 +65,8 @@ class UpdateAdditionalRequest extends FormRequest
             'calculation_type.required' => __('additional.validation.calculation_type_required'),
             'calculation_type.in' => __('additional.validation.calculation_type_invalid'),
             'is_system.required' => __('additional.validation.is_system_required'),
-            'is_system.boolean' => __('additional.validation.is_system_must_be_boolean')
+            'is_system.boolean' => __('additional.validation.is_system_must_be_boolean'),
+            'place.in' => __('additional.validation.place_invalid'),
         ];
     }
 }

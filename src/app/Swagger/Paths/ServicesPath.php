@@ -32,6 +32,7 @@ class ServicesPath
                                     "count",
                                     "calculation_type",
                                     "price",
+                                    "place",
                                     "can_delete",
                                     "can_edit_name",
                                 ],
@@ -47,6 +48,7 @@ class ServicesPath
                                         enum: ["individual", "per_person"]
                                     ),
                                     new OA\Property(property: "price", type: "number", format: "float", example: 0),
+                                    new OA\Property(property: "place", type: "string", example: "base", enum: ["base", "hunt"]),
                                     new OA\Property(property: "is_visible", type: "boolean", example: true),
                                     new OA\Property(property: "can_delete", type: "boolean", example: true),
                                     new OA\Property(property: "can_edit_name", type: "boolean", example: true),
@@ -183,6 +185,13 @@ class ServicesPath
                     ),
                     new OA\Property(property: "price", type: "number", format: "float", example: 1500, nullable: true, minimum: 0),
                     new OA\Property(property: "is_system", type: "boolean", example: false),
+                    new OA\Property(
+                        property: "place",
+                        description: "Место оказания. Если поле не передано, сохраняется base",
+                        type: "string",
+                        example: "base",
+                        enum: ["base", "hunt"]
+                    ),
                 ]
             )
         ),
@@ -208,6 +217,7 @@ class ServicesPath
                                         "count",
                                         "calculation_type",
                                         "price",
+                                        "place",
                                         "can_delete",
                                         "can_edit_name",
                                     ],
@@ -217,6 +227,7 @@ class ServicesPath
                                         new OA\Property(property: "count", type: "integer", example: 1, nullable: true),
                                         new OA\Property(property: "calculation_type", type: "string", example: "individual", nullable: true, enum: ["individual", "per_person"]),
                                         new OA\Property(property: "price", type: "number", format: "float", example: 0),
+                                        new OA\Property(property: "place", type: "string", example: "base", enum: ["base", "hunt"]),
                                         new OA\Property(property: "can_delete", type: "boolean", example: true),
                                         new OA\Property(property: "can_edit_name", type: "boolean", example: true),
                                     ],
@@ -268,6 +279,13 @@ class ServicesPath
                         description: "Обязательно, кроме питания",
                         enum: ["individual", "per_person"]
                     ),
+                    new OA\Property(
+                        property: "place",
+                        description: "Место оказания. Если поле не передано, сохраняется base",
+                        type: "string",
+                        example: "hunt",
+                        enum: ["base", "hunt"]
+                    ),
                 ]
             )
         ),
@@ -302,6 +320,7 @@ class ServicesPath
                                         "count",
                                         "calculation_type",
                                         "price",
+                                        "place",
                                         "can_delete",
                                         "can_edit_name",
                                     ],
@@ -317,6 +336,7 @@ class ServicesPath
                                             enum: ["individual", "per_person"]
                                         ),
                                         new OA\Property(property: "price", type: "number", format: "float", example: 1500),
+                                        new OA\Property(property: "place", type: "string", example: "hunt", enum: ["base", "hunt"]),
                                         new OA\Property(property: "can_delete", type: "boolean", example: true),
                                         new OA\Property(property: "can_edit_name", type: "boolean", example: true),
                                     ],

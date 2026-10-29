@@ -339,9 +339,7 @@ class BookingServiceManager
             'count' => $data->count,
             'hunter_id' => $hunterId,
             'price' => round((float) $additional->price * $data->count, 2),
-            'place' => $additional->is_system
-                ? $this->catalogPlace($additional)
-                : BookingService::PLACE_BASE,
+            'place' => $this->catalogPlace($additional),
         ])->load('hunter');
 
         $this->notifyHistoryUpdated($booking, $user);

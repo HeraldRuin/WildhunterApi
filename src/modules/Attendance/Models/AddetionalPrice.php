@@ -21,11 +21,20 @@ class AddetionalPrice extends BaseModel
         'is_system',
         'calculation_type',
         'count',
+        'place',
     ];
 
     protected $casts = [
         'is_system' => 'boolean',
         'is_visible' => 'boolean',
+    ];
+
+    public const string PLACE_BASE = 'base';
+    public const string PLACE_HUNT = 'hunt';
+
+    public const array PLACES = [
+        self::PLACE_BASE,
+        self::PLACE_HUNT,
     ];
 
     public const string INDIVIDUAL = 'individual';

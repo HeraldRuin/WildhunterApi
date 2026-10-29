@@ -52,6 +52,7 @@ class AdditionalService
             'hotel_id' => $hotel->id,
             'user_id' => $user->id,
             'is_system' => $data->isSystem,
+            'place' => $data->place,
         ]);
 
         return [
@@ -73,6 +74,7 @@ class AdditionalService
 
         $payload = [
             'price' => $data->price,
+            'place' => $data->place,
         ];
 
         if (!$additional->isFood()) {

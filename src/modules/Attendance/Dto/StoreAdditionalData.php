@@ -12,6 +12,7 @@ readonly class StoreAdditionalData
         public ?int $count,
         public ?string $calculationType,
         public bool $isSystem,
+        public string $place,
     ) {}
 
     public static function fromRequest(StoreAdditionalRequest $request): self
@@ -30,6 +31,7 @@ readonly class StoreAdditionalData
                 ? (string) $data['calculation_type']
                 : null,
             isSystem: (bool) $data['is_system'],
+            place: (string) $data['place'],
         );
     }
 }

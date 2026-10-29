@@ -3,6 +3,7 @@
 namespace Modules\Attendance\Http\Resources;
 
 use App\Http\Resources\BaseJsonResource;
+use Modules\Attendance\Models\AddetionalPrice;
 
 class AdditionalResource extends BaseJsonResource
 {
@@ -20,6 +21,7 @@ class AdditionalResource extends BaseJsonResource
                 : 0.0,
             'type' => $this->resource->type,
             'is_visible' => (bool) $this->resource->is_visible,
+            'place' => $this->resource->place ?: AddetionalPrice::PLACE_BASE,
             'is_system' => $this->resource->isSystem(),
             'can_delete' => !$this->resource->isFood(),
             'can_edit_name' => !$this->resource->isFood(),

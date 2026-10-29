@@ -26,6 +26,10 @@ class StoreAdditionalRequest extends FormRequest
         if ($this->has('calculation_type') && $this->input('calculation_type') === '') {
             $this->merge(['calculation_type' => null]);
         }
+
+        if (!$this->filled('place')) {
+            $this->merge(['place' => AddetionalPrice::PLACE_BASE]);
+        }
     }
 
     public function rules(): array
@@ -40,6 +44,7 @@ class StoreAdditionalRequest extends FormRequest
                 Rule::in([AddetionalPrice::INDIVIDUAL, AddetionalPrice::PERSON]),
             ],
             'is_system' => ['required', 'boolean'],
+            'place' => ['required', 'string', Rule::in(AddetionalPrice::PLACES)],
         ];
     }
 
@@ -56,6 +61,7 @@ class StoreAdditionalRequest extends FormRequest
             'calculation_type.in' => __('additional.validation.calculation_type_invalid'),
             'is_system.required' => __('additional.validation.is_system_required'),
             'is_system.boolean' => __('additional.validation.is_system_must_be_boolean'),
+            'place.in' => __('additional.validation.place_invalid'),
         ];
     }
 }

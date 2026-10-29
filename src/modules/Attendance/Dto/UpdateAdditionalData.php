@@ -11,6 +11,7 @@ readonly class UpdateAdditionalData
         public float $price,
         public ?int $count,
         public ?string $calculationType,
+        public string $place,
     ) {}
 
     public static function fromRequest(UpdateAdditionalRequest $request): self
@@ -26,6 +27,7 @@ readonly class UpdateAdditionalData
             calculationType: isset($data['calculation_type']) && $data['calculation_type'] !== ''
                 ? (string) $data['calculation_type']
                 : null,
+            place: (string) $data['place'],
         );
     }
 }
