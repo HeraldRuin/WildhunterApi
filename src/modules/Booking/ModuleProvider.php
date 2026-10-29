@@ -11,6 +11,7 @@ class ModuleProvider extends ModuleServiceProvider
 {
     public function boot(SitemapHelper $sitemapHelper)
     {
+        $this->loadMigrationsFrom(__DIR__ . '/Migrations');
     }
 
     /**

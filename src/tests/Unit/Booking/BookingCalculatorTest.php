@@ -56,32 +56,34 @@ class BookingCalculatorTest extends TestCase
         );
 
         $this->assertSame('Завтрак', $meals[0]['name']);
-        $this->assertNull($meals[0]['place']);
+        $this->assertSame(BookingService::PLACE_BASE, $meals[0]['place']);
         $this->assertMoney(1200, $meals[0]['total_cost']);
         $this->assertSame(0, $meals[0]['my_cost']);
     }
 
-    public function test_meal_and_system_service_lines_include_catalog_place(): void
+    public function test_meal_and_service_lines_include_place_from_booking_service(): void
     {
-        $breakfast = $this->service(AddetionalPrice::FOOD, 100, ['type' => 'Завтрак']);
-        $breakfast->setRelation('catalogPrice', $this->catalogPrice('base'));
+        $breakfast = $this->service(AddetionalPrice::FOOD, 100, [
+            'type' => 'Завтрак',
+            'place' => BookingService::PLACE_BASE,
+        ]);
         $sauna = $this->service(AddetionalPrice::ADDETIONAL, 500, [
             'type' => 'Сауна',
             'calculation_type' => AddetionalPrice::PERSON,
+            'place' => 'hunt',
         ]);
-        $sauna->setRelation('catalogPrice', $this->catalogPrice('hunt', true));
         $custom = $this->service(AddetionalPrice::ADDETIONAL, 200, [
             'type' => 'Трансфер',
             'calculation_type' => AddetionalPrice::PERSON,
+            'place' => BookingService::PLACE_BASE,
         ]);
-        $custom->setRelation('catalogPrice', $this->catalogPrice('base', false));
 
         $meals = $this->calculator->calculateMeals(collect([$breakfast]), 1, $this->booking(end: '2026-10-06'), $this->user(1));
         $lines = $this->calculator->calculateAdditional(collect([$sauna, $custom]), $this->user(1), 1);
 
-        $this->assertSame('base', $meals[0]['place']);
+        $this->assertSame(BookingService::PLACE_BASE, $meals[0]['place']);
         $this->assertSame('hunt', $lines[0]['place']);
-        $this->assertArrayNotHasKey('place', $lines[1]);
+        $this->assertSame(BookingService::PLACE_BASE, $lines[1]['place']);
     }
 
     public function test_meal_share_is_rounded_per_line(): void
@@ -433,17 +435,6 @@ class BookingCalculatorTest extends TestCase
         $user->last_name = $lastName;
 
         return $user;
-    }
-
-    private function catalogPrice(string $place, bool $isSystem = false): AddetionalPrice
-    {
-        $price = new AddetionalPrice();
-        $price->forceFill([
-            'place' => $place,
-            'is_system' => $isSystem,
-        ]);
-
-        return $price;
     }
 
     private function animal(string $title): Animal

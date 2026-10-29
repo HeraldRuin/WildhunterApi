@@ -277,6 +277,7 @@ class BookingServiceManager
             'price' => round((float) $food->price * $data->count, 2),
             'count' => $data->count,
             'hunter_id' => $hunterId,
+            'place' => $this->catalogPlace($food),
         ])->load('hunter');
 
         $this->notifyHistoryUpdated($booking, $user);
@@ -338,6 +339,9 @@ class BookingServiceManager
             'count' => $data->count,
             'hunter_id' => $hunterId,
             'price' => round((float) $additional->price * $data->count, 2),
+            'place' => $additional->is_system
+                ? $this->catalogPlace($additional)
+                : BookingService::PLACE_BASE,
         ])->load('hunter');
 
         $this->notifyHistoryUpdated($booking, $user);
@@ -963,6 +967,17 @@ class BookingServiceManager
                 domain: 'booking',
             );
         }
+    }
+
+    private function catalogPlace(AddetionalPrice $price): string
+    {
+        $place = $price->place;
+
+        if ($place === null || $place === '') {
+            return BookingService::PLACE_BASE;
+        }
+
+        return (string) $place;
     }
 
     private function hunterName(?User $hunter): string

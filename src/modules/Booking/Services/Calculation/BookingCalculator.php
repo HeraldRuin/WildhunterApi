@@ -7,6 +7,7 @@ use Illuminate\Support\Collection;
 use Modules\Attendance\Models\AddetionalPrice;
 use Modules\Booking\Models\Booking;
 use Modules\Booking\Models\BookingRoomPlace;
+use Modules\Booking\Models\BookingService;
 use Modules\Hotel\Models\HotelRoomBooking;
 
 class BookingCalculator
@@ -245,33 +246,23 @@ class BookingCalculator
             $totalCost = round($item->price);
             $myCost = $this->calculateAddetionalByType($item, $user, $huntersCount);
 
-            $line = [
+            $result[] = [
                 'name' => $item->type,
+                'place' => $this->servicePlace($item),
                 'total_cost' => $totalCost,
                 'my_cost' => $myCost,
             ];
-
-            if ($this->isSystemCatalogService($item)) {
-                $line['place'] = $this->servicePlace($item);
-            }
-
-            $result[] = $line;
         }
 
         return $result;
     }
 
-    private function isSystemCatalogService($item): bool
+    private function servicePlace($item): string
     {
-        return (bool) ($item->catalogPrice?->is_system ?? false);
-    }
-
-    private function servicePlace($item): ?string
-    {
-        $place = $item->catalogPrice?->place ?? null;
+        $place = $item->place ?? null;
 
         if ($place === null || $place === '') {
-            return null;
+            return BookingService::PLACE_BASE;
         }
 
         return (string) $place;
