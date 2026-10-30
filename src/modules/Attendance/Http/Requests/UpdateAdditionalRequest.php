@@ -33,9 +33,6 @@ class UpdateAdditionalRequest extends FormRequest
         /** @var AddetionalPrice|null $additional */
         $additional = $this->route('additional');
         $isFood = (bool) $additional?->isFood();
-        $countRules = $isFood
-            ? ['nullable', 'integer', 'min:0']
-            : ['required', 'integer', 'min:0'];
         $calculationTypeRules = $isFood
             ? ['nullable', 'string', Rule::in([AddetionalPrice::INDIVIDUAL, AddetionalPrice::PERSON])]
             : ['required', 'string', Rule::in([AddetionalPrice::INDIVIDUAL, AddetionalPrice::PERSON])];
@@ -43,7 +40,7 @@ class UpdateAdditionalRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'price' => ['required', 'numeric', 'min:0'],
-            'count' => $countRules,
+            'count' => ['nullable', 'integer', 'min:0'],
             'calculation_type' => $calculationTypeRules,
             'is_system' => ['required', 'boolean'],
             'place' => ['required', 'string', Rule::in(AddetionalPrice::PLACES)],
@@ -59,7 +56,6 @@ class UpdateAdditionalRequest extends FormRequest
             'price.required' => __('additional.validation.price_required'),
             'price.numeric' => __('additional.validation.price_must_be_numeric'),
             'price.min' => __('additional.validation.price_min'),
-            'count.required' => __('additional.validation.count_required'),
             'count.integer' => __('additional.validation.count_must_be_integer'),
             'count.min' => __('additional.validation.count_min'),
             'calculation_type.required' => __('additional.validation.calculation_type_required'),
