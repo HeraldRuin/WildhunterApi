@@ -164,10 +164,17 @@ class AnimalsPath
                                     property: "animals",
                                     type: "array",
                                     items: new OA\Items(
-                                        required: ["id", "title", "hunters_count", "max_hunters_count", "hunt_type"],
+                                        required: ["id", "title", "status", "hunters_count", "max_hunters_count", "hunt_type"],
                                         properties: [
                                             new OA\Property(property: "id", type: "integer", example: 1),
                                             new OA\Property(property: "title", type: "string", example: "Косуля европейская"),
+                                            new OA\Property(
+                                                property: "status",
+                                                description: "Статус животного в админке. draft и pending — недоступно для охоты",
+                                                type: "string",
+                                                enum: ["publish", "draft", "pending"],
+                                                example: "publish"
+                                            ),
                                             new OA\Property(property: "hunters_count", type: "integer", example: 2),
                                             new OA\Property(property: "max_hunters_count", type: "integer", example: 8),
                                             new OA\Property(
@@ -249,10 +256,17 @@ class AnimalsPath
                         new OA\Property(property: "message", type: "string", example: "Животное добавлено"),
                         new OA\Property(
                             property: "data",
-                            required: ["id", "title", "hunters_count", "max_hunters_count", "hunt_type"],
+                            required: ["id", "title", "status", "hunters_count", "max_hunters_count", "hunt_type"],
                             properties: [
                                 new OA\Property(property: "id", type: "integer", example: 5),
                                 new OA\Property(property: "title", type: "string", example: "Медведь бурый"),
+                                new OA\Property(
+                                    property: "status",
+                                    description: "Статус животного в админке. draft и pending — недоступно для охоты",
+                                    type: "string",
+                                    enum: ["publish", "draft", "pending"],
+                                    example: "publish"
+                                ),
                                 new OA\Property(property: "hunters_count", type: "integer", example: 1),
                                 new OA\Property(property: "max_hunters_count", type: "integer", example: 1),
                                 new OA\Property(
@@ -348,10 +362,17 @@ class AnimalsPath
                                     property: "animals",
                                     type: "array",
                                     items: new OA\Items(
-                                        required: ["id", "title", "hunters_count", "max_hunters_count", "hunt_type"],
+                                        required: ["id", "title", "status", "hunters_count", "max_hunters_count", "hunt_type"],
                                         properties: [
                                             new OA\Property(property: "id", type: "integer", example: 1),
                                             new OA\Property(property: "title", type: "string", example: "Косуля европейская"),
+                                            new OA\Property(
+                                                property: "status",
+                                                description: "Статус животного в админке. draft и pending — недоступно для охоты",
+                                                type: "string",
+                                                enum: ["publish", "draft", "pending"],
+                                                example: "publish"
+                                            ),
                                             new OA\Property(property: "hunters_count", type: "integer", example: 2),
                                             new OA\Property(property: "max_hunters_count", type: "integer", example: 8),
                                             new OA\Property(
@@ -438,10 +459,17 @@ class AnimalsPath
                         new OA\Property(property: "message", type: "string", example: "Количество охотников сохранено"),
                         new OA\Property(
                             property: "data",
-                            required: ["id", "title", "hunters_count", "max_hunters_count", "hunt_type"],
+                            required: ["id", "title", "status", "hunters_count", "max_hunters_count", "hunt_type"],
                             properties: [
                                 new OA\Property(property: "id", type: "integer", example: 1),
                                 new OA\Property(property: "title", type: "string", example: "Косуля европейская"),
+                                new OA\Property(
+                                    property: "status",
+                                    description: "Статус животного в админке. draft и pending — недоступно для охоты",
+                                    type: "string",
+                                    enum: ["publish", "draft", "pending"],
+                                    example: "publish"
+                                ),
                                 new OA\Property(property: "hunters_count", type: "integer", example: 2),
                                 new OA\Property(property: "max_hunters_count", type: "integer", example: 8),
                                 new OA\Property(

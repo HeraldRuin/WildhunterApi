@@ -15,6 +15,7 @@ class ManagedAnimalResource extends BaseJsonResource
         return [
             'id' => $this->resource->id,
             'title' => $this->resource->title,
+            'status' => $this->resource->status,
             'hunters_count' => $huntersCount,
             'max_hunters_count' => $maxHuntersCount > 0 ? $maxHuntersCount : $huntersCount,
             'hunt_type' => $this->resource->huntTypePayload(),

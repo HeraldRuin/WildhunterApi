@@ -142,7 +142,7 @@ class ManageAnimalService
         $animals = Animal::query()
             ->forHotel($hotel->id)
             ->whereIn('bc_animals.id', $animalIds)
-            ->get(['bc_animals.id', 'bc_animals.title'])
+            ->get(['bc_animals.id', 'bc_animals.title', 'bc_animals.status'])
             ->keyBy('id');
 
         if ($animals->count() !== count($animalIds)) {
@@ -211,6 +211,7 @@ class ManageAnimalService
         return [
             'id' => $animal->id,
             'title' => $animal->title,
+            'status' => $animal->status,
             'hunters_count' => $huntersCount,
             'max_hunters_count' => $maxHuntersCount,
             'hunt_type' => $animal->huntTypePayload(),
