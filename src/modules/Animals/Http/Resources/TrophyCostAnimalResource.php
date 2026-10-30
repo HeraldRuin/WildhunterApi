@@ -11,6 +11,7 @@ class TrophyCostAnimalResource extends BaseJsonResource
         return [
             'id' => $this->resource->id,
             'title' => $this->resource->title,
+            'status' => $this->resource->status,
             'trophies' => TrophyCostItemResource::collection($this->resource->trophies ?? []),
             'fines' => TrophyCostItemResource::collection($this->resource->fines ?? []),
             'preparations' => TrophyCostItemResource::collection($this->resource->preparations ?? []),

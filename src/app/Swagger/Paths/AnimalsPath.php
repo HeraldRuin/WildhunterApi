@@ -840,10 +840,11 @@ class AnimalsPath
                             property: "data",
                             type: "array",
                             items: new OA\Items(
-                                required: ["id", "title", "trophies", "fines", "preparations"],
+                                required: ["id", "title", "status", "trophies", "fines", "preparations"],
                                 properties: [
                                     new OA\Property(property: "id", type: "integer", example: 1),
                                     new OA\Property(property: "title", type: "string", example: "Косуля европейская"),
+                                    new OA\Property(property: "status", type: "string", nullable: true, example: "publish", description: "Статус животного в суперадминке. draft — недоступно для охоты"),
                                     new OA\Property(
                                         property: "trophies",
                                         type: "array",
