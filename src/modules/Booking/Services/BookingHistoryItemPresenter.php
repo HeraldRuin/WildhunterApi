@@ -214,9 +214,17 @@ class BookingHistoryItemPresenter
                 'price_total' => $amountHunting,
                 'price_per_person' => $amountHuntingPerPerson,
                 'price' => $amountHuntingPerPerson,
+                'hunters_count' => $this->animalMinHunters($booking),
             ] : null,
             'rooms' => $rooms,
         ];
+    }
+
+    private function animalMinHunters(Booking $booking): ?int
+    {
+        $count = (int) ($booking->hotelAnimal()?->hunters_count ?? 0);
+
+        return $count > 0 ? $count : null;
     }
 
     /**

@@ -31,7 +31,7 @@ return [
         'booking_status_locked' => 'Статус бронирования заблокирован',
         'booking_invitation_not_found' => 'Для этой брони не найден приглашенный',
         'not_enough_hunters' => 'Пригласите необходимое количество охотников: :invited из :required',
-        'not_all_hunters_confirmed' => 'Не все приглашённые участники подтвердили приглашение. Дождитесь ответа всех участников',
+        'not_all_hunters_confirmed' => 'Подтверждено меньше минимального числа охотников: :confirmed из :required',
         'booking_hunter_gathering_not_started' => 'Сбор охотников не начат',
         'gathering_is_full' => 'Сбор уже набран, присоединиться нельзя',
         'invalid_dates' => 'Выбранные даты недоступны',

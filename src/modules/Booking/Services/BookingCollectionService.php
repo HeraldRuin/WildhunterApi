@@ -7,7 +7,10 @@ use App\Exceptions\ForbiddenException;
 use App\Exceptions\NotFoundException;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Modules\Booking\Events\BookingGatheringCompletedEvent;
+use Modules\Booking\Events\BookingHistoryUpdatedEvent;
 use Modules\Booking\Events\BookingUpdatedEvent;
 use Modules\Booking\Models\Booking;
 use Modules\Booking\Models\BookingHunter;
@@ -100,7 +103,7 @@ class BookingCollectionService
      */
     public function finish(string $code, User $user): array
     {
-        $result = DB::transaction(function () use ($code, $user): array {
+        [$result, $droppedInvitations] = DB::transaction(function () use ($code, $user): array {
             $booking = $this->findForUpdate($code);
             $masterHunter = $this->ensureMasterHunter($booking, $user);
 
@@ -111,8 +114,10 @@ class BookingCollectionService
                 );
             }
 
+            $droppedInvitations = new Collection();
+
             if ($booking->type !== Booking::BookingTypeHotel) {
-                $requiredHunters = $this->getRequiredHuntersCount($booking);
+                $requiredHunters = $booking->getMinimumHuntersCount();
                 $activeInvitationsCount = BookingHunterInvitation::query()
                     ->where('booking_hunter_id', $masterHunter->id)
                     ->whereNotIn('status', [
@@ -147,12 +152,15 @@ class BookingCollectionService
                         ],
                     );
                 }
+
+                $droppedInvitations = $this->dropUnconfirmedInvitations($booking);
             }
 
-            return $this->finishGathering($booking);
+            return [$this->finishGathering($booking), $droppedInvitations];
         });
 
         $this->notifyGatheringFinished($result['booking']);
+        $this->notifyUnconfirmedDropped($result['booking'], $droppedInvitations);
 
         return $result;
     }
@@ -192,6 +200,65 @@ class BookingCollectionService
         }
 
         BookingUpdatedEvent::dispatchSafely($booking);
+    }
+
+    /**
+     * @return Collection<int, BookingHunterInvitation>
+     */
+    private function dropUnconfirmedInvitations(Booking $booking): Collection
+    {
+        $invitations = BookingHunterInvitation::query()
+            ->with('hunter')
+            ->whereHas('bookingHunter', function ($query) use ($booking) {
+                $query->where('booking_id', $booking->id);
+            })
+            ->where(function ($query) {
+                $query->where('status', BookingHunterInvitation::STATUS_PENDING)
+                    ->orWhereNull('status');
+            })
+            ->lockForUpdate()
+            ->get();
+
+        foreach ($invitations as $invitation) {
+            $invitation->forceDelete();
+        }
+
+        return $invitations;
+    }
+
+    /**
+     * @param  Collection<int, BookingHunterInvitation>  $invitations
+     */
+    private function notifyUnconfirmedDropped(Booking $booking, Collection $invitations): void
+    {
+        $removedHunterIds = [];
+        $removedInvitationIds = [];
+
+        if ($invitations->isNotEmpty()) {
+            $this->bookingNotificationService->sendGatheringFilled($booking, $invitations);
+            $this->bookingMailService->sendGatheringClosed($booking, $invitations);
+
+            foreach ($invitations as $invitation) {
+                $removedInvitationIds[] = (int) $invitation->id;
+
+                if (!$invitation->hunter_id) {
+                    continue;
+                }
+
+                $removedHunterIds[] = (int) $invitation->hunter_id;
+                BookingHistoryUpdatedEvent::dispatchSafely(
+                    $booking,
+                    (int) $invitation->hunter_id,
+                    BookingHistoryUpdatedEvent::ACTION_REMOVED,
+                );
+            }
+        }
+
+        BookingGatheringCompletedEvent::dispatchSafely(
+            $booking,
+            $removedHunterIds,
+            $removedInvitationIds,
+        );
     }
 
     public function expirePrepayment(string $code, User $user): Booking
@@ -438,11 +505,6 @@ class BookingCollectionService
         return $hours !== null && $hours > 0
             ? (int) $hours
             : self::DEFAULT_TIMER_HOURS;
-    }
-
-    private function getRequiredHuntersCount(Booking $booking): int
-    {
-        return max(1, $booking->getNeededHuntersCount());
     }
 
     /**

@@ -1684,4 +1684,29 @@ class Booking extends BaseModel
 
         return max(0, $count);
     }
+
+    public function hotelAnimal(): ?HotelAnimal
+    {
+        if (!$this->hotel_id || !$this->animal_id) {
+            return null;
+        }
+
+        return HotelAnimal::query()
+            ->where('hotel_id', $this->hotel_id)
+            ->where('animal_id', $this->animal_id)
+            ->first();
+    }
+
+    public function getMinimumHuntersCount(): int
+    {
+        $count = (int) ($this->hotelAnimal()?->hunters_count ?? 0);
+
+        if ($count > 0) {
+            return $count;
+        }
+
+        $needed = $this->getNeededHuntersCount();
+
+        return $needed > 0 ? $needed : 1;
+    }
 }
