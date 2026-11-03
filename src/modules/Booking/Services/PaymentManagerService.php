@@ -78,7 +78,7 @@ class PaymentManagerService
                 customerName: trim((string) ($user->name ?? $user->getAttribute('first_name') ?? $user->email)),
                 email: $user->email,
                 phone: $user->getAttribute('phone'),
-                description: 'Предоплата для брони '.$booking->booking_number,
+                description: 'Предоплата для брони № '.$booking->booking_number,
                 currency: (string) config('paykeeper.currency', 'RUB'),
                 expiresAt: $paymentExpiry->copy()
                     ->setTimezone('Europe/Moscow')
