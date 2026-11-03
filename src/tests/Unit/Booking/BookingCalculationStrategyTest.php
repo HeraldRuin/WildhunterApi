@@ -129,11 +129,11 @@ class BookingCalculationStrategyTest extends TestCase
         );
         $this->assertMoney(1000, $result['all_items'][0]['total_cost']);
         $this->assertMoney(500, $result['all_items'][0]['my_cost']);
-        $this->assertMoney(0, $result['all_items'][1]['total_cost']);
+        $this->assertMoney(300, $result['all_items'][1]['total_cost']);
         $this->assertMoney(-350, $result['all_items'][1]['my_cost']);
         $this->assertMoney(1000, $result['prepaid_total']);
         $this->assertMoney(300, $result['base_total']);
-        $this->assertMoney(300, $result['total']);
+        $this->assertMoney(1300, $result['total']);
     }
 
     public function test_hunting_strategy_assembles_organisation_and_own_charges(): void
@@ -177,9 +177,9 @@ class BookingCalculationStrategyTest extends TestCase
         $this->assertMoney(0, $result['penalties'][0]['my_cost']);
         $this->assertSame(0, $result['addetionals'][0]['my_cost']);
         $this->assertSame(['Остаток базе', 'Итог охотникам'], array_column($result['all_items'], 'name'));
-        $this->assertMoney(4260, $result['all_items'][0]['total_cost']);
-        $this->assertMoney(2050, $result['all_items'][0]['my_cost']);
-        $this->assertMoney(4260, $result['base_total']);
+        $this->assertMoney(90, $result['all_items'][0]['total_cost']);
+        $this->assertMoney(0, $result['all_items'][0]['my_cost']);
+        $this->assertMoney(90, $result['base_total']);
     }
 
     public function test_hotel_hunting_strategy_includes_stay_and_hunt(): void
@@ -211,10 +211,10 @@ class BookingCalculationStrategyTest extends TestCase
         $this->assertMoney(4000, $result['items'][1]['total_cost']);
         $this->assertMoney(2000, $result['items'][1]['my_cost']);
         $this->assertMoney(500, $result['all_items'][0]['my_cost']);
-        $this->assertMoney(3000, $result['all_items'][1]['total_cost']);
-        $this->assertMoney(1500, $result['all_items'][1]['my_cost']);
-        $this->assertMoney(3000, $result['base_total']);
-        $this->assertMoney(4000, $result['total']);
+        $this->assertMoney(0, $result['all_items'][1]['total_cost']);
+        $this->assertMoney(-500, $result['all_items'][1]['my_cost']);
+        $this->assertMoney(0, $result['base_total']);
+        $this->assertMoney(1000, $result['total']);
     }
 
     /**

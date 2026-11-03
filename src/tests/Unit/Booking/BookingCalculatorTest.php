@@ -3,6 +3,7 @@
 namespace Tests\Unit\Booking;
 
 use App\Models\User;
+use Illuminate\Support\Collection;
 use Modules\Animals\Models\Animal;
 use Modules\Attendance\Models\AddetionalPrice;
 use Modules\Booking\Models\Booking;
@@ -294,7 +295,7 @@ class BookingCalculatorTest extends TestCase
         $this->assertMoney(1000, $this->calculator->basePrepaymentMade($this->booking(['total' => 1000])));
     }
 
-    public function test_history_totals_keep_prepayment_for_lodging_and_drop_paid_balance(): void
+    public function test_history_totals_count_only_base_services_for_lodging(): void
     {
         $booking = $this->booking([
             'total' => 900,
@@ -302,40 +303,41 @@ class BookingCalculatorTest extends TestCase
             'total_hunting' => 4,
             'type' => Booking::BookingTypeHotel,
         ]);
-        $services = collect();
+        $services = $this->baseServicesWithHuntCharges();
 
         $open = $this->calculator->getBookingTotal($booking, $services, 3);
 
         $this->assertMoney(900, $open['prepaid_total']);
-        $this->assertMoney(6000, $open['base_total']);
-        $this->assertMoney(6900, $open['total']);
+        $this->assertMoney(1500, $open['base_total']);
+        $this->assertMoney(2400, $open['total']);
 
         $booking->is_paid = true;
         $booking->status = Booking::PAID;
         $paid = $this->calculator->getBookingTotal($booking, $services, 3);
 
         $this->assertMoney(900, $paid['prepaid_total']);
-        $this->assertMoney(6000, $paid['base_total']);
-        $this->assertMoney(6900, $paid['total']);
+        $this->assertMoney(1500, $paid['base_total']);
+        $this->assertMoney(2400, $paid['total']);
     }
 
-    public function test_history_totals_for_hunting_have_no_prepayment(): void
+    public function test_history_totals_for_hunting_count_only_base_services(): void
     {
         $booking = $this->booking([
             'type' => Booking::BookingTypeAnimal,
             'amount_hunting' => 8000,
             'total_hunting' => 4,
         ]);
+        $services = $this->baseServicesWithHuntCharges();
 
-        $open = $this->calculator->getBookingTotal($booking, collect(), 3);
+        $open = $this->calculator->getBookingTotal($booking, $services, 3);
 
         $this->assertSame(0, $open['prepaid_total']);
-        $this->assertMoney(6000, $open['base_total']);
+        $this->assertMoney(1500, $open['base_total']);
         $this->assertSame(0, $open['total']);
 
         $booking->is_paid = true;
 
-        $this->assertMoney(6000, $this->calculator->getBookingTotal($booking, collect(), 3)['base_total']);
+        $this->assertMoney(1500, $this->calculator->getBookingTotal($booking, $services, 3)['base_total']);
     }
 
     public function test_unknown_booking_type_has_empty_history_totals(): void
@@ -357,11 +359,18 @@ class BookingCalculatorTest extends TestCase
             'total_hunting' => 2,
         ]);
 
-        $balance = $this->calculator->getBalanceBase($booking, $this->user(4), collect(), 2);
+        $services = collect([
+            $this->service(AddetionalPrice::FOOD, 100),
+            $this->service(AddetionalPrice::PREPARATION, 500),
+            $this->service(AddetionalPrice::TROPHY, 1000),
+            $this->service(AddetionalPrice::PENALTY, 40, ['hunter_id' => 4]),
+        ]);
+
+        $balance = $this->calculator->getBalanceBase($booking, $this->user(4), $services, 2);
 
         $this->assertSame('Остаток базе', $balance['title_name']);
-        $this->assertMoney(110000, $balance['total_cost']);
-        $this->assertMoney(54995, $balance['my_cost']);
+        $this->assertMoney(800, $balance['total_cost']);
+        $this->assertMoney(395, $balance['my_cost']);
     }
 
     public function test_confirmed_hunting_balance_stays_calculated(): void
@@ -374,11 +383,16 @@ class BookingCalculatorTest extends TestCase
             'status' => Booking::PAID,
         ]);
 
-        $balance = $this->calculator->getBalanceBaseHunting($booking, $this->user(4), collect(), 3);
+        $services = collect([
+            $this->service(AddetionalPrice::PREPARATION, 5000),
+            $this->service(AddetionalPrice::TROPHY, 10000),
+        ]);
+
+        $balance = $this->calculator->getBalanceBaseHunting($booking, $this->user(4), $services, 3);
 
         $this->assertSame('Остаток базе', $balance['title_name']);
-        $this->assertMoney(6000, $balance['total_cost']);
-        $this->assertMoney(2000, $balance['my_cost']);
+        $this->assertMoney(5000, $balance['total_cost']);
+        $this->assertMoney(1667, $balance['my_cost']);
     }
 
     public function test_another_hunters_spending_is_split_and_own_spending_is_not_a_debt(): void
@@ -401,6 +415,17 @@ class BookingCalculatorTest extends TestCase
         $this->assertSame(0, $spendings['items'][1]['my_cost']);
         $this->assertMoney(150, $spendings['total_spending']);
         $this->assertMoney(33, $spendings['total_my_debt']);
+    }
+
+    private function baseServicesWithHuntCharges(): Collection
+    {
+        return collect([
+            $this->service(AddetionalPrice::FOOD, 100),
+            $this->service(AddetionalPrice::PREPARATION, 500),
+            $this->service(AddetionalPrice::ADDETIONAL, 700),
+            $this->service(AddetionalPrice::TROPHY, 1000),
+            $this->service(AddetionalPrice::PENALTY, 200),
+        ]);
     }
 
     private function booking(array $attributes = [], ?string $end = null): Booking

@@ -325,10 +325,13 @@ class BookingCalculator
 
     public function calculateBaseTotal(Booking $booking, $services, int $huntersCount): float
     {
-        $result = $this->getServiceCount($booking, $services, ['trophy', 'penalty', 'food', 'preparation', 'addetional']);
-        $organisationHuntingPaid = $this->calculateOrganisationHunting($booking, $huntersCount);
+        $result = $this->getServiceCount($booking, $services, [
+            AddetionalPrice::FOOD,
+            AddetionalPrice::PREPARATION,
+            AddetionalPrice::ADDETIONAL,
+        ]);
 
-        return $organisationHuntingPaid + $result['total'];
+        return $result['total'];
     }
 
     public function calculateStayEventTotal(Booking $booking, $services, int $huntersCount): float
@@ -338,21 +341,27 @@ class BookingCalculator
 
     public function calculateMyBaseTotal(Booking $booking, User $user, $services, int $huntersCount): float
     {
-        $result = $this->getServiceMyCount($booking, $user, $huntersCount, $services, ['trophy', 'penalty', 'food', 'preparation', 'addetional']);
+        $result = $this->getServiceMyCount($booking, $user, $huntersCount, $services, [
+            AddetionalPrice::FOOD,
+            AddetionalPrice::PREPARATION,
+            AddetionalPrice::ADDETIONAL,
+        ]);
 
         return round(
             $this->getMyAccommodationCost($booking, $user)
-            + $this->calculateMyOrganisationHunting($booking, $huntersCount)
             + $result['total']
             - $this->myPrepaymentMade($booking->total, $huntersCount)
         );
     }
     public function calculateMyBaseTotalOnlyHunting(Booking $booking, User $user, $services, int $huntersCount): float
     {
-        $myOrganizationCost = $this->calculateMyOrganisationHunting($booking, $huntersCount);
-        $result = $this->getServiceMyCount($booking, $user, $huntersCount, $services, ['trophy', 'penalty', 'food', 'preparation', 'addetional']);
+        $result = $this->getServiceMyCount($booking, $user, $huntersCount, $services, [
+            AddetionalPrice::FOOD,
+            AddetionalPrice::PREPARATION,
+            AddetionalPrice::ADDETIONAL,
+        ]);
 
-        return ($myOrganizationCost + $result['total']);
+        return $result['total'];
     }
     public function getAccommodation(Booking $booking, User $user): array
     {
