@@ -275,11 +275,12 @@ class BookingServicesPath
                                             property: "preparations",
                                             type: "array",
                                             items: new OA\Items(
-                                                required: ["id", "animal_title", "count", "price"],
+                                                required: ["id", "animal_id", "animal_title", "type", "count", "price"],
                                                 properties: [
                                                     new OA\Property(property: "id", type: "integer"),
                                                     new OA\Property(property: "animal_id", type: "integer", nullable: true),
                                                     new OA\Property(property: "animal_title", type: "string"),
+                                                    new OA\Property(property: "type", type: "string", example: "Шкура"),
                                                     new OA\Property(property: "count", type: "integer"),
                                                     new OA\Property(property: "price", type: "number", example: 5000),
                                                 ],
@@ -496,7 +497,7 @@ class BookingServicesPath
 
     #[OA\Post(
         path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/services/preparations",
-        description: "Админ базы и мастер-охотник. Для брони с охотой. Повторное добавление по тому же животному увеличивает количество.",
+        description: "Админ базы и мастер-охотник. Для брони с охотой. Тип берётся из справочника разделок. Повторное добавление того же животного и того же типа увеличивает количество; другой тип того же животного — отдельная строка.",
         summary: "Добавить разделку",
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
@@ -532,11 +533,12 @@ class BookingServicesPath
                         new OA\Property(property: "message", type: "string", example: "Услуга добавлена"),
                         new OA\Property(
                             property: "data",
-                            required: ["id", "animal_title", "count", "price"],
+                            required: ["id", "animal_id", "animal_title", "type", "count", "price"],
                             properties: [
                                 new OA\Property(property: "id", type: "integer"),
                                 new OA\Property(property: "animal_id", type: "integer"),
                                 new OA\Property(property: "animal_title", type: "string"),
+                                new OA\Property(property: "type", type: "string", example: "Шкура"),
                                 new OA\Property(property: "count", type: "integer"),
                                 new OA\Property(property: "price", type: "number", example: 5000),
                             ],

@@ -199,11 +199,13 @@ class BookingServiceManager
         }
 
         $totalCost = (float) $price * $data->count;
+        $type = $preparation->type;
 
         $service = BookingService::query()
             ->where('booking_id', $booking->id)
             ->where('service_type', AddetionalPrice::PREPARATION)
             ->where('animal_id', $data->animalId)
+            ->where('type', $type)
             ->first();
 
         if ($service) {
@@ -215,7 +217,7 @@ class BookingServiceManager
             $service = BookingService::create([
                 'booking_id' => $booking->id,
                 'service_type' => AddetionalPrice::PREPARATION,
-                'type' => null,
+                'type' => $type,
                 'service_id' => null,
                 'animal_id' => $data->animalId,
                 'count' => $data->count,
@@ -229,6 +231,7 @@ class BookingServiceManager
             'id' => $service->id,
             'animal_id' => $service->animal_id,
             'animal_title' => $service->animal->title ?? '—',
+            'type' => $service->type,
             'count' => $service->count,
             'price' => $service->price,
         ];
@@ -897,6 +900,7 @@ class BookingServiceManager
                     'id' => $service->id,
                     'animal_id' => $service->animal_id,
                     'animal_title' => $service->animal->title ?? '—',
+                    'type' => $service->type,
                     'count' => $service->count,
                     'price' => $service->price,
                 ])
