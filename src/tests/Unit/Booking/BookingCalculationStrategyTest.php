@@ -133,7 +133,7 @@ class BookingCalculationStrategyTest extends TestCase
         $this->assertMoney(-350, $result['all_items'][1]['my_cost']);
         $this->assertMoney(1000, $result['prepaid_total']);
         $this->assertMoney(300, $result['base_total']);
-        $this->assertMoney(1300, $result['total']);
+        $this->assertMoney(300, $result['total']);
     }
 
     public function test_hunting_strategy_assembles_organisation_and_own_charges(): void
@@ -214,7 +214,7 @@ class BookingCalculationStrategyTest extends TestCase
         $this->assertMoney(0, $result['all_items'][1]['total_cost']);
         $this->assertMoney(-500, $result['all_items'][1]['my_cost']);
         $this->assertMoney(0, $result['base_total']);
-        $this->assertMoney(1000, $result['total']);
+        $this->assertMoney(4000, $result['total']);
     }
 
     /**

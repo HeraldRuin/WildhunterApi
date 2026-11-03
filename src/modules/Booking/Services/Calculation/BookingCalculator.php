@@ -334,6 +334,16 @@ class BookingCalculator
         return $result['total'];
     }
 
+    public function calculateHuntingExpenses(Booking $booking, $services, int $huntersCount): float
+    {
+        $result = $this->getServiceCount($booking, $services, [
+            AddetionalPrice::TROPHY,
+            AddetionalPrice::PENALTY,
+        ]);
+
+        return $this->calculateOrganisationHunting($booking, $huntersCount) + $result['total'];
+    }
+
     public function calculateStayEventTotal(Booking $booking, $services, int $huntersCount): float
     {
         return round($this->getAccommodationCost($booking) + $this->calculateBaseTotal($booking, $services, $huntersCount));
@@ -438,12 +448,13 @@ class BookingCalculator
 
         if ($booking->type === Booking::BookingTypeHotel || $booking->type === Booking::BookingTypeHotelAnimal) {
             $prepaidTotal = $this->basePrepaymentMade($booking);
-            $eventTotal = $this->calculateStayEventTotal($booking, $services, $huntersCount);
+            $baseExpenses = $this->calculateStayEventTotal($booking, $services, $huntersCount);
+            $huntingExpenses = $this->calculateHuntingExpenses($booking, $services, $huntersCount);
 
             return [
                 'prepaid_total' => $prepaidTotal,
-                'base_total' => max(0, round($eventTotal - $prepaidTotal)),
-                'total' => $eventTotal,
+                'base_total' => max(0, round($baseExpenses - $prepaidTotal)),
+                'total' => max(0, round($baseExpenses + $huntingExpenses - $prepaidTotal)),
             ];
         }
 

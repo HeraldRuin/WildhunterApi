@@ -309,7 +309,7 @@ class BookingCalculatorTest extends TestCase
 
         $this->assertMoney(900, $open['prepaid_total']);
         $this->assertMoney(1500, $open['base_total']);
-        $this->assertMoney(2400, $open['total']);
+        $this->assertMoney(8700, $open['total']);
 
         $booking->is_paid = true;
         $booking->status = Booking::PAID;
@@ -317,7 +317,7 @@ class BookingCalculatorTest extends TestCase
 
         $this->assertMoney(900, $paid['prepaid_total']);
         $this->assertMoney(1500, $paid['base_total']);
-        $this->assertMoney(2400, $paid['total']);
+        $this->assertMoney(8700, $paid['total']);
     }
 
     public function test_history_totals_for_hunting_count_only_base_services(): void
