@@ -76,6 +76,7 @@ class HotelHuntingCalculationStrategy implements BookingCalculationStrategy
                 'name' => $spendingData['title_name'],
                 'total_cost' => $spendingData['total_cost'],
                 'my_cost' => $spendingData['my_cost'],
+                'due_to_me' => $spendingData['due_to_me'],
             ];
         }
 

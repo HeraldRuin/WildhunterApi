@@ -412,9 +412,35 @@ class BookingCalculatorTest extends TestCase
 
         $this->assertSame('Иванов (патроны)', $spendings['items'][0]['name']);
         $this->assertMoney(33, $spendings['items'][0]['my_cost']);
+        $this->assertNull($spendings['items'][0]['due_to_me']);
         $this->assertSame(0, $spendings['items'][1]['my_cost']);
+        $this->assertMoney(33, $spendings['items'][1]['due_to_me']);
         $this->assertMoney(150, $spendings['total_spending']);
         $this->assertMoney(33, $spendings['total_my_debt']);
+        $this->assertMoney(33, $spendings['total_due_to_me']);
+    }
+
+    public function test_due_to_me_is_only_the_current_hunters_share_of_the_others(): void
+    {
+        $user = $this->user(4, 'Вуг');
+        $other = $this->user(9, 'Иванов');
+        $ownShashlik = $this->spending(4, 5000, 'Шашлык', $user);
+        $foreignDrinks = $this->spending(9, 3000, 'Напитки', $other);
+        $ownOnion = $this->spending(4, 3000, 'Лучок', $user);
+        $foreignAlcohol = $this->spending(9, 2000, 'Алкоголь', $other);
+
+        $spendings = $this->calculator->getSpendings(
+            collect([$ownShashlik, $foreignDrinks, $ownOnion, $foreignAlcohol]),
+            $user,
+            4,
+        );
+
+        $this->assertMoney(3750, $spendings['items'][0]['due_to_me']);
+        $this->assertNull($spendings['items'][1]['due_to_me']);
+        $this->assertMoney(2250, $spendings['items'][2]['due_to_me']);
+        $this->assertNull($spendings['items'][3]['due_to_me']);
+        $this->assertSame('Итог охотникам', $spendings['title_name']);
+        $this->assertMoney(6000, $spendings['due_to_me']);
     }
 
     private function baseServicesWithHuntCharges(): Collection
@@ -440,6 +466,17 @@ class BookingCalculatorTest extends TestCase
         ], $attributes));
 
         return $booking;
+    }
+
+    private function spending(int $hunterId, float|int $price, string $comment, User $hunter): BookingService
+    {
+        $service = $this->service(AddetionalPrice::SPENDING, $price, [
+            'hunter_id' => $hunterId,
+            'comment' => $comment,
+        ]);
+        $service->setRelation('hunter', $hunter);
+
+        return $service;
     }
 
     private function service(string $serviceType, float|int $price, array $extra = []): BookingService

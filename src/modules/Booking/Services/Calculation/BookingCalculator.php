@@ -286,13 +286,19 @@ class BookingCalculator
     {
         $result = [];
         $totalMyDebt = 0;
+        $totalDueToMe = 0;
         $totalSpending = 0;
+        $hunters = max(1, $huntersCount);
 
         foreach ($spendings as $spending) {
             $hunter = $spending->hunter;
+            $isMine = $spending->hunter_id === $user->id;
+            $share = round($spending->price / $hunters);
+            $myCost = $isMine ? 0 : $share;
+            $dueToMe = $isMine ? round($spending->price) - $share : null;
 
-            $myCost = $spending->hunter_id === $user->id ? 0 : round($spending->price / max(1, $huntersCount));
             $totalMyDebt += $myCost;
+            $totalDueToMe += $dueToMe ?? 0;
             $totalSpending += $spending->price;
 
             $name = (($hunter->last_name ?? '—') . ' (' . ($spending->comment ?? '') . ')');
@@ -301,6 +307,7 @@ class BookingCalculator
                 'name' => $name,
                 'total_cost' => round($spending->price),
                 'my_cost' => $myCost,
+                'due_to_me' => $dueToMe,
             ];
         }
 
@@ -308,6 +315,7 @@ class BookingCalculator
             'items' => $result,
             'total_spending' => round($totalSpending),
             'total_my_debt' => $totalMyDebt,
+            'total_due_to_me' => $totalDueToMe,
         ];
     }
 
@@ -320,6 +328,7 @@ class BookingCalculator
             'items' => $data['items'],
             'total_cost' => $data['total_spending'],
             'my_cost' => $data['total_my_debt'],
+            'due_to_me' => $data['total_due_to_me'],
         ];
     }
 
