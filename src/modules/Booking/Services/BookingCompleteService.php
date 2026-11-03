@@ -49,7 +49,9 @@ class BookingCompleteService
             );
         }
 
-        if ($booking->status !== Booking::PAID || !$booking->checkoutReached()) {
+        // Временно для тестов: завершение доступно сразу при статусе paid,
+        // без ожидания дня выезда.
+        if ($booking->status !== Booking::PAID) {
             throw new ConflictException(
                 errorCode: 'booking_not_completable',
                 domain: 'booking',

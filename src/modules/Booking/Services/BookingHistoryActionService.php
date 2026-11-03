@@ -35,7 +35,9 @@ class BookingHistoryActionService
             $actions[] = 'confirm';
         }
 
-        if ($status === Booking::PAID && $booking->checkoutReached()) {
+        // Временно для тестов: кнопка видна сразу при статусе paid,
+        // без ожидания дня выезда.
+        if ($status === Booking::PAID) {
             $actions[] = 'complete';
         }
 

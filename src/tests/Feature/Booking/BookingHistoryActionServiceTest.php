@@ -102,12 +102,12 @@ class BookingHistoryActionServiceTest extends TestCase
         );
     }
 
-    public function test_complete_is_hidden_before_checkout_day(): void
+    public function test_complete_is_visible_before_checkout_day(): void
     {
         $booking = $this->booking(Booking::PAID, Booking::BookingTypeHotel);
         $booking->end_date = now()->addDay()->toDateString();
 
-        $this->assertCodes($booking, Role::ADMIN, ['add_services', 'calculating']);
+        $this->assertCodes($booking, Role::ADMIN, ['complete', 'add_services', 'calculating']);
     }
 
     public function test_action_labels_come_from_booking_translations(): void
