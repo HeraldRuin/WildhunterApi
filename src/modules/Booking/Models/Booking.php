@@ -1259,6 +1259,12 @@ class Booking extends BaseModel
                 )
         );
     }
+
+    /** Число приёмов пищи: сутки проживания минус одни, но не меньше одного. */
+    public function foodOccasionCount(): int
+    {
+        return max(1, (int) $this->duration_days - 1);
+    }
     public function getDurationHoursAttribute(){
 
         $days = max(1,floor((strtotime($this->end_date) - strtotime($this->start_date)) / HOUR_IN_SECONDS) );

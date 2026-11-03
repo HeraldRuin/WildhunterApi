@@ -33,7 +33,7 @@ class BookingCalculatorTest extends TestCase
         $totals = $this->calculator->getServiceCount($booking, $services, [AddetionalPrice::FOOD]);
 
         $this->assertSame(3.0, $booking->duration_days);
-        $this->assertMoney(450, $totals['food']);
+        $this->assertMoney(300, $totals['food']);
 
         $rounded = $this->calculator->getServiceCount(
             $this->booking(end: '2026-10-06'),
@@ -58,7 +58,7 @@ class BookingCalculatorTest extends TestCase
 
         $this->assertSame('Завтрак', $meals[0]['name']);
         $this->assertSame(BookingService::PLACE_BASE, $meals[0]['place']);
-        $this->assertMoney(1200, $meals[0]['total_cost']);
+        $this->assertMoney(800, $meals[0]['total_cost']);
         $this->assertSame(0, $meals[0]['my_cost']);
     }
 
@@ -180,7 +180,7 @@ class BookingCalculatorTest extends TestCase
             [AddetionalPrice::FOOD],
         );
 
-        $this->assertMoney(150, $totals['food']);
+        $this->assertMoney(100, $totals['food']);
     }
 
     public function test_individual_service_for_another_hunter_is_zero(): void
@@ -308,16 +308,16 @@ class BookingCalculatorTest extends TestCase
         $open = $this->calculator->getBookingTotal($booking, $services, 3);
 
         $this->assertMoney(900, $open['prepaid_total']);
-        $this->assertMoney(1500, $open['base_total']);
-        $this->assertMoney(8700, $open['total']);
+        $this->assertMoney(1400, $open['base_total']);
+        $this->assertMoney(8600, $open['total']);
 
         $booking->is_paid = true;
         $booking->status = Booking::PAID;
         $paid = $this->calculator->getBookingTotal($booking, $services, 3);
 
         $this->assertMoney(900, $paid['prepaid_total']);
-        $this->assertMoney(1500, $paid['base_total']);
-        $this->assertMoney(8700, $paid['total']);
+        $this->assertMoney(1400, $paid['base_total']);
+        $this->assertMoney(8600, $paid['total']);
     }
 
     public function test_history_totals_for_hunting_count_only_base_services(): void
@@ -332,12 +332,12 @@ class BookingCalculatorTest extends TestCase
         $open = $this->calculator->getBookingTotal($booking, $services, 3);
 
         $this->assertSame(0, $open['prepaid_total']);
-        $this->assertMoney(1500, $open['base_total']);
+        $this->assertMoney(1400, $open['base_total']);
         $this->assertSame(0, $open['total']);
 
         $booking->is_paid = true;
 
-        $this->assertMoney(1500, $this->calculator->getBookingTotal($booking, $services, 3)['base_total']);
+        $this->assertMoney(1400, $this->calculator->getBookingTotal($booking, $services, 3)['base_total']);
     }
 
     public function test_unknown_booking_type_has_empty_history_totals(): void
@@ -369,8 +369,8 @@ class BookingCalculatorTest extends TestCase
         $balance = $this->calculator->getBalanceBase($booking, $this->user(4), $services, 2);
 
         $this->assertSame('Остаток базе', $balance['title_name']);
-        $this->assertMoney(800, $balance['total_cost']);
-        $this->assertMoney(395, $balance['my_cost']);
+        $this->assertMoney(700, $balance['total_cost']);
+        $this->assertMoney(345, $balance['my_cost']);
     }
 
     public function test_confirmed_hunting_balance_stays_calculated(): void

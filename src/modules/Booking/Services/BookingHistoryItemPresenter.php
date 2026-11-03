@@ -402,10 +402,8 @@ class BookingHistoryItemPresenter
 
     private function sumServices(Booking $booking, bool $includePersonal): float
     {
-        $days = max(1, (int) $booking->duration_days);
-
         $sum = $booking->bookingServices->sum(
-            function (BookingService $service) use ($days, $includePersonal): float {
+            function (BookingService $service) use ($booking, $includePersonal): float {
                 if ($service->service_type === AddetionalPrice::SPENDING) {
                     return 0.0;
                 }
@@ -414,13 +412,11 @@ class BookingHistoryItemPresenter
                     return 0.0;
                 }
 
-                $price = (float) $service->price;
-
                 if ($service->service_type === AddetionalPrice::FOOD) {
-                    return $price * $days;
+                    return $service->foodStayAmount($booking);
                 }
 
-                return $price;
+                return (float) $service->price;
             },
         );
 

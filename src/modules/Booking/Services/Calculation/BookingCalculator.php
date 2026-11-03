@@ -25,7 +25,7 @@ class BookingCalculator
             $sum = $items->sum(function ($item) use ($booking, $type) {
 
                 if ($type === AddetionalPrice::FOOD) {
-                    return $item->price * max(1, $booking->duration_days);
+                    return $item->foodStayAmount($booking);
                 }
 
                 return $item->price;
@@ -57,7 +57,7 @@ class BookingCalculator
             $sum = $items->sum(function ($item) use ($booking, $type, $user, $huntersCount) {
 
                 if ($type === AddetionalPrice::FOOD) {
-                    $line = $item->price * max(1, (int) $booking->duration_days);
+                    $line = $item->foodStayAmount($booking);
 
                     if ($item->calculation_type === AddetionalPrice::INDIVIDUAL) {
                         return (int) $item->hunter_id === (int) $user->id ? $line : 0;
@@ -193,7 +193,7 @@ class BookingCalculator
 
     private function foodLineTotal(Booking $booking, $food): float
     {
-        return (float) $food->price * max(1, (int) $booking->duration_days);
+        return $food->foodStayAmount($booking);
     }
     public function calculatePenalties(Collection $penalties, User $user): array
     {

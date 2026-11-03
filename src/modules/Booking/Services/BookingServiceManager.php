@@ -668,7 +668,7 @@ class BookingServiceManager
                 'calculation_type' => $item->calculation_type,
                 'unit_price' => $this->foodUnitPrice(
                     $booking,
-                    round((float) $item->price * max(1, (int) $booking->duration_days), 2),
+                    round((float) $item->price * $booking->foodOccasionCount(), 2),
                     $item->calculation_type,
                 ),
             ])
@@ -807,25 +807,21 @@ class BookingServiceManager
 
     /**
      * Сумма услуг брони в рублях.
-     * Цена питания в строке — за одни сутки, поэтому она умножается на число суток.
+     * Питание считается по числу приёмов: сутки проживания минус один.
      * Личные затраты охотников в сумму не входят.
      */
     private function preliminaryTotal(Booking $booking, Collection $services): int
     {
-        $days = max(1, (int) $booking->duration_days);
-
-        $sum = $services->sum(function (BookingService $service) use ($days) {
+        $sum = $services->sum(function (BookingService $service) use ($booking) {
             if ($service->service_type === AddetionalPrice::SPENDING) {
                 return 0;
             }
 
-            $price = (float) $service->price;
-
             if ($service->service_type === AddetionalPrice::FOOD) {
-                return $price * $days;
+                return $service->foodStayAmount($booking);
             }
 
-            return $price;
+            return (float) $service->price;
         });
 
         return (int) round($sum);
@@ -844,9 +840,7 @@ class BookingServiceManager
      */
     private function foodStayPrice(Booking $booking, BookingService $service): float
     {
-        $days = max(1, (int) $booking->duration_days);
-
-        return round((float) $service->price * $days, 2);
+        return $service->foodStayAmount($booking);
     }
 
     /**

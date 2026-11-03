@@ -39,4 +39,15 @@ class BookingService extends Model
     {
         return $this->belongsTo(Animal::class, 'animal_id');
     }
+
+    /**
+     * Цена строки — за один приём. В сумму входит число приёмов за проживание.
+     * Если count уже умножил цену каталога, делим её обратно.
+     */
+    public function foodStayAmount(Booking $booking): float
+    {
+        $portions = max(1, (int) $this->count);
+
+        return round(((float) $this->price / $portions) * $booking->foodOccasionCount(), 2);
+    }
 }
