@@ -29,7 +29,7 @@ class PaykeeperGateway implements PaymentGatewayInterface
 
         $payload = $this->providerPayload($response, 'create_invoice');
         $externalId = (string) ($payload['invoice_id'] ?? $payload['id'] ?? '');
-        $paymentUrl = $this->sbpUrl((string) ($payload['invoice_url'] ?? ''));
+        $paymentUrl = (string) ($payload['invoice_url'] ?? '');
 
         if ($externalId === '' || $paymentUrl === '') {
             throw new PaymentGatewayException(
@@ -187,42 +187,6 @@ class PaykeeperGateway implements PaymentGatewayInterface
         }
 
         return $payload;
-    }
-
-    private function sbpUrl(string $url): string
-    {
-        if ($url === '') {
-            return $url;
-        }
-
-        $pstype = (string) config('paykeeper.pstype', 'sbp_default');
-        if ($pstype === '') {
-            return $url;
-        }
-
-        $query = [];
-        $parts = parse_url($url);
-        if (!is_array($parts) || !isset($parts['host'])) {
-            return $url;
-        }
-
-        if (isset($parts['query'])) {
-            parse_str($parts['query'], $query);
-        }
-
-        $query['pstype'] = $pstype;
-
-        $rebuilt = ($parts['scheme'] ?? 'https').'://'.$parts['host'];
-        if (isset($parts['port'])) {
-            $rebuilt .= ':'.$parts['port'];
-        }
-        $rebuilt .= $parts['path'] ?? '';
-        $rebuilt .= '?'.http_build_query($query);
-        if (isset($parts['fragment'])) {
-            $rebuilt .= '#'.$parts['fragment'];
-        }
-
-        return $rebuilt;
     }
 
     private function url(string $path): string

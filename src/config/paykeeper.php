@@ -6,7 +6,6 @@ return [
     'revoke_path' => env('PAYKEEPER_REVOKE_PATH', '/change/invoice/revoke/'),
     'status_path' => env('PAYKEEPER_STATUS_PATH', '/info/invoice/byid/'),
     'currency' => env('PAYKEEPER_CURRENCY', 'RUB'),
-    'pstype' => env('PAYKEEPER_PSTYPE', 'sbp_default'),
     'invoice_ttl_minutes' => (int) env('PAYKEEPER_INVOICE_TTL_MINUTES', 30),
     'token_ttl_minutes' => (int) env('PAYKEEPER_TOKEN_TTL_MINUTES', 10),
     'cache_key' => env('PAYKEEPER_CACHE_KEY', 'paykeeper:token'),
