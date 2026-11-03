@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Booking\Controllers\BookingController;
 use Modules\Booking\Controllers\CollectionTimerController;
+use Modules\Booking\Controllers\SbpPaymentController;
+
+Route::get('/payments/{code}/sbp', [SbpPaymentController::class, 'show'])->name('booking.payment.sbp');
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/settings/timers/{type}', [CollectionTimerController::class, 'show']);

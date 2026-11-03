@@ -30,6 +30,12 @@ class PaykeeperGateway implements PaymentGatewayInterface
         $payload = $this->providerPayload($response, 'create_invoice');
         $externalId = (string) ($payload['invoice_id'] ?? $payload['id'] ?? '');
         $paymentUrl = (string) ($payload['invoice_url'] ?? '');
+        $sbp = $this->sbpQr($paymentUrl);
+
+        if ($sbp !== null) {
+            $payload['sbp'] = $sbp;
+            $paymentUrl = route('booking.payment.sbp', ['code' => $order->orderId]);
+        }
 
         if ($externalId === '' || $paymentUrl === '') {
             throw new PaymentGatewayException(
@@ -187,6 +193,47 @@ class PaykeeperGateway implements PaymentGatewayInterface
         }
 
         return $payload;
+    }
+
+    /**
+     * @return array{qr_code: string, qr_link: ?string}|null
+     */
+    private function sbpQr(string $invoiceUrl): ?array
+    {
+        if ($invoiceUrl === '') {
+            return null;
+        }
+
+        $url = $invoiceUrl.(str_contains($invoiceUrl, '?') ? '&' : '?').http_build_query([
+            'pstype' => 'sbp_default',
+            'returnFormat' => 'json',
+        ]);
+
+        try {
+            $response = Http::acceptJson()
+                ->connectTimeout((int) config('paykeeper.connect_timeout'))
+                ->timeout((int) config('paykeeper.timeout'))
+                ->get($url);
+        } catch (Throwable) {
+            return null;
+        }
+
+        $body = $response->json();
+        if (!$response->successful() || !is_array($body)) {
+            return null;
+        }
+
+        $image = trim((string) ($body['qr_code'] ?? ''));
+        if (!str_starts_with($image, 'data:image/')) {
+            return null;
+        }
+
+        $link = trim((string) ($body['qr_link'] ?? ''));
+
+        return [
+            'qr_code' => $image,
+            'qr_link' => str_starts_with($link, 'https://') ? $link : null,
+        ];
     }
 
     private function url(string $path): string
