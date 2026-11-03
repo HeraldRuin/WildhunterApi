@@ -22,6 +22,14 @@ class BookingPlaceService
         Booking::FINISHED_BED,
     ];
 
+    /** После последней койки статус становится paid — список мест всё ещё нужен */
+    private const array READ_PLACE_STATUSES = [
+        Booking::FINISHED_PREPAYMENT,
+        Booking::BED_COLLECTION,
+        Booking::FINISHED_BED,
+        Booking::PAID,
+    ];
+
     /** Если все оплатили, но этап коек ещё не стартовал — можно перевести */
     private const array PRE_BED_STATUSES = [
         Booking::FINISHED_COLLECTION,
@@ -40,7 +48,7 @@ class BookingPlaceService
      */
     public function getPlaces(string $code, User $user): array
     {
-        $booking = $this->findBookingForPlaces($code, $user, self::PLACE_STATUSES);
+        $booking = $this->findBookingForPlaces($code, $user, self::READ_PLACE_STATUSES);
 
         $rooms = $booking
             ->roomsBooking()
