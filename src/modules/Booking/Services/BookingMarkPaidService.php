@@ -55,20 +55,31 @@ class BookingMarkPaidService
             );
         }
 
+        $this->applyPaid($booking);
+
+        return $booking;
+    }
+
+    /**
+     * Те же поля и побочные эффекты, что у ручного mark-paid.
+     *
+     * @param array<string, mixed> $attributes
+     */
+    public function applyPaid(Booking $booking, array $attributes = []): void
+    {
+        $attributes['status'] = Booking::PAID;
+        $attributes['is_paid'] = true;
+
         Booking::query()
             ->whereKey($booking->id)
-            ->update([
-                'status' => Booking::PAID,
-                'is_paid' => true,
-            ]);
+            ->update($attributes);
 
-        $booking->status = Booking::PAID;
-        $booking->is_paid = true;
+        foreach ($attributes as $key => $value) {
+            $booking->setAttribute($key, $value);
+        }
 
         $this->bookingMailService->sendStatusUpdated($booking);
         BookingUpdatedEvent::dispatchSafely($booking);
-
-        return $booking;
     }
 
     private function canMarkPaid(Booking $booking): bool

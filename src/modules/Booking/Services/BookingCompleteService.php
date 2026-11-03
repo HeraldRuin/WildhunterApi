@@ -49,7 +49,7 @@ class BookingCompleteService
             );
         }
 
-        if ($booking->status !== Booking::PAID) {
+        if ($booking->status !== Booking::PAID || !$booking->checkoutReached()) {
             throw new ConflictException(
                 errorCode: 'booking_not_completable',
                 domain: 'booking',

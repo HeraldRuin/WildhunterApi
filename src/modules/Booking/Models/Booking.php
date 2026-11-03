@@ -231,6 +231,20 @@ class Booking extends BaseModel
         return booking_status_to_text($this->status_for_user);
     }
 
+    /**
+     * День выезда уже наступил: завершать бронь можно в этот день и позже.
+     */
+    public function checkoutReached(): bool
+    {
+        if (empty($this->end_date)) {
+            return false;
+        }
+
+        return now()->startOfDay()->greaterThanOrEqualTo(
+            Carbon::parse($this->end_date)->startOfDay()
+        );
+    }
+
     public function getStatusClassAttribute()
     {
         switch ($this->status) {

@@ -8,11 +8,15 @@ use App\Models\User;
 use Modules\Booking\Events\BookingHistoryUpdatedEvent;
 use Modules\Booking\Models\Booking;
 use Modules\Booking\Models\BookingRoomPlace;
-use Modules\Booking\Events\BookingUpdatedEvent;
 use Modules\Booking\Models\BookingHunterInvitation;
 
 class BookingBedAllocatorService
 {
+    public function __construct(
+        private readonly BookingMarkPaidService $bookingMarkPaidService,
+    ) {
+    }
+
     public function areAllHuntersAssigned(Booking $booking)
     {
         $masterBookingHunterIds = $booking->bookingHunter()
@@ -133,12 +137,9 @@ class BookingBedAllocatorService
         }
 
         if (empty($huntersWithoutPlace)) {
-            $booking->update([
-                'status' => Booking::FINISHED_BED,
-                'is_all_places_assigned' => true
+            $this->bookingMarkPaidService->applyPaid($booking, [
+                'is_all_places_assigned' => true,
             ]);
-
-            BookingUpdatedEvent::dispatchSafely($booking);
             $this->notifyHistoryUpdated($booking);
         }
     }

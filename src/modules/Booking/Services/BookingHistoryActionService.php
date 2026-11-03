@@ -35,7 +35,7 @@ class BookingHistoryActionService
             $actions[] = 'confirm';
         }
 
-        if ($status === Booking::PAID) {
+        if ($status === Booking::PAID && $booking->checkoutReached()) {
             $actions[] = 'complete';
         }
 
@@ -82,6 +82,7 @@ class BookingHistoryActionService
             Booking::FINISHED_PREPAYMENT,
             Booking::BED_COLLECTION,
             Booking::FINISHED_BED,
+            Booking::PAID,
         ], true)) {
             $actions[] = 'add_services';
         }
@@ -95,10 +96,6 @@ class BookingHistoryActionService
             Booking::COMPLETED,
         ], true)) {
             $actions[] = 'calculating';
-        }
-
-        if ($status === Booking::FINISHED_BED) {
-            $actions[] = 'mark_paid';
         }
 
         return $actions;
@@ -186,6 +183,7 @@ class BookingHistoryActionService
             Booking::START_COLLECTION,
             Booking::BED_COLLECTION,
             Booking::FINISHED_BED,
+            Booking::PAID,
         ], true)) {
             $actions[] = 'open_collection';
         }
@@ -241,6 +239,7 @@ class BookingHistoryActionService
             Booking::FINISHED_PREPAYMENT,
             Booking::BED_COLLECTION,
             Booking::FINISHED_BED,
+            Booking::PAID,
         ], true)) {
             $actions[] = 'open_collection';
         } elseif ($status === Booking::CONFIRMED) {
@@ -261,6 +260,14 @@ class BookingHistoryActionService
             Booking::FINISHED_BED,
         ], true)) {
             $actions[] = 'select_place';
+        }
+
+        if (in_array($status, [
+            Booking::FINISHED_PREPAYMENT,
+            Booking::BED_COLLECTION,
+            Booking::FINISHED_BED,
+            Booking::PAID,
+        ], true)) {
             $actions[] = 'add_services';
         }
 

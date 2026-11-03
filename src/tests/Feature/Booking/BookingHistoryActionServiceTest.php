@@ -102,6 +102,14 @@ class BookingHistoryActionServiceTest extends TestCase
         );
     }
 
+    public function test_complete_is_hidden_before_checkout_day(): void
+    {
+        $booking = $this->booking(Booking::PAID, Booking::BookingTypeHotel);
+        $booking->end_date = now()->addDay()->toDateString();
+
+        $this->assertCodes($booking, Role::ADMIN, ['add_services', 'calculating']);
+    }
+
     public function test_action_labels_come_from_booking_translations(): void
     {
         $actions = $this->actions->getAvailableActions(
@@ -166,8 +174,8 @@ class BookingHistoryActionServiceTest extends TestCase
             'prepayment_collection' => [Booking::PREPAYMENT_COLLECTION, ['cancel', 'add_services', 'calculating']],
             'finish_prepayment' => [Booking::FINISHED_PREPAYMENT, ['cancel', 'add_services', 'calculating']],
             'bed_collection' => [Booking::BED_COLLECTION, ['cancel', 'add_services', 'calculating']],
-            'finish_bed_collection' => [Booking::FINISHED_BED, ['cancel', 'add_services', 'calculating', 'mark_paid']],
-            'paid' => [Booking::PAID, ['complete', 'calculating']],
+            'finish_bed_collection' => [Booking::FINISHED_BED, ['cancel', 'add_services', 'calculating']],
+            'paid' => [Booking::PAID, ['complete', 'add_services', 'calculating']],
             'completed' => [Booking::COMPLETED, ['calculating']],
             'cancelled' => [Booking::CANCELLED, []],
             'finished_collection' => [Booking::FINISHED_COLLECTION, []],
@@ -207,7 +215,7 @@ class BookingHistoryActionServiceTest extends TestCase
             'finish_prepayment' => [Booking::FINISHED_PREPAYMENT, ['cancel', 'open_collection', 'select_place', 'add_services', 'calculating']],
             'bed_collection' => [Booking::BED_COLLECTION, ['cancel', 'open_collection', 'select_place', 'add_services', 'calculating']],
             'finish_bed_collection' => [Booking::FINISHED_BED, ['cancel', 'open_collection', 'select_place', 'add_services', 'calculating']],
-            'paid' => [Booking::PAID, ['calculating']],
+            'paid' => [Booking::PAID, ['open_collection', 'add_services', 'calculating']],
             'completed' => [Booking::COMPLETED, ['calculating']],
             'cancelled' => [Booking::CANCELLED, []],
             'finished_collection' => [Booking::FINISHED_COLLECTION, []],
@@ -278,7 +286,7 @@ class BookingHistoryActionServiceTest extends TestCase
             'collection' => [Booking::START_COLLECTION, ['open_collection']],
             'bed_collection' => [Booking::BED_COLLECTION, ['open_collection', 'select_place', 'calculating']],
             'finish_bed_collection' => [Booking::FINISHED_BED, ['open_collection', 'select_place', 'calculating']],
-            'paid' => [Booking::PAID, ['calculating']],
+            'paid' => [Booking::PAID, ['open_collection', 'calculating']],
             'completed' => [Booking::COMPLETED, ['calculating']],
             'processing' => [Booking::PROCESSING, []],
             'confirmed' => [Booking::CONFIRMED, []],
@@ -339,6 +347,7 @@ class BookingHistoryActionServiceTest extends TestCase
 
         $booking->status = $status;
         $booking->type = $type;
+        $booking->end_date = now()->toDateString();
         $booking->testInvited = $invited;
         $booking->testMaster = $master;
 

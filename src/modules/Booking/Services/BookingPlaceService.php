@@ -8,7 +8,6 @@ use App\Exceptions\NotFoundException;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Modules\Booking\Dto\SelectPlaceData;
-use Modules\Booking\Events\BookingUpdatedEvent;
 use Modules\Booking\Models\Booking;
 use Modules\Booking\Models\BookingHunterInvitation;
 use Modules\Booking\Models\BookingRoomPlace;
@@ -32,6 +31,7 @@ class BookingPlaceService
 
     public function __construct(
         protected BookingCollectionService $bookingCollectionService,
+        private readonly BookingMarkPaidService $bookingMarkPaidService,
     ) {}
 
     /**
@@ -215,9 +215,7 @@ class BookingPlaceService
             ->count();
 
         if ($paidCount > 0 && $placesCount === $paidCount) {
-            $booking->status = Booking::FINISHED_BED;
-            $booking->save();
-            BookingUpdatedEvent::dispatchSafely($booking);
+            $this->bookingMarkPaidService->applyPaid($booking);
         }
     }
 
