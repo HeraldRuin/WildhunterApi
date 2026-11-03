@@ -13,7 +13,6 @@ class BookingCompleteService
 {
     public function __construct(
         private readonly BookingMailService $bookingMailService,
-        private readonly BookingNotificationService $bookingNotificationService,
     ) {
     }
 
@@ -65,7 +64,6 @@ class BookingCompleteService
         $booking->status = Booking::COMPLETED;
 
         $this->bookingMailService->sendStatusUpdated($booking);
-        $this->bookingNotificationService->sendHuntScheduled($booking);
         BookingUpdatedEvent::dispatchSafely($booking);
 
         return $booking;
