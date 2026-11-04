@@ -80,6 +80,12 @@ readonly class UpdateHotelManageData
             $data['max_hunts_per_day'] = (int) $data['max_hunts_per_day'];
         }
 
+        foreach (['min_day_before_booking', 'min_day_stays'] as $intField) {
+            if (array_key_exists($intField, $data) && $data[$intField] !== null) {
+                $data[$intField] = (int) $data[$intField];
+            }
+        }
+
         return new self(
             fields: $data,
             hasGallery: $hasGallery,

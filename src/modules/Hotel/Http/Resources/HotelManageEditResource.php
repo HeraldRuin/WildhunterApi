@@ -27,6 +27,14 @@ class HotelManageEditResource extends BaseJsonResource
             'policy' => $hotel->policy,
             'surrounding' => $hotel->surrounding,
             'price' => $hotel->price,
+            'check_in_time' => $hotel->check_in_time,
+            'check_out_time' => $hotel->check_out_time,
+            'min_day_before_booking' => $hotel->min_day_before_booking !== null
+                ? (int) $hotel->min_day_before_booking
+                : null,
+            'min_day_stays' => $hotel->min_day_stays !== null
+                ? (int) $hotel->min_day_stays
+                : null,
             'extra_price' => $hotel->extra_price,
             'service_fee' => $hotel->service_fee,
             'map_lat' => $hotel->map_lat,
