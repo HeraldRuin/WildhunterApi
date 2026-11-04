@@ -32,7 +32,7 @@ class BookingHistoryItemPresenter
         $isInvited = $this->isInvited($booking, (int) $user->id);
         $isMasterHunter = $this->isMasterHunter($booking, (int) $user->id);
         $statusForUser = $this->resolveStatusForUser($booking, (int) $user->id, $isInvited);
-        $rooms = $this->mapRooms($booking);
+        $rooms = $this->mapRooms($booking, $this->resolveAccommodationPeopleCount($booking));
 
         return new BookingHistoryItemData(
             booking: $booking,
@@ -53,7 +53,7 @@ class BookingHistoryItemPresenter
                 'paid_end_at' => ($timerMeta['paid_end_at'] ?? null) ?: null,
                 'beds_end_at' => ($timerMeta['beds_end_at'] ?? null) ?: null,
             ],
-            details: $this->buildDetails($booking, $rooms, (int) $user->id),
+            details: $this->buildDetails($booking, $rooms, $user),
             payment: $this->buildPayment($booking),
             availableActions: $this->bookingHistoryActionService->getAvailableActions($booking, $role),
         );
@@ -187,8 +187,9 @@ class BookingHistoryItemPresenter
      * @param list<array<string, mixed>> $rooms
      * @return array<string, mixed>
      */
-    private function buildDetails(Booking $booking, array $rooms, int $userId): array
+    private function buildDetails(Booking $booking, array $rooms, User $user): array
     {
+        $userId = (int) $user->id;
         $amountHunting = $this->resolveOrganisationHuntingTotal($booking);
         $amountHuntingPerPerson = $this->resolveOrganisationHuntingPricePerPerson($booking);
         $amountHuntingWithServices = $this->resolveHuntingTotal($booking);
@@ -230,15 +231,13 @@ class BookingHistoryItemPresenter
     /**
      * @return list<array<string, mixed>>
      */
-    private function mapRooms(Booking $booking): array
+    private function mapRooms(Booking $booking, int $peopleCount): array
     {
         $rooms = $booking->relationLoaded('roomsBooking')
             ? $booking->roomsBooking
             : $booking->roomsBooking()->with('room')->get();
 
-        $totalGuests = (int) $booking->total_guests;
-
-        return $rooms->map(function (HotelRoomBooking $roomBooking) use ($totalGuests) {
+        return $rooms->map(function (HotelRoomBooking $roomBooking) use ($peopleCount) {
             $room = $roomBooking->room;
             $number = (int) $roomBooking->number;
             $placesPerRoom = $this->placesPerRoom($room);
@@ -250,7 +249,7 @@ class BookingHistoryItemPresenter
                 'number' => $number,
                 'price' => (float) $roomBooking->price,
                 'price_total' => $priceTotal,
-                'price_per_person' => $this->resolvePricePerPerson($priceTotal, $totalGuests),
+                'price_per_person' => $this->resolvePricePerPerson($priceTotal, $peopleCount),
                 'adults' => (int) ($room?->adults ?? 0),
                 'beds' => (int) ($room?->beds ?? 0),
                 'places_per_room' => $placesPerRoom,
@@ -308,7 +307,39 @@ class BookingHistoryItemPresenter
             return null;
         }
 
-        return $this->resolvePricePerPerson((float) $booking->total, (int) $booking->total_guests);
+        return $this->resolvePricePerPerson(
+            (float) $booking->total,
+            $this->resolveAccommodationPeopleCount($booking),
+        );
+    }
+
+    /**
+     * До конца сбора делим на запланированное число людей.
+     * После сбора — на тех, кто подтвердил участие: ту же цифру платят при предоплате.
+     */
+    private function resolveAccommodationPeopleCount(Booking $booking): int
+    {
+        $planned = $booking->getNeededHuntersCount();
+
+        if (!$this->isGatheringFinished($booking)) {
+            return $planned;
+        }
+
+        $accepted = $booking->countAcceptedHunters();
+
+        return $accepted > 0 ? $accepted : $planned;
+    }
+
+    private function isGatheringFinished(Booking $booking): bool
+    {
+        return !in_array($booking->status, [
+            Booking::DRAFT,
+            Booking::UNPAID,
+            Booking::PROCESSING,
+            Booking::CONFIRMED,
+            Booking::START_COLLECTION,
+            Booking::INVITATION,
+        ], true);
     }
 
     private function resolvePricePerPerson(float $total, int $personCount): ?float

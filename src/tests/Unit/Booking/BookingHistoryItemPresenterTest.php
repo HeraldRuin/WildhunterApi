@@ -105,6 +105,25 @@ class BookingHistoryItemPresenterTest extends TestCase
         $this->assertSame(30100.0, $other['amount_hunting_with_services_per_person']);
     }
 
+    public function test_accommodation_per_person_uses_planned_count_until_collection_ends(): void
+    {
+        $booking = $this->hotelBooking(Booking::START_COLLECTION, 9, 4);
+
+        $details = $this->present($booking);
+
+        $this->assertSame(9.0, $details['amount_accommodation']);
+        $this->assertSame(2.25, $details['amount_accommodation_per_person']);
+    }
+
+    public function test_accommodation_per_person_uses_accepted_hunters_after_collection(): void
+    {
+        $booking = $this->hotelBooking(Booking::PREPAYMENT_COLLECTION, 9, 4, acceptedHunters: 3);
+
+        $details = $this->present($booking);
+
+        $this->assertSame(3.0, $details['amount_accommodation_per_person']);
+    }
+
     public function test_hunting_amounts_stay_empty_without_organisation_price(): void
     {
         $booking = $this->booking(
@@ -172,6 +191,46 @@ class BookingHistoryItemPresenterTest extends TestCase
     /**
      * @return array<string, mixed>
      */
+    private function hotelBooking(
+        string $status,
+        float $total,
+        int $hunters,
+        ?int $acceptedHunters = null,
+    ): Booking {
+        $booking = $acceptedHunters === null
+            ? new Booking()
+            : new class extends Booking {
+                public int $acceptedHunters = 0;
+
+                public function countAcceptedHunters(): int
+                {
+                    return $this->acceptedHunters;
+                }
+            };
+
+        if ($acceptedHunters !== null) {
+            $booking->acceptedHunters = $acceptedHunters;
+        }
+
+        $booking->id = 83;
+        $booking->status = $status;
+        $booking->type = Booking::BookingTypeHotelAnimal;
+        $booking->create_user = 1;
+        $booking->start_date = '2026-10-01';
+        $booking->end_date = '2026-10-04';
+        $booking->total = $total;
+        $booking->total_hunting = $hunters;
+        $booking->total_guests = $hunters;
+        $booking->amount_hunting = null;
+        $booking->setRelation('hunterInvitations', collect());
+        $booking->setRelation('bookingHunters', collect());
+        $booking->setRelation('roomsBooking', collect());
+        $booking->setRelation('animal', null);
+        $booking->setRelation('bookingServices', collect());
+
+        return $booking;
+    }
+
     private function present(Booking $booking, int $userId = 1): array
     {
         $actions = $this->createStub(BookingHistoryActionService::class);
