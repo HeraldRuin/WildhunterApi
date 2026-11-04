@@ -26,7 +26,7 @@ class RoomAvailabilityService
         $rooms = HotelRoom::query()
             ->where('parent_id', $hotel->id)
             ->orderByDesc('id')
-            ->get(['id', 'title', 'number', 'price', 'status', 'image_id', 'updated_at']);
+            ->get(['id', 'title', 'number', 'beds', 'adults', 'price', 'status', 'image_id', 'updated_at']);
 
         return [
             'hotel_id' => $hotel->id,
