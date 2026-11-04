@@ -8,6 +8,7 @@ use App\Exceptions\NotFoundException;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Modules\Booking\Dto\SelectPlaceData;
+use Modules\Booking\Events\BookingPlacesUpdatedEvent;
 use Modules\Booking\Models\Booking;
 use Modules\Booking\Models\BookingHunterInvitation;
 use Modules\Booking\Models\BookingRoomPlace;
@@ -73,12 +74,7 @@ class BookingPlaceService
             ->values()
             ->all();
 
-        $places = BookingRoomPlace::query()
-            ->with('user:id,first_name,last_name,user_name')
-            ->where('booking_id', $booking->id)
-            ->get()
-            ->groupBy(['room_index', 'room_id', 'place_number'])
-            ->toArray();
+        $places = BookingRoomPlace::occupiedMap($booking->id);
 
         return [
             'rooms' => $rooms,
@@ -174,6 +170,11 @@ class BookingPlaceService
 
             $this->updateStatusIfAllPlacesSelected($booking);
 
+            BookingPlacesUpdatedEvent::dispatchSafely(
+                $booking,
+                BookingPlacesUpdatedEvent::ACTION_SELECTED,
+            );
+
             return [
                 'code' => 'place_selected',
             ];
@@ -209,6 +210,11 @@ class BookingPlaceService
         }
 
         $place->delete();
+
+        BookingPlacesUpdatedEvent::dispatchSafely(
+            $booking,
+            BookingPlacesUpdatedEvent::ACTION_CANCELLED,
+        );
 
         return [
             'code' => 'place_cancelled',

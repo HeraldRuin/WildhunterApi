@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use Modules\Booking\Events\BookingHistoryUpdatedEvent;
+use Modules\Booking\Events\BookingPlacesUpdatedEvent;
 use Modules\Booking\Models\Booking;
 use Modules\Booking\Models\BookingRoomPlace;
 use Modules\Booking\Models\BookingHunterInvitation;
@@ -60,8 +61,9 @@ class BookingBedAllocatorService
         }
 
         $huntersWithoutPlace = [];
+        $placedAny = false;
 
-        DB::transaction(function () use ($booking, &$notSetBedHunterIds, &$huntersWithoutPlace) {
+        DB::transaction(function () use ($booking, &$notSetBedHunterIds, &$huntersWithoutPlace, &$placedAny) {
 
             $roomBookings = $booking->roomsBooking()->with('room')->get();
 
@@ -117,6 +119,7 @@ class BookingBedAllocatorService
 
                     $room['current']++;
                     $placedSomeone = true;
+                    $placedAny = true;
                 }
 
                 if (!$placedSomeone) {
@@ -141,6 +144,13 @@ class BookingBedAllocatorService
                 'is_all_places_assigned' => true,
             ]);
             $this->notifyHistoryUpdated($booking);
+        }
+
+        if ($placedAny) {
+            BookingPlacesUpdatedEvent::dispatchSafely(
+                $booking,
+                BookingPlacesUpdatedEvent::ACTION_ASSIGNED,
+            );
         }
     }
 

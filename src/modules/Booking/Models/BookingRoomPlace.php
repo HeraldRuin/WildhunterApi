@@ -33,4 +33,19 @@ class BookingRoomPlace extends BaseModel
     {
         return $this->belongsTo(Booking::class, 'booking_id');
     }
+
+    /**
+     * Занятые места в том же виде, что GET /bookings/{code}/places → data.places.
+     *
+     * @return array<int|string, mixed>
+     */
+    public static function occupiedMap(int $bookingId): array
+    {
+        return self::query()
+            ->with('user:id,first_name,last_name,user_name')
+            ->where('booking_id', $bookingId)
+            ->get()
+            ->groupBy(['room_index', 'room_id', 'place_number'])
+            ->toArray();
+    }
 }
