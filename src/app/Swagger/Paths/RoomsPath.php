@@ -36,6 +36,8 @@ class RoomsPath
                                             new OA\Property(property: "id", type: "integer", example: 12),
                                             new OA\Property(property: "title", type: "string", example: "Стандарт"),
                                             new OA\Property(property: "number", type: "integer", example: 3),
+                                            new OA\Property(property: "beds", type: "integer", example: 3, nullable: true),
+                                            new OA\Property(property: "adults", type: "integer", example: 5, nullable: true),
                                             new OA\Property(property: "price", type: "number", format: "float", example: 5000),
                                             new OA\Property(property: "status", type: "string", example: "publish"),
                                         ],
