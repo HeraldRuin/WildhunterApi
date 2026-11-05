@@ -42,11 +42,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/bookings/{code}/calculating', [BookingController::class, 'calculating']);
     Route::get('/bookings/{code}/services', [BookingController::class, 'services']);
     Route::post('/bookings/{code}/services/trophies', [BookingController::class, 'storeTrophy']);
+    Route::put('/bookings/{code}/services/trophies/{id}', [BookingController::class, 'updateTrophy']);
     Route::post('/bookings/{code}/services/penalties', [BookingController::class, 'storePenalty']);
+    Route::put('/bookings/{code}/services/penalties/{id}', [BookingController::class, 'updatePenalty']);
     Route::post('/bookings/{code}/services/preparations', [BookingController::class, 'storePreparation']);
+    Route::put('/bookings/{code}/services/preparations/{id}', [BookingController::class, 'updatePreparation']);
     Route::post('/bookings/{code}/services/foods', [BookingController::class, 'storeFood']);
     Route::put('/bookings/{code}/services/foods/{id}', [BookingController::class, 'updateFood']);
     Route::post('/bookings/{code}/services/additionals', [BookingController::class, 'storeAdditional']);
+    Route::put('/bookings/{code}/services/additionals/{id}', [BookingController::class, 'updateAdditional']);
     Route::post('/bookings/{code}/services/spendings', [BookingController::class, 'storeSpending']);
+    Route::put('/bookings/{code}/services/spendings/{id}', [BookingController::class, 'updateSpending']);
     Route::delete('/bookings/{code}/services/{serviceId}', [BookingController::class, 'deleteService']);
 });

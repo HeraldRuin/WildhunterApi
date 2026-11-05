@@ -14,16 +14,21 @@ class UpdateFoodRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'food_id' => ['sometimes', 'integer'],
             'count' => ['required', 'integer', 'min:1'],
+            'hunter_id' => ['nullable', 'integer', 'exists:users,id'],
         ];
     }
 
     public function messages(): array
     {
         return [
+            'food_id.integer' => __('booking.validation.food_id_must_be_integer'),
             'count.required' => __('booking.validation.service_count_required'),
             'count.integer' => __('booking.validation.service_count_must_be_integer'),
             'count.min' => __('booking.validation.service_count_min_value'),
+            'hunter_id.integer' => __('booking.validation.hunter_id_must_be_integer'),
+            'hunter_id.exists' => __('booking.validation.hunter_id_not_found'),
         ];
     }
 }

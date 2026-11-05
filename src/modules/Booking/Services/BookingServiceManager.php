@@ -103,14 +103,37 @@ class BookingServiceManager
 
         $this->notifyHistoryUpdated($booking, $user);
 
-        return [
-            'id' => $service->id,
-            'animal_id' => $service->animal_id,
-            'animal_title' => $service->animal->title ?? '—',
-            'type' => $service->type,
-            'count' => $service->count,
-            'price' => $service->price,
-        ];
+        return $this->trophyItem($service);
+    }
+
+    /**
+     * @throws ConflictException
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     */
+    public function updateTrophy(string $code, int $serviceId, StoreTrophyData $data, User $user): array
+    {
+        [$booking] = $this->findAuthorizedBooking($code, $user, AddetionalPrice::TROPHY);
+        $service = $this->findOwnedService($booking, $serviceId, AddetionalPrice::TROPHY);
+        $price = $this->animalCatalogPrice(
+            AnimalTrophy::query()
+                ->whereKey($data->trophyId)
+                ->where('animal_id', $data->animalId),
+            $booking,
+        );
+
+        $service->fill([
+            'type' => $data->type,
+            'animal_id' => $data->animalId,
+            'count' => $data->count,
+            'price' => round($price * $data->count, 2),
+        ]);
+        $service->save();
+        $service->load('animal');
+
+        $this->notifyHistoryUpdated($booking, $user);
+
+        return $this->withPreliminaryTotal($booking, $this->trophyItem($service));
     }
 
     /**
@@ -157,16 +180,39 @@ class BookingServiceManager
 
         $this->notifyHistoryUpdated($booking, $user);
 
-        return [
-            'id' => $service->id,
-            'animal_id' => $service->animal_id,
-            'animal_title' => $service->animal->title ?? '—',
-            'type' => $service->type,
-            'count' => 1,
-            'hunter_id' => $service->hunter_id,
-            'hunter_name' => $this->hunterName($service->hunter),
-            'price' => $service->price,
-        ];
+        return $this->penaltyItem($service);
+    }
+
+    /**
+     * @throws ConflictException
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     * @throws ValidationException
+     */
+    public function updatePenalty(string $code, int $serviceId, StorePenaltyData $data, User $user): array
+    {
+        [$booking] = $this->findAuthorizedBooking($code, $user, AddetionalPrice::PENALTY);
+        $this->assertHunterInBooking($booking, $data->hunterId);
+        $service = $this->findOwnedService($booking, $serviceId, AddetionalPrice::PENALTY);
+        $price = $this->animalCatalogPrice(
+            AnimalFine::query()
+                ->whereKey($data->penaltyId)
+                ->where('animal_id', $data->animalId),
+            $booking,
+        );
+
+        $service->fill([
+            'type' => $data->type,
+            'hunter_id' => $data->hunterId,
+            'animal_id' => $data->animalId,
+            'price' => $price,
+        ]);
+        $service->save();
+        $service->load(['hunter', 'animal']);
+
+        $this->notifyHistoryUpdated($booking, $user);
+
+        return $this->withPreliminaryTotal($booking, $this->penaltyItem($service));
     }
 
     /**
@@ -228,14 +274,52 @@ class BookingServiceManager
 
         $this->notifyHistoryUpdated($booking, $user);
 
-        return [
-            'id' => $service->id,
-            'animal_id' => $service->animal_id,
-            'animal_title' => $service->animal->title ?? '—',
-            'type' => $service->type,
-            'count' => $service->count,
-            'price' => $service->price,
-        ];
+        return $this->preparationItem($service);
+    }
+
+    /**
+     * @throws ConflictException
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     */
+    public function updatePreparation(string $code, int $serviceId, StorePreparationData $data, User $user): array
+    {
+        [$booking] = $this->findAuthorizedBooking($code, $user, AddetionalPrice::PREPARATION);
+        $service = $this->findOwnedService($booking, $serviceId, AddetionalPrice::PREPARATION);
+
+        $preparation = AnimalPreparation::query()
+            ->whereKey($data->preparationId)
+            ->where('animal_id', $data->animalId)
+            ->whereHas('hotelPrices', fn ($q) => $q->where('hotel_id', $booking->hotel_id))
+            ->first();
+
+        if (!$preparation) {
+            throw new NotFoundException(
+                errorCode: 'service_price_not_found',
+                domain: 'booking',
+            );
+        }
+
+        $price = $preparation->hotelPrices()->where('hotel_id', $booking->hotel_id)->value('price');
+        if ($price === null) {
+            throw new NotFoundException(
+                errorCode: 'service_price_not_found',
+                domain: 'booking',
+            );
+        }
+
+        $service->fill([
+            'type' => $preparation->type,
+            'animal_id' => $data->animalId,
+            'count' => $data->count,
+            'price' => round($price * $data->count, 2),
+        ]);
+        $service->save();
+        $service->load('animal');
+
+        $this->notifyHistoryUpdated($booking, $user);
+
+        return $this->withPreliminaryTotal($booking, $this->preparationItem($service));
     }
 
     /**
@@ -296,33 +380,47 @@ class BookingServiceManager
      * @throws ConflictException
      * @throws ForbiddenException
      * @throws NotFoundException
+     * @throws ValidationException
      */
     public function updateFood(string $code, int $serviceId, UpdateFoodData $data, User $user): array
     {
         [$booking] = $this->findAuthorizedBooking($code, $user, AddetionalPrice::FOOD);
+        $service = $this->findOwnedService($booking, $serviceId, AddetionalPrice::FOOD);
 
-        $service = BookingService::query()
-            ->where('id', $serviceId)
-            ->where('booking_id', $booking->id)
-            ->where('service_type', AddetionalPrice::FOOD)
-            ->first();
+        if ($data->foodId === null) {
+            $unitPrice = $service->foodUnitPrice();
+            $service->count = $data->count;
+            $service->price = round($unitPrice * $data->count, 2);
+        } else {
+            $food = $this->hotelFoods($booking)
+                ->whereKey($data->foodId)
+                ->first();
 
-        if (!$service) {
-            throw new NotFoundException(
-                errorCode: 'service_not_found',
-                domain: 'booking',
-            );
+            if (!$food) {
+                throw new NotFoundException(
+                    errorCode: 'service_price_not_found',
+                    domain: 'booking',
+                );
+            }
+
+            $unitPrice = round((float) $food->price, 2);
+            $service->fill([
+                'service_id' => $food->id,
+                'type' => $food->name,
+                'calculation_type' => $food->calculation_type,
+                'count' => $data->count,
+                'price' => round($unitPrice * $data->count, 2),
+                'hunter_id' => $this->hunterForIndividual($booking, $food->calculation_type, $data->hunterId),
+                'place' => $this->catalogPlace($food),
+            ]);
         }
 
-        $unitPrice = $service->foodUnitPrice();
-        $service->count = $data->count;
-        $service->price = round($unitPrice * $data->count, 2);
         $service->save();
         $service->load('hunter');
 
         $this->notifyHistoryUpdated($booking, $user);
 
-        return $this->foodItem($service);
+        return $this->withPreliminaryTotal($booking, $this->foodItem($service));
     }
 
     /**
@@ -373,15 +471,46 @@ class BookingServiceManager
 
         $this->notifyHistoryUpdated($booking, $user);
 
-        return [
-            'id' => $service->id,
-            'type' => $service->type,
-            'calculation_type' => $service->calculation_type,
-            'count' => $service->count,
-            'hunter_id' => $service->hunter_id,
-            'hunter_name' => $this->hunterName($service->hunter),
-            'price' => round((float) $service->price, 2),
-        ];
+        return $this->additionalItem($service);
+    }
+
+    /**
+     * @throws ConflictException
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     * @throws ValidationException
+     */
+    public function updateAdditional(string $code, int $serviceId, StoreAdditionalData $data, User $user): array
+    {
+        [$booking] = $this->findAuthorizedBooking($code, $user, AddetionalPrice::ADDETIONAL);
+        $service = $this->findOwnedService($booking, $serviceId, AddetionalPrice::ADDETIONAL);
+
+        $additional = $this->hotelAdditionals($booking)
+            ->whereKey($data->additionalId)
+            ->first();
+
+        if (!$additional) {
+            throw new NotFoundException(
+                errorCode: 'service_price_not_found',
+                domain: 'booking',
+            );
+        }
+
+        $service->fill([
+            'service_id' => $additional->id,
+            'type' => $data->name,
+            'calculation_type' => $additional->calculation_type,
+            'count' => $data->count,
+            'hunter_id' => $this->hunterForIndividual($booking, $additional->calculation_type, $data->hunterId),
+            'price' => round((float) $additional->price * $data->count, 2),
+            'place' => $this->catalogPlace($additional),
+        ]);
+        $service->save();
+        $service->load('hunter');
+
+        $this->notifyHistoryUpdated($booking, $user);
+
+        return $this->withPreliminaryTotal($booking, $this->additionalItem($service));
     }
 
     /**
@@ -406,13 +535,32 @@ class BookingServiceManager
 
         $this->notifyHistoryUpdated($booking, $user);
 
-        return [
-            'id' => $service->id,
-            'price' => $service->price,
-            'comment' => $service->comment,
-            'hunter_id' => $service->hunter_id,
-            'hunter_name' => $this->hunterName($service->hunter),
-        ];
+        return $this->spendingItem($service);
+    }
+
+    /**
+     * @throws ConflictException
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     * @throws ValidationException
+     */
+    public function updateSpending(string $code, int $serviceId, StoreSpendingData $data, User $user): array
+    {
+        [$booking] = $this->findAuthorizedBooking($code, $user, AddetionalPrice::SPENDING);
+        $this->assertHunterInBooking($booking, $data->hunterId);
+        $service = $this->findOwnedService($booking, $serviceId, AddetionalPrice::SPENDING);
+
+        $service->fill([
+            'price' => $data->price,
+            'comment' => $data->comment,
+            'hunter_id' => $data->hunterId,
+        ]);
+        $service->save();
+        $service->load('hunter');
+
+        $this->notifyHistoryUpdated($booking, $user);
+
+        return $this->withPreliminaryTotal($booking, $this->spendingItem($service));
     }
 
     /**
@@ -850,16 +998,169 @@ class BookingServiceManager
     }
 
     /**
-     * @param  Collection<int, BookingService>  $services
-     * @return array{
-     *     trophies: mixed,
-     *     penalties: mixed,
-     *     preparations: mixed,
-     *     foods: mixed,
-     *     additionals: mixed,
-     *     spendings: mixed
-     * }
+     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $query
      */
+    private function animalCatalogPrice($query, Booking $booking): float
+    {
+        $item = $query
+            ->whereHas('hotelPrices', fn ($q) => $q->where('hotel_id', $booking->hotel_id))
+            ->first();
+
+        if (!$item) {
+            throw new NotFoundException(
+                errorCode: 'service_price_not_found',
+                domain: 'booking',
+            );
+        }
+
+        $price = $item->hotelPrices()->where('hotel_id', $booking->hotel_id)->value('price');
+        if ($price === null) {
+            throw new NotFoundException(
+                errorCode: 'service_price_not_found',
+                domain: 'booking',
+            );
+        }
+
+        return (float) $price;
+    }
+
+    /**
+     * @throws NotFoundException
+     */
+    private function findOwnedService(Booking $booking, int $serviceId, string $serviceType): BookingService
+    {
+        $service = BookingService::query()
+            ->whereKey($serviceId)
+            ->where('booking_id', $booking->id)
+            ->where('service_type', $serviceType)
+            ->first();
+
+        if (!$service) {
+            throw new NotFoundException(
+                errorCode: 'service_not_found',
+                domain: 'booking',
+            );
+        }
+
+        return $service;
+    }
+
+    /**
+     * Для индивидуального расчёта охотник обязателен. Для «на всех» охотник сбрасывается.
+     *
+     * @throws ValidationException
+     */
+    private function hunterForIndividual(Booking $booking, ?string $calculationType, ?int $hunterId): ?int
+    {
+        if ($calculationType !== AddetionalPrice::INDIVIDUAL) {
+            return null;
+        }
+
+        if (!$hunterId) {
+            throw new ValidationException(
+                message: __('booking.validation.hunter_id_required'),
+                errorCode: 'hunter_id_required',
+                domain: 'booking',
+            );
+        }
+
+        $this->assertHunterInBooking($booking, $hunterId);
+
+        return $hunterId;
+    }
+
+    /**
+     * @param  array<string, mixed>  $item
+     * @return array<string, mixed>
+     */
+    private function withPreliminaryTotal(Booking $booking, array $item): array
+    {
+        $services = BookingService::query()
+            ->where('booking_id', $booking->id)
+            ->get();
+
+        $item['preliminary_total'] = $this->preliminaryTotal($services);
+
+        return $item;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function trophyItem(BookingService $service): array
+    {
+        return [
+            'id' => $service->id,
+            'animal_id' => $service->animal_id,
+            'animal_title' => $service->animal->title ?? '—',
+            'type' => $service->type,
+            'count' => $service->count,
+            'price' => $service->price,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function penaltyItem(BookingService $service): array
+    {
+        return [
+            'id' => $service->id,
+            'animal_id' => $service->animal_id,
+            'animal_title' => $service->animal->title ?? '—',
+            'type' => $service->type,
+            'count' => 1,
+            'hunter_id' => $service->hunter_id,
+            'hunter_name' => $this->hunterName($service->hunter),
+            'price' => $service->price,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function preparationItem(BookingService $service): array
+    {
+        return [
+            'id' => $service->id,
+            'animal_id' => $service->animal_id,
+            'animal_title' => $service->animal->title ?? '—',
+            'type' => $service->type,
+            'count' => $service->count,
+            'price' => $service->price,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function additionalItem(BookingService $service): array
+    {
+        return [
+            'id' => $service->id,
+            'type' => $service->type,
+            'calculation_type' => $service->calculation_type,
+            'count' => $service->count,
+            'hunter_id' => $service->hunter_id,
+            'hunter_name' => $this->hunterName($service->hunter),
+            'price' => round((float) $service->price, 2),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function spendingItem(BookingService $service): array
+    {
+        return [
+            'id' => $service->id,
+            'price' => $service->price,
+            'comment' => $service->comment,
+            'hunter_id' => $service->hunter_id,
+            'hunter_name' => $this->hunterName($service->hunter),
+        ];
+    }
+
     /**
      * @return array{
      *     id: int,

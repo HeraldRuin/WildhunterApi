@@ -440,6 +440,66 @@ class BookingServicesPath
     public function StoreTrophy(): void
     {}
 
+    #[OA\Put(
+        path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/services/trophies/{id}",
+        description: "Только администратор базы. Обновляет уже сохранённый трофей и пересчитывает сумму строки.",
+        summary: "Изменить трофей",
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["animal_id", "trophy_id", "type", "count"],
+                properties: [
+                    new OA\Property(property: "animal_id", type: "integer", example: 3),
+                    new OA\Property(property: "trophy_id", type: "integer", example: 8),
+                    new OA\Property(property: "type", type: "string", example: "Клык"),
+                    new OA\Property(property: "count", type: "integer", example: 2),
+                ],
+                type: "object"
+            )
+        ),
+        tags: ["BookingService"],
+        parameters: [
+            new OA\Parameter(name: "code", description: "Код бронирования", in: "path", required: true, schema: new OA\Schema(type: "string", example: "faa1c65d4b0de02146a27cea429340fb")),
+            new OA\Parameter(name: "id", description: "ID записи трофея", in: "path", required: true, schema: new OA\Schema(type: "integer", example: 41)),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Трофей обновлён",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: "Услуга обновлена"),
+                        new OA\Property(
+                            property: "data",
+                            required: ["id", "animal_title", "type", "count", "price", "preliminary_total"],
+                            properties: [
+                                new OA\Property(property: "id", type: "integer"),
+                                new OA\Property(property: "animal_id", type: "integer"),
+                                new OA\Property(property: "animal_title", type: "string"),
+                                new OA\Property(property: "type", type: "string"),
+                                new OA\Property(property: "count", type: "integer"),
+                                new OA\Property(property: "price", description: "Цена за единицу × count", type: "number", example: 10000),
+                                new OA\Property(property: "preliminary_total", description: "Сумма услуг брони после изменения", type: "integer", example: 15000),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(ref: "#/components/responses/AuthResponse", response: 401),
+            new OA\Response(response: 403, description: "Нет доступа / недоступно охотнику"),
+            new OA\Response(ref: "#/components/responses/NotFoundResponse", response: 404),
+            new OA\Response(response: 409, description: "Добавление услуг недоступно на текущем этапе"),
+            new OA\Response(ref: "#/components/responses/ValidationError", response: 422),
+        ]
+    )]
+    public function UpdateTrophy(): void
+    {}
+
     #[OA\Post(
         path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/services/penalties",
         description: "Только администратор базы. Для брони с охотой.",
@@ -506,6 +566,68 @@ class BookingServicesPath
     public function StorePenalty(): void
     {}
 
+    #[OA\Put(
+        path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/services/penalties/{id}",
+        description: "Только администратор базы. Обновляет уже сохранённый штраф.",
+        summary: "Изменить штраф",
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["animal_id", "penalty_id", "type", "hunter_id"],
+                properties: [
+                    new OA\Property(property: "animal_id", type: "integer", example: 3),
+                    new OA\Property(property: "penalty_id", type: "integer", example: 4),
+                    new OA\Property(property: "type", type: "string", example: "Ранение"),
+                    new OA\Property(property: "hunter_id", type: "integer", example: 12),
+                ],
+                type: "object"
+            )
+        ),
+        tags: ["BookingService"],
+        parameters: [
+            new OA\Parameter(name: "code", description: "Код бронирования", in: "path", required: true, schema: new OA\Schema(type: "string", example: "faa1c65d4b0de02146a27cea429340fb")),
+            new OA\Parameter(name: "id", description: "ID записи штрафа", in: "path", required: true, schema: new OA\Schema(type: "integer", example: 41)),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Штраф обновлён",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: "Услуга обновлена"),
+                        new OA\Property(
+                            property: "data",
+                            required: ["id", "animal_title", "type", "hunter_id", "hunter_name", "price", "preliminary_total"],
+                            properties: [
+                                new OA\Property(property: "id", type: "integer"),
+                                new OA\Property(property: "animal_id", type: "integer"),
+                                new OA\Property(property: "animal_title", type: "string"),
+                                new OA\Property(property: "type", type: "string"),
+                                new OA\Property(property: "count", type: "integer", example: 1),
+                                new OA\Property(property: "hunter_id", type: "integer"),
+                                new OA\Property(property: "hunter_name", type: "string"),
+                                new OA\Property(property: "price", type: "number", example: 5000),
+                                new OA\Property(property: "preliminary_total", description: "Сумма услуг брони после изменения", type: "integer", example: 15000),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(ref: "#/components/responses/AuthResponse", response: 401),
+            new OA\Response(response: 403, description: "Нет доступа / недоступно охотнику"),
+            new OA\Response(ref: "#/components/responses/NotFoundResponse", response: 404),
+            new OA\Response(response: 409, description: "Добавление услуг недоступно на текущем этапе"),
+            new OA\Response(ref: "#/components/responses/ValidationError", response: 422),
+        ]
+    )]
+    public function UpdatePenalty(): void
+    {}
+
     #[OA\Post(
         path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/services/preparations",
         description: "Админ базы и мастер-охотник. Для брони с охотой. Тип берётся из справочника разделок. Повторное добавление того же животного и того же типа увеличивает количество; другой тип того же животного — отдельная строка.",
@@ -567,6 +689,65 @@ class BookingServicesPath
         ]
     )]
     public function StorePreparation(): void
+    {}
+
+    #[OA\Put(
+        path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/services/preparations/{id}",
+        description: "Админ базы и мастер-охотник. Обновляет уже сохранённую разделку и пересчитывает сумму строки. Количество заменяется, а не прибавляется.",
+        summary: "Изменить разделку",
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["animal_id", "preparation_id", "count"],
+                properties: [
+                    new OA\Property(property: "animal_id", type: "integer", example: 3),
+                    new OA\Property(property: "preparation_id", type: "integer", example: 2),
+                    new OA\Property(property: "count", type: "integer", example: 2),
+                ],
+                type: "object"
+            )
+        ),
+        tags: ["BookingService"],
+        parameters: [
+            new OA\Parameter(name: "code", description: "Код бронирования", in: "path", required: true, schema: new OA\Schema(type: "string", example: "faa1c65d4b0de02146a27cea429340fb")),
+            new OA\Parameter(name: "id", description: "ID записи разделки", in: "path", required: true, schema: new OA\Schema(type: "integer", example: 41)),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Разделка обновлена",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: "Услуга обновлена"),
+                        new OA\Property(
+                            property: "data",
+                            required: ["id", "animal_id", "animal_title", "type", "count", "price", "preliminary_total"],
+                            properties: [
+                                new OA\Property(property: "id", type: "integer"),
+                                new OA\Property(property: "animal_id", type: "integer"),
+                                new OA\Property(property: "animal_title", type: "string"),
+                                new OA\Property(property: "type", type: "string", example: "Шкура"),
+                                new OA\Property(property: "count", type: "integer"),
+                                new OA\Property(property: "price", description: "Цена за единицу × count", type: "number", example: 10000),
+                                new OA\Property(property: "preliminary_total", description: "Сумма услуг брони после изменения", type: "integer", example: 15000),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(ref: "#/components/responses/AuthResponse", response: 401),
+            new OA\Response(response: 403, description: "Нет доступа"),
+            new OA\Response(ref: "#/components/responses/NotFoundResponse", response: 404),
+            new OA\Response(response: 409, description: "Добавление услуг недоступно на текущем этапе"),
+            new OA\Response(ref: "#/components/responses/ValidationError", response: 422),
+        ]
+    )]
+    public function UpdatePreparation(): void
     {}
 
     #[OA\Post(
@@ -672,8 +853,8 @@ class BookingServicesPath
 
     #[OA\Put(
         path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/services/foods/{id}",
-        description: "Админ базы и мастер-охотник. Меняет количество раз у уже сохранённой строки питания и пересчитывает сумму строки.",
-        summary: "Изменить количество питания",
+        description: "Админ базы и мастер-охотник. Полное изменение: food_id, count и hunter_id. Для питания «на всех» hunter_id приходит null, прежний охотник сбрасывается. Отдельная правка количества шлёт только count.",
+        summary: "Изменить питание",
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
             required: true,
@@ -681,10 +862,23 @@ class BookingServicesPath
                 required: ["count"],
                 properties: [
                     new OA\Property(
+                        property: "food_id",
+                        description: "ID типа питания. Не передаётся, если меняется только количество",
+                        type: "integer",
+                        example: 3
+                    ),
+                    new OA\Property(
                         property: "count",
                         description: "Количество раз, целое число от 1",
                         type: "integer",
                         example: 3
+                    ),
+                    new OA\Property(
+                        property: "hunter_id",
+                        description: "Обязателен для individual. Для «на всех» null, прежний охотник сбрасывается",
+                        type: "integer",
+                        example: 12,
+                        nullable: true
                     ),
                 ],
                 type: "object"
@@ -718,7 +912,7 @@ class BookingServicesPath
                         new OA\Property(property: "message", type: "string", example: "Услуга обновлена"),
                         new OA\Property(
                             property: "data",
-                            required: ["id", "type", "count", "unit_price", "price"],
+                            required: ["id", "type", "count", "unit_price", "price", "preliminary_total"],
                             properties: [
                                 new OA\Property(property: "id", type: "integer"),
                                 new OA\Property(property: "type", type: "string", example: "Завтрак"),
@@ -742,6 +936,12 @@ class BookingServicesPath
                                     description: "Сумма строки: unit_price × count",
                                     type: "number",
                                     example: 1500
+                                ),
+                                new OA\Property(
+                                    property: "preliminary_total",
+                                    description: "Сумма услуг брони после изменения",
+                                    type: "integer",
+                                    example: 15000
                                 ),
                             ],
                             type: "object"
@@ -831,6 +1031,67 @@ class BookingServicesPath
     public function StoreAdditional(): void
     {}
 
+    #[OA\Put(
+        path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/services/additionals/{id}",
+        description: "Админ базы и мастер-охотник. Для calculation_type=individual обязателен hunter_id. Для «на всех» hunter_id приходит null, прежний охотник сбрасывается.",
+        summary: "Изменить доп. услугу",
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["additional_id", "name", "count"],
+                properties: [
+                    new OA\Property(property: "additional_id", type: "integer", example: 7),
+                    new OA\Property(property: "name", type: "string", example: "Баня"),
+                    new OA\Property(property: "count", type: "integer", example: 2),
+                    new OA\Property(property: "hunter_id", description: "Обязателен для individual. Для «на всех» null", type: "integer", example: 12, nullable: true),
+                ],
+                type: "object"
+            )
+        ),
+        tags: ["BookingService"],
+        parameters: [
+            new OA\Parameter(name: "code", description: "Код бронирования", in: "path", required: true, schema: new OA\Schema(type: "string", example: "faa1c65d4b0de02146a27cea429340fb")),
+            new OA\Parameter(name: "id", description: "ID записи доп. услуги", in: "path", required: true, schema: new OA\Schema(type: "integer", example: 41)),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Доп. услуга обновлена",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: "Услуга обновлена"),
+                        new OA\Property(
+                            property: "data",
+                            required: ["id", "type", "count", "price", "preliminary_total"],
+                            properties: [
+                                new OA\Property(property: "id", type: "integer"),
+                                new OA\Property(property: "type", type: "string"),
+                                new OA\Property(property: "calculation_type", type: "string", nullable: true),
+                                new OA\Property(property: "count", type: "integer"),
+                                new OA\Property(property: "hunter_id", type: "integer", nullable: true),
+                                new OA\Property(property: "hunter_name", type: "string"),
+                                new OA\Property(property: "price", description: "Цена каталога × count", type: "number", example: 3000),
+                                new OA\Property(property: "preliminary_total", description: "Сумма услуг брони после изменения", type: "integer", example: 15000),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(ref: "#/components/responses/AuthResponse", response: 401),
+            new OA\Response(response: 403, description: "Нет доступа"),
+            new OA\Response(ref: "#/components/responses/NotFoundResponse", response: 404),
+            new OA\Response(response: 409, description: "Добавление услуг недоступно на текущем этапе"),
+            new OA\Response(ref: "#/components/responses/ValidationError", response: 422),
+        ]
+    )]
+    public function UpdateAdditional(): void
+    {}
+
     #[OA\Post(
         path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/services/spendings",
         description: "Только мастер-охотник.",
@@ -891,6 +1152,64 @@ class BookingServicesPath
         ]
     )]
     public function StoreSpending(): void
+    {}
+
+    #[OA\Put(
+        path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/services/spendings/{id}",
+        description: "Только мастер-охотник. Обновляет уже сохранённую трату.",
+        summary: "Изменить трату охотника",
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["hunter_id", "price", "comment"],
+                properties: [
+                    new OA\Property(property: "hunter_id", type: "integer", example: 12),
+                    new OA\Property(property: "price", type: "number", example: 1500),
+                    new OA\Property(property: "comment", type: "string", example: "Патроны"),
+                ],
+                type: "object"
+            )
+        ),
+        tags: ["BookingService"],
+        parameters: [
+            new OA\Parameter(name: "code", description: "Код бронирования", in: "path", required: true, schema: new OA\Schema(type: "string", example: "faa1c65d4b0de02146a27cea429340fb")),
+            new OA\Parameter(name: "id", description: "ID записи траты", in: "path", required: true, schema: new OA\Schema(type: "integer", example: 41)),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Трата обновлена",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: "Услуга обновлена"),
+                        new OA\Property(
+                            property: "data",
+                            required: ["id", "price", "comment", "preliminary_total"],
+                            properties: [
+                                new OA\Property(property: "id", type: "integer"),
+                                new OA\Property(property: "price", type: "number"),
+                                new OA\Property(property: "comment", type: "string"),
+                                new OA\Property(property: "hunter_id", type: "integer", nullable: true),
+                                new OA\Property(property: "hunter_name", type: "string"),
+                                new OA\Property(property: "preliminary_total", description: "Сумма услуг брони после изменения. Личные траты в неё не входят", type: "integer", example: 15000),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(ref: "#/components/responses/AuthResponse", response: 401),
+            new OA\Response(response: 403, description: "Нет доступа"),
+            new OA\Response(ref: "#/components/responses/NotFoundResponse", response: 404),
+            new OA\Response(response: 409, description: "Добавление услуг недоступно на текущем этапе"),
+            new OA\Response(ref: "#/components/responses/ValidationError", response: 422),
+        ]
+    )]
+    public function UpdateSpending(): void
     {}
 
     #[OA\Delete(

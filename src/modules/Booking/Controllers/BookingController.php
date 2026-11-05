@@ -560,6 +560,27 @@ class BookingController extends Controller
      * @throws ConflictException
      * @throws ForbiddenException
      * @throws NotFoundException
+     */
+    public function updateTrophy(StoreTrophyRequest $request, string $code, int $id): JsonResponse
+    {
+        $data = $this->bookingServiceManager->updateTrophy(
+            $code,
+            $id,
+            StoreTrophyData::fromRequest($request),
+            Auth::user(),
+        );
+
+        return new SuccessResponse(
+            code: 'service_updated',
+            domain: 'booking',
+            data: $data,
+        );
+    }
+
+    /**
+     * @throws ConflictException
+     * @throws ForbiddenException
+     * @throws NotFoundException
      * @throws ValidationException
      */
     public function storePenalty(StorePenaltyRequest $request, string $code): JsonResponse
@@ -572,6 +593,28 @@ class BookingController extends Controller
 
         return new SuccessResponse(
             code: 'service_added',
+            domain: 'booking',
+            data: $data,
+        );
+    }
+
+    /**
+     * @throws ConflictException
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     * @throws ValidationException
+     */
+    public function updatePenalty(StorePenaltyRequest $request, string $code, int $id): JsonResponse
+    {
+        $data = $this->bookingServiceManager->updatePenalty(
+            $code,
+            $id,
+            StorePenaltyData::fromRequest($request),
+            Auth::user(),
+        );
+
+        return new SuccessResponse(
+            code: 'service_updated',
             domain: 'booking',
             data: $data,
         );
@@ -602,6 +645,27 @@ class BookingController extends Controller
      * @throws ForbiddenException
      * @throws NotFoundException
      */
+    public function updatePreparation(StorePreparationRequest $request, string $code, int $id): JsonResponse
+    {
+        $data = $this->bookingServiceManager->updatePreparation(
+            $code,
+            $id,
+            StorePreparationData::fromRequest($request),
+            Auth::user(),
+        );
+
+        return new SuccessResponse(
+            code: 'service_updated',
+            domain: 'booking',
+            data: $data,
+        );
+    }
+
+    /**
+     * @throws ConflictException
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     */
     public function storeFood(StoreFoodRequest $request, string $code): JsonResponse
     {
         $data = $this->bookingServiceManager->createFood(
@@ -621,6 +685,7 @@ class BookingController extends Controller
      * @throws ConflictException
      * @throws ForbiddenException
      * @throws NotFoundException
+     * @throws ValidationException
      */
     public function updateFood(UpdateFoodRequest $request, string $code, int $id): JsonResponse
     {
@@ -665,6 +730,28 @@ class BookingController extends Controller
      * @throws NotFoundException
      * @throws ValidationException
      */
+    public function updateAdditional(StoreAdditionalRequest $request, string $code, int $id): JsonResponse
+    {
+        $data = $this->bookingServiceManager->updateAdditional(
+            $code,
+            $id,
+            StoreAdditionalData::fromRequest($request),
+            Auth::user(),
+        );
+
+        return new SuccessResponse(
+            code: 'service_updated',
+            domain: 'booking',
+            data: $data,
+        );
+    }
+
+    /**
+     * @throws ConflictException
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     * @throws ValidationException
+     */
     public function storeSpending(StoreSpendingRequest $request, string $code): JsonResponse
     {
         $data = $this->bookingServiceManager->createSpending(
@@ -675,6 +762,28 @@ class BookingController extends Controller
 
         return new SuccessResponse(
             code: 'service_added',
+            domain: 'booking',
+            data: $data,
+        );
+    }
+
+    /**
+     * @throws ConflictException
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     * @throws ValidationException
+     */
+    public function updateSpending(StoreSpendingRequest $request, string $code, int $id): JsonResponse
+    {
+        $data = $this->bookingServiceManager->updateSpending(
+            $code,
+            $id,
+            StoreSpendingData::fromRequest($request),
+            Auth::user(),
+        );
+
+        return new SuccessResponse(
+            code: 'service_updated',
             domain: 'booking',
             data: $data,
         );
