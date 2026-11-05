@@ -41,13 +41,20 @@ class BookingService extends Model
     }
 
     /**
-     * Цена строки — за один приём. В сумму входит число приёмов за проживание.
-     * Если count уже умножил цену каталога, делим её обратно.
+     * Сумма строки уже включает количество раз. На число суток повторно не умножается.
      */
-    public function foodStayAmount(Booking $booking): float
+    public function foodLineAmount(): float
     {
-        $portions = max(1, (int) $this->count);
+        return round((float) $this->price, 2);
+    }
 
-        return round(((float) $this->price / $portions) * $booking->foodOccasionCount(), 2);
+    /**
+     * Цена одного раза. Сумма строки — эта цена, умноженная на count.
+     */
+    public function foodUnitPrice(): float
+    {
+        $count = max(1, (int) $this->count);
+
+        return round((float) $this->price / $count, 2);
     }
 }

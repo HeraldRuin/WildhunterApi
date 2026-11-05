@@ -121,19 +121,19 @@ class BookingCalculationStrategyTest extends TestCase
         $this->assertSame('Проживание, 3 суток', $result['items'][0]['name']);
         $this->assertMoney(1000, $result['items'][0]['total_cost']);
         $this->assertMoney(0, $result['items'][0]['my_cost']);
-        $this->assertMoney(200, $result['meals'][0]['total_cost']);
-        $this->assertMoney(100, $result['meals'][0]['my_cost']);
+        $this->assertMoney(100, $result['meals'][0]['total_cost']);
+        $this->assertMoney(50, $result['meals'][0]['my_cost']);
         $this->assertSame(
             ['Внесена предоплата', 'Остаток базе', 'Итог охотникам'],
             array_column($result['all_items'], 'name'),
         );
         $this->assertMoney(1000, $result['all_items'][0]['total_cost']);
         $this->assertMoney(500, $result['all_items'][0]['my_cost']);
-        $this->assertMoney(200, $result['all_items'][1]['total_cost']);
-        $this->assertMoney(-400, $result['all_items'][1]['my_cost']);
+        $this->assertMoney(100, $result['all_items'][1]['total_cost']);
+        $this->assertMoney(-450, $result['all_items'][1]['my_cost']);
         $this->assertMoney(1000, $result['prepaid_total']);
-        $this->assertMoney(200, $result['base_total']);
-        $this->assertMoney(200, $result['total']);
+        $this->assertMoney(100, $result['base_total']);
+        $this->assertMoney(100, $result['total']);
     }
 
     public function test_hunting_strategy_assembles_organisation_and_own_charges(): void

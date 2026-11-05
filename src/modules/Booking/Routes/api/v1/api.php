@@ -45,6 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/bookings/{code}/services/penalties', [BookingController::class, 'storePenalty']);
     Route::post('/bookings/{code}/services/preparations', [BookingController::class, 'storePreparation']);
     Route::post('/bookings/{code}/services/foods', [BookingController::class, 'storeFood']);
+    Route::put('/bookings/{code}/services/foods/{id}', [BookingController::class, 'updateFood']);
     Route::post('/bookings/{code}/services/additionals', [BookingController::class, 'storeAdditional']);
     Route::post('/bookings/{code}/services/spendings', [BookingController::class, 'storeSpending']);
     Route::delete('/bookings/{code}/services/{serviceId}', [BookingController::class, 'deleteService']);

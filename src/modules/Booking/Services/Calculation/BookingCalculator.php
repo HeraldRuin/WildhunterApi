@@ -22,10 +22,10 @@ class BookingCalculator
 
             $items = $grouped->get($type, collect());
 
-            $sum = $items->sum(function ($item) use ($booking, $type) {
+            $sum = $items->sum(function ($item) use ($type) {
 
                 if ($type === AddetionalPrice::FOOD) {
-                    return $item->foodStayAmount($booking);
+                    return $item->foodLineAmount();
                 }
 
                 return $item->price;
@@ -54,10 +54,10 @@ class BookingCalculator
 
             $items = $grouped->get($type, collect());
 
-            $sum = $items->sum(function ($item) use ($booking, $type, $user, $huntersCount) {
+            $sum = $items->sum(function ($item) use ($type, $user, $huntersCount) {
 
                 if ($type === AddetionalPrice::FOOD) {
-                    $line = $item->foodStayAmount($booking);
+                    $line = $item->foodLineAmount();
 
                     if ($item->calculation_type === AddetionalPrice::INDIVIDUAL) {
                         return (int) $item->hunter_id === (int) $user->id ? $line : 0;
@@ -170,12 +170,12 @@ class BookingCalculator
 
         foreach ($grouped as $items) {
             $first = $items->first();
-            $totalCost = round($items->sum(fn ($food) => $this->foodLineTotal($booking, $food)));
+            $totalCost = round($items->sum(fn ($food) => $food->foodLineAmount()));
 
             if ($first->calculation_type === AddetionalPrice::INDIVIDUAL) {
                 $myCost = round($items
                     ->filter(fn ($food) => (int) $food->hunter_id === (int) $user->id)
-                    ->sum(fn ($food) => $this->foodLineTotal($booking, $food)));
+                    ->sum(fn ($food) => $food->foodLineAmount()));
             } else {
                 $myCost = $huntersCount > 0 ? round($totalCost / $huntersCount) : 0;
             }
@@ -191,10 +191,6 @@ class BookingCalculator
         return $result;
     }
 
-    private function foodLineTotal(Booking $booking, $food): float
-    {
-        return $food->foodStayAmount($booking);
-    }
     public function calculatePenalties(Collection $penalties, User $user): array
     {
         $result = [];

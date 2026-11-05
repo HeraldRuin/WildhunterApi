@@ -434,7 +434,7 @@ class BookingHistoryItemPresenter
     private function sumServices(Booking $booking, bool $includePersonal): float
     {
         $sum = $booking->bookingServices->sum(
-            function (BookingService $service) use ($booking, $includePersonal): float {
+            function (BookingService $service) use ($includePersonal): float {
                 if ($service->service_type === AddetionalPrice::SPENDING) {
                     return 0.0;
                 }
@@ -444,7 +444,7 @@ class BookingHistoryItemPresenter
                 }
 
                 if ($service->service_type === AddetionalPrice::FOOD) {
-                    return $service->foodStayAmount($booking);
+                    return $service->foodLineAmount();
                 }
 
                 return (float) $service->price;

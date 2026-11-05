@@ -285,6 +285,7 @@ return [
         'booking_created' => 'Бронирование создано',
         'customer_notes_updated' => 'Особые требования сохранены',
         'service_added' => 'Услуга добавлена',
+        'service_updated' => 'Услуга обновлена',
         'service_deleted' => 'Услуга удалена',
     ]
 ];

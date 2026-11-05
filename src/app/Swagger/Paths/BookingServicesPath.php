@@ -42,7 +42,7 @@ class BookingServicesPath
                                 ),
                                 new OA\Property(
                                     property: "preliminary_total",
-                                    description: "Сумма всех услуг брони в рублях: трофеи, штрафы, разделка, питание (цена × число суток) и дополнительные услуги. Личные затраты охотников не входят",
+                                    description: "Сумма всех услуг брони в рублях. Питание входит уже посчитанной суммой строки и на число суток повторно не умножается. Личные затраты охотников не входят",
                                     type: "integer",
                                     example: 741249
                                 ),
@@ -291,7 +291,7 @@ class BookingServicesPath
                                             property: "foods",
                                             type: "array",
                                             items: new OA\Items(
-                                                required: ["id", "type", "count", "price"],
+                                                required: ["id", "type", "count", "unit_price", "price"],
                                                 properties: [
                                                     new OA\Property(property: "id", type: "integer"),
                                                     new OA\Property(property: "type", type: "string", example: "Завтрак"),
@@ -301,14 +301,25 @@ class BookingServicesPath
                                                         nullable: true,
                                                         enum: ["individual", "per_person"]
                                                     ),
-                                                    new OA\Property(property: "count", type: "integer"),
+                                                    new OA\Property(
+                                                        property: "count",
+                                                        description: "Сохранённое количество раз",
+                                                        type: "integer",
+                                                        example: 3
+                                                    ),
                                                     new OA\Property(property: "hunter_id", type: "integer", nullable: true),
                                                     new OA\Property(property: "hunter_name", type: "string"),
                                                     new OA\Property(
-                                                        property: "price",
-                                                        description: "Сумма за все сутки проживания: цена за человека × количество × дни",
+                                                        property: "unit_price",
+                                                        description: "Цена за один раз",
                                                         type: "number",
-                                                        example: 3000
+                                                        example: 500
+                                                    ),
+                                                    new OA\Property(
+                                                        property: "price",
+                                                        description: "Сумма строки: unit_price × count",
+                                                        type: "number",
+                                                        example: 1500
                                                     ),
                                                 ],
                                                 type: "object"
@@ -576,9 +587,9 @@ class BookingServicesPath
                     ),
                     new OA\Property(
                         property: "count",
-                        description: "Количество человек",
+                        description: "Количество раз",
                         type: "integer",
-                        example: 2
+                        example: 3
                     ),
                     new OA\Property(
                         property: "hunter_id",
@@ -612,7 +623,7 @@ class BookingServicesPath
                         new OA\Property(property: "message", type: "string", example: "Услуга добавлена"),
                         new OA\Property(
                             property: "data",
-                            required: ["id", "type", "count", "price"],
+                            required: ["id", "type", "count", "unit_price", "price"],
                             properties: [
                                 new OA\Property(property: "id", type: "integer"),
                                 new OA\Property(property: "type", type: "string", example: "Завтрак"),
@@ -622,14 +633,25 @@ class BookingServicesPath
                                     nullable: true,
                                     enum: ["individual", "per_person"]
                                 ),
-                                new OA\Property(property: "count", type: "integer"),
+                                new OA\Property(
+                                    property: "count",
+                                    description: "Сохранённое количество раз",
+                                    type: "integer",
+                                    example: 3
+                                ),
                                 new OA\Property(property: "hunter_id", type: "integer", nullable: true),
                                 new OA\Property(property: "hunter_name", type: "string"),
                                 new OA\Property(
-                                    property: "price",
-                                    description: "Сумма за все сутки проживания: цена за человека × количество × дни",
+                                    property: "unit_price",
+                                    description: "Цена за один раз",
                                     type: "number",
-                                    example: 3000
+                                    example: 500
+                                ),
+                                new OA\Property(
+                                    property: "price",
+                                    description: "Сумма строки: unit_price × count",
+                                    type: "number",
+                                    example: 1500
                                 ),
                             ],
                             type: "object"
@@ -646,6 +668,96 @@ class BookingServicesPath
         ]
     )]
     public function StoreFood(): void
+    {}
+
+    #[OA\Put(
+        path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/services/foods/{id}",
+        description: "Админ базы и мастер-охотник. Меняет количество раз у уже сохранённой строки питания и пересчитывает сумму строки.",
+        summary: "Изменить количество питания",
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["count"],
+                properties: [
+                    new OA\Property(
+                        property: "count",
+                        description: "Количество раз, целое число от 1",
+                        type: "integer",
+                        example: 3
+                    ),
+                ],
+                type: "object"
+            )
+        ),
+        tags: ["BookingService"],
+        parameters: [
+            new OA\Parameter(
+                name: "code",
+                description: "Код бронирования",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(type: "string", example: "faa1c65d4b0de02146a27cea429340fb")
+            ),
+            new OA\Parameter(
+                name: "id",
+                description: "ID записи питания в bc_booking_services",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(type: "integer", example: 41)
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Количество обновлено",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: "Услуга обновлена"),
+                        new OA\Property(
+                            property: "data",
+                            required: ["id", "type", "count", "unit_price", "price"],
+                            properties: [
+                                new OA\Property(property: "id", type: "integer"),
+                                new OA\Property(property: "type", type: "string", example: "Завтрак"),
+                                new OA\Property(
+                                    property: "calculation_type",
+                                    type: "string",
+                                    nullable: true,
+                                    enum: ["individual", "per_person"]
+                                ),
+                                new OA\Property(property: "count", type: "integer", example: 3),
+                                new OA\Property(property: "hunter_id", type: "integer", nullable: true),
+                                new OA\Property(property: "hunter_name", type: "string"),
+                                new OA\Property(
+                                    property: "unit_price",
+                                    description: "Цена за один раз",
+                                    type: "number",
+                                    example: 500
+                                ),
+                                new OA\Property(
+                                    property: "price",
+                                    description: "Сумма строки: unit_price × count",
+                                    type: "number",
+                                    example: 1500
+                                ),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(ref: "#/components/responses/AuthResponse", response: 401),
+            new OA\Response(response: 403, description: "Нет доступа"),
+            new OA\Response(ref: "#/components/responses/NotFoundResponse", response: 404),
+            new OA\Response(response: 409, description: "Добавление услуг недоступно на текущем этапе"),
+            new OA\Response(ref: "#/components/responses/ValidationError", response: 422),
+        ]
+    )]
+    public function UpdateFood(): void
     {}
 
     #[OA\Post(

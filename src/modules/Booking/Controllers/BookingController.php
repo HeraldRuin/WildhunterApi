@@ -17,6 +17,7 @@ use Modules\Booking\Dto\ReplaceHunterData;
 use Modules\Booking\Dto\SelectPlaceData;
 use Modules\Booking\Dto\StoreAdditionalData;
 use Modules\Booking\Dto\StoreFoodData;
+use Modules\Booking\Dto\UpdateFoodData;
 use Modules\Booking\Dto\StorePenaltyData;
 use Modules\Booking\Dto\StorePreparationData;
 use Modules\Booking\Dto\StoreSpendingData;
@@ -32,6 +33,7 @@ use Modules\Booking\Http\Requests\ReplaceHunterRequest;
 use Modules\Booking\Http\Requests\SelectPlaceRequest;
 use Modules\Booking\Http\Requests\StoreAdditionalRequest;
 use Modules\Booking\Http\Requests\StoreFoodRequest;
+use Modules\Booking\Http\Requests\UpdateFoodRequest;
 use Modules\Booking\Http\Requests\StorePenaltyRequest;
 use Modules\Booking\Http\Requests\StorePreparationRequest;
 use Modules\Booking\Http\Requests\StoreSpendingRequest;
@@ -610,6 +612,27 @@ class BookingController extends Controller
 
         return new SuccessResponse(
             code: 'service_added',
+            domain: 'booking',
+            data: $data,
+        );
+    }
+
+    /**
+     * @throws ConflictException
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     */
+    public function updateFood(UpdateFoodRequest $request, string $code, int $id): JsonResponse
+    {
+        $data = $this->bookingServiceManager->updateFood(
+            $code,
+            $id,
+            UpdateFoodData::fromRequest($request),
+            Auth::user(),
+        );
+
+        return new SuccessResponse(
+            code: 'service_updated',
             domain: 'booking',
             data: $data,
         );

@@ -37,7 +37,7 @@ class BookingHistoryItemPresenterTest extends TestCase
         $this->assertSame(120000.0, (float) $booking->amount_hunting);
     }
 
-    public function test_service_total_counts_food_by_days_and_skips_spendings(): void
+    public function test_service_total_uses_saved_food_price_and_skips_spendings(): void
     {
         $booking = $this->booking(
             amountHunting: 10000,
@@ -55,8 +55,8 @@ class BookingHistoryItemPresenterTest extends TestCase
 
         $this->assertSame(10000.0, $details['amount_hunting']);
         $this->assertSame(5000.0, $details['amount_hunting_per_person']);
-        $this->assertSame(10550.0, $details['amount_hunting_with_services']);
-        $this->assertSame(5275.0, $details['amount_hunting_with_services_per_person']);
+        $this->assertSame(10450.0, $details['amount_hunting_with_services']);
+        $this->assertSame(5225.0, $details['amount_hunting_with_services_per_person']);
     }
 
     public function test_penalty_stays_in_full_on_the_charged_hunter(): void

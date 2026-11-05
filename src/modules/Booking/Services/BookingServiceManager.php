@@ -15,6 +15,7 @@ use Modules\Animals\Models\AnimalTrophy;
 use Modules\Attendance\Models\AddetionalPrice;
 use Modules\Booking\Dto\StoreAdditionalData;
 use Modules\Booking\Dto\StoreFoodData;
+use Modules\Booking\Dto\UpdateFoodData;
 use Modules\Booking\Dto\StorePenaltyData;
 use Modules\Booking\Dto\StorePreparationData;
 use Modules\Booking\Dto\StoreSpendingData;
@@ -52,7 +53,7 @@ class BookingServiceManager
 
         return [
             'role' => $isAdmin ? Role::ADMIN : Role::CUSTOMER,
-            'preliminary_total' => $this->preliminaryTotal($booking, $services),
+            'preliminary_total' => $this->preliminaryTotal($services),
             'booking_type' => $booking->type,
             'allowed_types' => $allowedTypes,
             'catalogs' => $this->catalogsFor($booking, $allowedTypes),
@@ -271,32 +272,57 @@ class BookingServiceManager
             $hunterId = $data->hunterId;
         }
 
+        $count = $data->count;
+        $unitPrice = round((float) $food->price, 2);
+
         $service = BookingService::create([
             'booking_id' => $booking->id,
             'service_type' => AddetionalPrice::FOOD,
             'service_id' => $food->id,
             'type' => $food->name,
             'calculation_type' => $food->calculation_type,
-            'price' => round((float) $food->price * $data->count, 2),
-            'count' => $data->count,
+            'price' => round($unitPrice * $count, 2),
+            'count' => $count,
             'hunter_id' => $hunterId,
             'place' => $this->catalogPlace($food),
         ])->load('hunter');
 
         $this->notifyHistoryUpdated($booking, $user);
 
-        $price = $this->foodStayPrice($booking, $service);
+        return $this->foodItem($service);
+    }
 
-        return [
-            'id' => $service->id,
-            'type' => $service->type,
-            'calculation_type' => $service->calculation_type,
-            'count' => $service->count,
-            'hunter_id' => $service->hunter_id,
-            'hunter_name' => $this->hunterName($service->hunter),
-            'price' => $price,
-            'unit_price' => $this->foodUnitPrice($booking, $price, $service->calculation_type),
-        ];
+    /**
+     * @throws ConflictException
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     */
+    public function updateFood(string $code, int $serviceId, UpdateFoodData $data, User $user): array
+    {
+        [$booking] = $this->findAuthorizedBooking($code, $user, AddetionalPrice::FOOD);
+
+        $service = BookingService::query()
+            ->where('id', $serviceId)
+            ->where('booking_id', $booking->id)
+            ->where('service_type', AddetionalPrice::FOOD)
+            ->first();
+
+        if (!$service) {
+            throw new NotFoundException(
+                errorCode: 'service_not_found',
+                domain: 'booking',
+            );
+        }
+
+        $unitPrice = $service->foodUnitPrice();
+        $service->count = $data->count;
+        $service->price = round($unitPrice * $data->count, 2);
+        $service->save();
+        $service->load('hunter');
+
+        $this->notifyHistoryUpdated($booking, $user);
+
+        return $this->foodItem($service);
     }
 
     /**
@@ -807,18 +833,14 @@ class BookingServiceManager
 
     /**
      * Сумма услуг брони в рублях.
-     * Питание считается по числу приёмов: сутки проживания минус один.
+     * Питание входит уже посчитанной суммой строки и на число суток повторно не умножается.
      * Личные затраты охотников в сумму не входят.
      */
-    private function preliminaryTotal(Booking $booking, Collection $services): int
+    private function preliminaryTotal(Collection $services): int
     {
-        $sum = $services->sum(function (BookingService $service) use ($booking) {
+        $sum = $services->sum(function (BookingService $service) {
             if ($service->service_type === AddetionalPrice::SPENDING) {
                 return 0;
-            }
-
-            if ($service->service_type === AddetionalPrice::FOOD) {
-                return $service->foodStayAmount($booking);
             }
 
             return (float) $service->price;
@@ -838,9 +860,30 @@ class BookingServiceManager
      *     spendings: mixed
      * }
      */
-    private function foodStayPrice(Booking $booking, BookingService $service): float
+    /**
+     * @return array{
+     *     id: int,
+     *     type: mixed,
+     *     calculation_type: mixed,
+     *     count: int,
+     *     hunter_id: mixed,
+     *     hunter_name: string,
+     *     unit_price: float,
+     *     price: float
+     * }
+     */
+    private function foodItem(BookingService $service): array
     {
-        return $service->foodStayAmount($booking);
+        return [
+            'id' => $service->id,
+            'type' => $service->type,
+            'calculation_type' => $service->calculation_type,
+            'count' => (int) $service->count,
+            'hunter_id' => $service->hunter_id,
+            'hunter_name' => $this->hunterName($service->hunter),
+            'unit_price' => $service->foodUnitPrice(),
+            'price' => round((float) $service->price, 2),
+        ];
     }
 
     /**
@@ -902,20 +945,7 @@ class BookingServiceManager
             'foods' => $services
                 ->where('service_type', AddetionalPrice::FOOD)
                 ->values()
-                ->map(function (BookingService $service) use ($booking) {
-                    $price = $this->foodStayPrice($booking, $service);
-
-                    return [
-                        'id' => $service->id,
-                        'type' => $service->type,
-                        'calculation_type' => $service->calculation_type,
-                        'count' => $service->count,
-                        'hunter_id' => $service->hunter_id,
-                        'hunter_name' => $this->hunterName($service->hunter),
-                        'price' => $price,
-                        'unit_price' => $this->foodUnitPrice($booking, $price, $service->calculation_type),
-                    ];
-                })
+                ->map(fn (BookingService $service) => $this->foodItem($service))
                 ->all(),
             'additionals' => $services
                 ->where('service_type', AddetionalPrice::ADDETIONAL)
