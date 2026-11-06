@@ -15,7 +15,7 @@
     $children = $booking->getMeta('children');
     $guestCount = (int) ($booking->total_guests ?: $adults ?: 0);
     $huntersCount = (int) ($booking->total_hunting ?? 0);
-    $paid = (float) ($booking->paid ?? 0);
+    $paid = max((float) ($booking->paid ?? 0), $booking->collectedPrepaymentAmount());
     $total = (float) ($booking->total ?? 0);
     $huntingTotal = (float) ($booking->amount_hunting ?? 0);
     $siteUrl = rtrim((string) (setting_item('site_url') ?: config('app.url')), '/');

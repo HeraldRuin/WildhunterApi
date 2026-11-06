@@ -1736,6 +1736,39 @@ class Booking extends BaseModel
         return $this->masterHunter?->id;
     }
 
+    /**
+     * Сумма уже внесённой предоплаты для писем.
+     * Сначала фактические оплаты, иначе доля проживания на каждого оплатившего.
+     * Когда предоплату внесли все принятые охотники, сумма равна стоимости проживания.
+     */
+    public function collectedPrepaymentAmount(): float
+    {
+        $fromPayments = (float) Payment::query()
+            ->where('booking_id', $this->id)
+            ->where('status', Payment::STATUS_PAID)
+            ->sum('amount');
+
+        if ($fromPayments > 0) {
+            return round($fromPayments, 2);
+        }
+
+        $paidHunters = $this->countAcceptedAndPaidHunters();
+
+        if ($paidHunters <= 0) {
+            return round((float) ($this->paid ?? 0), 2);
+        }
+
+        $accepted = $this->countAcceptedHunters();
+
+        if ($accepted > 0 && $paidHunters >= $accepted) {
+            return round((float) $this->total, 2);
+        }
+
+        $share = round((float) $this->total / max(1, $accepted), 2);
+
+        return round($share * $paidHunters, 2);
+    }
+
     public function countAcceptedAndPaidHunters(): int
     {
         $masterId = $this->masterHunterRowId();
