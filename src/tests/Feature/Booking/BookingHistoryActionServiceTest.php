@@ -102,12 +102,42 @@ class BookingHistoryActionServiceTest extends TestCase
         );
     }
 
-    public function test_complete_is_visible_before_checkout_day(): void
+    public function test_base_admin_services_are_available_only_on_check_in_day(): void
     {
-        $booking = $this->booking(Booking::PAID, Booking::BookingTypeHotel);
-        $booking->end_date = now()->addDay()->toDateString();
+        $before = $this->booking(Booking::PAID, Booking::BookingTypeHotel);
+        $before->start_date = now()->addDay()->toDateString();
+        $this->assertCodes($before, Role::ADMIN, ['complete', 'calculating']);
 
-        $this->assertCodes($booking, Role::ADMIN, ['complete', 'add_services', 'calculating']);
+        $after = $this->booking(Booking::PAID, Booking::BookingTypeHotel);
+        $after->start_date = now()->subDay()->toDateString();
+        $this->assertCodes($after, Role::ADMIN, ['complete', 'calculating']);
+
+        $animal = $this->booking(Booking::FINISHED_COLLECTION, Booking::BookingTypeAnimal);
+        $animal->start_date = now()->addDay()->toDateString();
+        $this->assertCodes($animal, Role::ADMIN, ['cancel', 'mark_paid', 'calculating']);
+    }
+
+    public function test_master_hunter_can_add_services_before_check_in_day(): void
+    {
+        $booking = $this->booking(Booking::PAID, Booking::BookingTypeHotel, master: true);
+        $booking->start_date = now()->addDays(3)->toDateString();
+
+        $this->assertCodes($booking, Role::CUSTOMER, ['open_collection', 'add_services', 'calculating']);
+    }
+
+    public function test_complete_appears_only_on_checkout_day(): void
+    {
+        $before = $this->booking(Booking::PAID, Booking::BookingTypeHotel);
+        $before->end_date = now()->addDay()->toDateString();
+        $this->assertCodes($before, Role::ADMIN, ['add_services', 'calculating']);
+
+        $onDay = $this->booking(Booking::PAID, Booking::BookingTypeHotel);
+        $onDay->end_date = now()->toDateString();
+        $this->assertCodes($onDay, Role::ADMIN, ['complete', 'add_services', 'calculating']);
+
+        $after = $this->booking(Booking::PAID, Booking::BookingTypeHotel);
+        $after->end_date = now()->subDay()->toDateString();
+        $this->assertCodes($after, Role::ADMIN, ['add_services', 'calculating']);
     }
 
     public function test_action_labels_come_from_booking_translations(): void
@@ -347,6 +377,7 @@ class BookingHistoryActionServiceTest extends TestCase
 
         $booking->status = $status;
         $booking->type = $type;
+        $booking->start_date = now()->toDateString();
         $booking->end_date = now()->toDateString();
         $booking->testInvited = $invited;
         $booking->testMaster = $master;

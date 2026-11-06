@@ -35,9 +35,7 @@ class BookingHistoryActionService
             $actions[] = 'confirm';
         }
 
-        // Временно для тестов: кнопка видна сразу при статусе paid,
-        // без ожидания дня выезда.
-        if ($status === Booking::PAID) {
+        if ($status === Booking::PAID && $booking->isCheckoutDay()) {
             $actions[] = 'complete';
         }
 
@@ -52,7 +50,9 @@ class BookingHistoryActionService
             }
 
             if ($status === Booking::FINISHED_COLLECTION) {
-                $actions[] = 'add_services';
+                if ($booking->isCheckInDay()) {
+                    $actions[] = 'add_services';
+                }
                 $actions[] = 'mark_paid';
             }
 
@@ -79,7 +79,7 @@ class BookingHistoryActionService
             $actions[] = 'cancel';
         }
 
-        if (in_array($status, [
+        if ($booking->isCheckInDay() && in_array($status, [
             Booking::PREPAYMENT_COLLECTION,
             Booking::FINISHED_PREPAYMENT,
             Booking::BED_COLLECTION,

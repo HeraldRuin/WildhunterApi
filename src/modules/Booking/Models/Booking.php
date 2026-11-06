@@ -232,15 +232,29 @@ class Booking extends BaseModel
     }
 
     /**
-     * День выезда уже наступил: завершать бронь можно в этот день и позже.
+     * Сегодня календарный день заезда: база может менять услуги только в этот день.
      */
-    public function checkoutReached(): bool
+    public function isCheckInDay(): bool
+    {
+        if (empty($this->start_date)) {
+            return false;
+        }
+
+        return now()->startOfDay()->equalTo(
+            Carbon::parse($this->start_date)->startOfDay()
+        );
+    }
+
+    /**
+     * Сегодня календарный день выезда: завершить событие можно только в этот день.
+     */
+    public function isCheckoutDay(): bool
     {
         if (empty($this->end_date)) {
             return false;
         }
 
-        return now()->startOfDay()->greaterThanOrEqualTo(
+        return now()->startOfDay()->equalTo(
             Carbon::parse($this->end_date)->startOfDay()
         );
     }

@@ -713,6 +713,13 @@ class BookingServiceManager
             );
         }
 
+        if ($isAdmin && !$booking->isCheckInDay()) {
+            throw new ConflictException(
+                errorCode: 'add_services_only_on_check_in',
+                domain: 'booking',
+            );
+        }
+
         $allowedTypes = $this->allowedTypes($booking, $isAdmin);
 
         if ($serviceType !== null && !in_array($serviceType, $allowedTypes, true)) {
