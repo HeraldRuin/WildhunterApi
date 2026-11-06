@@ -161,17 +161,17 @@ class BookingCalculatorTest extends TestCase
     {
         $trophy = $this->service(AddetionalPrice::TROPHY, 900, ['type' => 'рога', 'count' => 2]);
         $trophy->setRelation('animal', $this->animal('Лось'));
-        $preparation = $this->service(AddetionalPrice::PREPARATION, 300, ['count' => 1]);
+        $preparation = $this->service(AddetionalPrice::PREPARATION, 300, ['count' => 1, 'type' => 'Разделка']);
         $preparation->setRelation('animal', $this->animal('Лось'));
 
         $trophies = $this->calculator->calculateTrophies(collect([$trophy]), 0);
         $preparations = $this->calculator->calculatePreparations(collect([$preparation]), 0);
 
-        $this->assertSame('Лось (рога x 2шт)', $trophies[0]['name']);
+        $this->assertSame('Лось (рога)', $trophies[0]['name']);
         $this->assertSame(2, $trophies[0]['count']);
         $this->assertMoney(900, $trophies[0]['total_cost']);
         $this->assertSame(0, $trophies[0]['my_cost']);
-        $this->assertSame('Разделка (Лось)', $preparations[0]['name']);
+        $this->assertSame('Лось (Разделка)', $preparations[0]['name']);
         $this->assertSame(1, $preparations[0]['count']);
         $this->assertMoney(300, $preparations[0]['total_cost']);
         $this->assertSame(0, $preparations[0]['my_cost']);
@@ -279,7 +279,7 @@ class BookingCalculatorTest extends TestCase
             [AddetionalPrice::PENALTY],
         );
 
-        $this->assertSame('подранок (Кабан)', $lines[0]['name']);
+        $this->assertSame('Кабан (подранок)', $lines[0]['name']);
         $this->assertMoney(110, $lines[0]['total_cost']);
         $this->assertMoney(40, $lines[0]['my_cost']);
         $this->assertMoney(40, $totals['penalty']);
