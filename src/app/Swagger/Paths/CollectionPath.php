@@ -345,7 +345,7 @@ class CollectionPath
 
     #[OA\Get(
         path: "/api/" . ApiConfig::VERSION . "/settings/timers/{type}",
-        description: "Типы: collection (сбор), beds (койко-места), prepayment (предоплата). Значение хранится в bc_hotels.",
+        description: "Типы: collection (сбор), beds (койко-места), prepayment (предоплата), services (часы до заезда, в течение которых ещё можно добавлять услуги). Значение хранится в bc_hotels.",
         summary: "Получить настройки таймера отеля",
         security: [['bearerAuth' => []]],
         tags: ["Collection"],
@@ -358,7 +358,7 @@ class CollectionPath
                 schema: new OA\Schema(
                     type: "string",
                     example: "collection",
-                    enum: ["collection", "beds", "prepayment"]
+                    enum: ["collection", "beds", "prepayment", "services"]
                 )
             ),
         ],
@@ -379,7 +379,7 @@ class CollectionPath
                                     property: "type",
                                     type: "string",
                                     example: "collection",
-                                    enum: ["collection", "beds", "prepayment"]
+                                    enum: ["collection", "beds", "prepayment", "services"]
                                 ),
                                 new OA\Property(property: "timer_hours", type: "integer", example: 24),
                                 new OA\Property(property: "hotel_id", type: "integer", example: 1),
@@ -409,7 +409,7 @@ class CollectionPath
 
     #[OA\Put(
         path: "/api/" . ApiConfig::VERSION . "/settings/timers/{type}",
-        description: "Типы: collection (сбор), beds (койко-места), prepayment (предоплата). Значение пишется в bc_hotels.",
+        description: "Типы: collection (сбор), beds (койко-места), prepayment (предоплата), services (часы до заезда, в течение которых ещё можно добавлять услуги). Значение пишется в bc_hotels.",
         summary: "Сохранить настройки таймера отеля",
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
@@ -438,7 +438,7 @@ class CollectionPath
                 schema: new OA\Schema(
                     type: "string",
                     example: "collection",
-                    enum: ["collection", "beds", "prepayment"]
+                    enum: ["collection", "beds", "prepayment", "services"]
                 )
             ),
         ],
@@ -463,7 +463,7 @@ class CollectionPath
                                     property: "type",
                                     type: "string",
                                     example: "collection",
-                                    enum: ["collection", "beds", "prepayment"]
+                                    enum: ["collection", "beds", "prepayment", "services"]
                                 ),
                                 new OA\Property(property: "timer_hours", type: "integer", example: 24),
                                 new OA\Property(property: "hotel_id", type: "integer", example: 1),

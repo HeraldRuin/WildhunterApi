@@ -36,6 +36,7 @@ class Hotel extends Bookable
         'collection_timer_hours',
         'bed_timer_hours',
         'paid_timer_hours',
+        'services_timer_hours',
     ];
 
     protected $casts = [

@@ -14,17 +14,20 @@ class CollectionTimerSettingsService
     public const string TYPE_COLLECTION = 'collection';
     public const string TYPE_BEDS = 'beds';
     public const string TYPE_PREPAYMENT = 'prepayment';
+    public const string TYPE_SERVICES = 'services';
 
     public const array TYPES = [
         self::TYPE_COLLECTION,
         self::TYPE_BEDS,
         self::TYPE_PREPAYMENT,
+        self::TYPE_SERVICES,
     ];
 
     private const array TYPE_COLUMNS = [
         self::TYPE_COLLECTION => 'collection_timer_hours',
         self::TYPE_BEDS => 'bed_timer_hours',
         self::TYPE_PREPAYMENT => 'paid_timer_hours',
+        self::TYPE_SERVICES => 'services_timer_hours',
     ];
 
     /**
