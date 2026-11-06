@@ -16,19 +16,47 @@ class HotelsPath
                 properties: [
                     new OA\Property(
                         property: "order_by",
+                        description: "Колонка сортировки (в ListHotel — поле order)",
                         type: "string",
-                        example: "created_at"
+                        example: "id"
                     ),
                     new OA\Property(
                         property: "order_direction",
                         type: "string",
                         example: "desc",
-                        enum: ["asc", "desc"]
+                        enum: ["asc", "desc"],
+                        description: "Направление (в ListHotel — поле order_by)"
                     ),
                     new OA\Property(
                         property: "limit",
+                        description: "Лимит (в ListHotel — number), по умолчанию 5",
                         type: "integer",
-                        example: "3"
+                        example: 5
+                    ),
+                    new OA\Property(
+                        property: "is_featured",
+                        description: "Только featured-базы (как «Only featured items?»)",
+                        type: "boolean",
+                        example: true
+                    ),
+                    new OA\Property(
+                        property: "custom_ids",
+                        type: "array",
+                        items: new OA\Items(type: "integer"),
+                        example: [27, 30],
+                        description: "Явный список ID в нужном порядке (List by IDs)"
+                    ),
+                    new OA\Property(
+                        property: "location_id",
+                        type: "integer",
+                        example: 12,
+                        description: "Фильтр по локации (включая вложенные)"
+                    ),
+                    new OA\Property(
+                        property: "all",
+                        type: "boolean",
+                        example: true,
+                        description: "Все опубликованные базы, без лимита и списка с главной"
                     ),
                 ]
             )
@@ -47,7 +75,7 @@ class HotelsPath
                             property: "data",
                             type: "array",
                             items: new OA\Items(
-                                required: ["id", "title", "slug", "map_lat", "map_lng", "image_url", "star_rate", "price", "review_count", "location"],
+                                required: ["id", "title", "slug", "map_lat", "map_lng", "image_url", "star_rate", "has_food", "is_featured", "price", "review_count", "location"],
                                 properties: [
                                     new OA\Property(property: "id", type: "integer"),
                                     new OA\Property(property: "title", type: "string", nullable: true),
@@ -56,8 +84,22 @@ class HotelsPath
                                     new OA\Property(property: "map_lng", type: "string", nullable: true),
                                     new OA\Property(property: "image_url", type: "string"),
                                     new OA\Property(property: "star_rate", type: "integer", nullable: true),
+                                    new OA\Property(property: "has_food", type: "boolean"),
+                                    new OA\Property(property: "is_featured", type: "boolean"),
                                     new OA\Property(property: "price", type: "number", format: "float", nullable: true),
                                     new OA\Property(property: "review_count", type: "integer"),
+                                    new OA\Property(
+                                        property: "hunting_methods",
+                                        type: "array",
+                                        items: new OA\Items(
+                                            required: ["id", "title"],
+                                            properties: [
+                                                new OA\Property(property: "id", type: "integer", example: 1),
+                                                new OA\Property(property: "title", type: "string", example: "Загонная"),
+                                            ],
+                                            type: "object"
+                                        )
+                                    ),
                                     new OA\Property(
                                         property: "location",
                                         required: ["id", "name", "slug"],
@@ -124,13 +166,15 @@ class HotelsPath
                         new OA\Property(property: "message", type: "string", example: ""),
                         new OA\Property(
                             property: "data",
-                            required: ["id", "title", "slug", "address", "content", "image_url", "gallery", "review_count", "star_rate", "rooms", "animals", "location"],
+                            required: ["id", "title", "slug", "address", "content", "map_lat", "map_lng", "image_url", "gallery", "review_count", "star_rate", "rooms", "animals", "location"],
                             properties: [
                                 new OA\Property(property: "id", type: "integer"),
                                 new OA\Property(property: "title", type: "string", nullable: true),
                                 new OA\Property(property: "slug", type: "string", nullable: true),
                                 new OA\Property(property: "address", type: "string", nullable: true),
                                 new OA\Property(property: "content", type: "string", nullable: true),
+                                new OA\Property(property: "map_lat", type: "string", nullable: true),
+                                new OA\Property(property: "map_lng", type: "string", nullable: true),
                                 new OA\Property(property: "image_url", type: "string"),
                                 new OA\Property(
                                     property: "gallery",
@@ -147,6 +191,8 @@ class HotelsPath
                                 ),
                                 new OA\Property(property: "review_count", type: "integer"),
                                 new OA\Property(property: "star_rate", type: "integer", nullable: true),
+                                new OA\Property(property: "check_in_time", type: "string", example: "10:00", nullable: true),
+                                new OA\Property(property: "check_out_time", type: "string", example: "12:00", nullable: true),
                                 new OA\Property(
                                     property: "rooms",
                                     type: "array",
@@ -185,14 +231,45 @@ class HotelsPath
                                     property: "animals",
                                     type: "array",
                                     items: new OA\Items(
-                                        required: ["id", "title", "slug", "image_url", "content", "max_hunters_count"],
+                                        required: ["id", "title", "slug", "image_url", "content", "hunters_count", "max_hunters_count", "hunt_type", "periods"],
                                         properties: [
                                             new OA\Property(property: "id", type: "integer"),
                                             new OA\Property(property: "title", type: "string", nullable: true),
                                             new OA\Property(property: "slug", type: "string", nullable: true),
                                             new OA\Property(property: "image_url", type: "string"),
                                             new OA\Property(property: "content", type: "string", nullable: true),
+                                            new OA\Property(property: "hunters_count", type: "integer", example: 2),
                                             new OA\Property(property: "max_hunters_count", type: "integer", example: 8),
+                                            new OA\Property(
+                                                property: "hunt_type",
+                                                description: "Тип охоты животного: индивидуальная или групповая",
+                                                required: ["code", "title"],
+                                                properties: [
+                                                    new OA\Property(
+                                                        property: "code",
+                                                        type: "string",
+                                                        enum: ["individual", "group"],
+                                                        example: "group"
+                                                    ),
+                                                    new OA\Property(property: "title", type: "string", example: "Групповая"),
+                                                ],
+                                                type: "object"
+                                            ),
+                                            new OA\Property(
+                                                property: "periods",
+                                                description: "Ценовые периоды животного с текущего месяца (прошедшие месяцы не отдаются)",
+                                                type: "array",
+                                                items: new OA\Items(
+                                                    required: ["id", "start_date", "end_date", "price"],
+                                                    properties: [
+                                                        new OA\Property(property: "id", type: "integer", example: 10),
+                                                        new OA\Property(property: "start_date", type: "string", format: "date", example: "2026-09-01", nullable: true),
+                                                        new OA\Property(property: "end_date", type: "string", format: "date", example: "2026-11-30", nullable: true),
+                                                        new OA\Property(property: "price", type: "number", format: "float", nullable: true, example: 2500),
+                                                    ],
+                                                    type: "object"
+                                                )
+                                            ),
                                         ],
                                         type: "object"
                                     )
@@ -289,6 +366,14 @@ class HotelsPath
                         nullable: true
                     ),
                     new OA\Property(
+                        property: "hunting_method_ids",
+                        description: "Массив ID способов охоты из сайдбара (OR: база попадает, если у неё есть хотя бы один из выбранных). Пустой массив или отсутствие поля — не фильтровать",
+                        type: "array",
+                        items: new OA\Items(type: "integer", example: 1),
+                        example: [1, 3],
+                        nullable: true
+                    ),
+                    new OA\Property(
                         property: "check_in",
                         description: "Дата заезда",
                         type: "string",
@@ -349,6 +434,14 @@ class HotelsPath
                             example: 12
                         ),
                         nullable: true
+                    ),
+                    new OA\Property(
+                        property: "sort",
+                        description: "Сортировка результатов поиска",
+                        type: "string",
+                        example: "recommended",
+                        nullable: true,
+                        enum: ["recommended", "price_asc", "price_desc", "rating"]
                     ),
                     new OA\Property(
                         property: "order_by",
@@ -417,6 +510,18 @@ class HotelsPath
                                             new OA\Property(property: "star_rate", type: "integer", nullable: true),
                                             new OA\Property(property: "has_food", type: "boolean"),
                                             new OA\Property(property: "is_in_wishList", type: "boolean"),
+                                            new OA\Property(
+                                                property: "hunting_methods",
+                                                type: "array",
+                                                items: new OA\Items(
+                                                    required: ["id", "title"],
+                                                    properties: [
+                                                        new OA\Property(property: "id", type: "integer", example: 1),
+                                                        new OA\Property(property: "title", type: "string", example: "Загонная"),
+                                                    ],
+                                                    type: "object"
+                                                )
+                                            ),
                                             new OA\Property(
                                                 property: "location",
                                                 required: ["id", "name", "slug"],
@@ -578,6 +683,10 @@ class HotelsPath
                         nullable: true
                     ),
                     new OA\Property(property: "price", type: "number", format: "float", example: 4000, nullable: true, minimum: 0),
+                    new OA\Property(property: "check_in_time", type: "string", example: "10:00", nullable: true, maxLength: 255),
+                    new OA\Property(property: "check_out_time", type: "string", example: "11:00", nullable: true, maxLength: 255),
+                    new OA\Property(property: "min_day_before_booking", type: "integer", example: 3, nullable: true, minimum: 0),
+                    new OA\Property(property: "min_day_stays", type: "integer", example: 2, nullable: true, minimum: 0),
                     new OA\Property(
                         property: "extra_price",
                         type: "array",
@@ -607,6 +716,22 @@ class HotelsPath
                         items: new OA\Items(type: "integer"),
                         example: [1, 5, 12],
                         nullable: true
+                    ),
+                    new OA\Property(
+                        property: "hunting_method_ids",
+                        description: "ID способов охоты из GET /hotels/hunting-methods. У одной базы может быть несколько способов",
+                        type: "array",
+                        items: new OA\Items(type: "integer"),
+                        example: [1, 3],
+                        nullable: true
+                    ),
+                    new OA\Property(
+                        property: "max_hunts_per_day",
+                        description: "Количество егерей на базе",
+                        type: "integer",
+                        example: 2,
+                        nullable: true,
+                        minimum: 0
                     ),
                 ]
             )
@@ -687,6 +812,10 @@ class HotelsPath
                                 "policy",
                                 "surrounding",
                                 "price",
+                                "check_in_time",
+                                "check_out_time",
+                                "min_day_before_booking",
+                                "min_day_stays",
                                 "extra_price",
                                 "service_fee",
                                 "map_lat",
@@ -697,6 +826,7 @@ class HotelsPath
                                 "status_label",
                                 "has_food",
                                 "term_ids",
+                                "hunting_method_ids",
                             ],
                             properties: [
                                 new OA\Property(property: "id", type: "integer", example: 27),
@@ -734,6 +864,10 @@ class HotelsPath
                                     nullable: true
                                 ),
                                 new OA\Property(property: "price", type: "number", format: "float", example: 4000, nullable: true),
+                                new OA\Property(property: "check_in_time", type: "string", example: "10:00", nullable: true),
+                                new OA\Property(property: "check_out_time", type: "string", example: "11:00", nullable: true),
+                                new OA\Property(property: "min_day_before_booking", type: "integer", example: 3, nullable: true),
+                                new OA\Property(property: "min_day_stays", type: "integer", example: 2, nullable: true),
                                 new OA\Property(
                                     property: "extra_price",
                                     type: "array",
@@ -773,6 +907,18 @@ class HotelsPath
                                     type: "array",
                                     items: new OA\Items(type: "integer"),
                                     example: [1, 5, 12]
+                                ),
+                                new OA\Property(
+                                    property: "hunting_method_ids",
+                                    type: "array",
+                                    items: new OA\Items(type: "integer"),
+                                    example: [1, 3]
+                                ),
+                                new OA\Property(
+                                    property: "max_hunts_per_day",
+                                    description: "Количество егерей на базе",
+                                    type: "integer",
+                                    example: 2
                                 ),
                             ],
                             type: "object"
@@ -835,6 +981,10 @@ class HotelsPath
                         nullable: true
                     ),
                     new OA\Property(property: "price", type: "number", format: "float", example: 4000, nullable: true, minimum: 0),
+                    new OA\Property(property: "check_in_time", type: "string", example: "10:00", nullable: true, maxLength: 255),
+                    new OA\Property(property: "check_out_time", type: "string", example: "11:00", nullable: true, maxLength: 255),
+                    new OA\Property(property: "min_day_before_booking", type: "integer", example: 3, nullable: true, minimum: 0),
+                    new OA\Property(property: "min_day_stays", type: "integer", example: 2, nullable: true, minimum: 0),
                     new OA\Property(
                         property: "extra_price",
                         type: "array",
@@ -864,6 +1014,22 @@ class HotelsPath
                         items: new OA\Items(type: "integer"),
                         example: [1, 5, 12],
                         nullable: true
+                    ),
+                    new OA\Property(
+                        property: "hunting_method_ids",
+                        description: "ID способов охоты из GET /hotels/hunting-methods. У одной базы может быть несколько способов",
+                        type: "array",
+                        items: new OA\Items(type: "integer"),
+                        example: [1, 3],
+                        nullable: true
+                    ),
+                    new OA\Property(
+                        property: "max_hunts_per_day",
+                        description: "Количество егерей на базе",
+                        type: "integer",
+                        example: 2,
+                        nullable: true,
+                        minimum: 0
                     ),
                 ]
             )
@@ -902,6 +1068,10 @@ class HotelsPath
                                 "policy",
                                 "surrounding",
                                 "price",
+                                "check_in_time",
+                                "check_out_time",
+                                "min_day_before_booking",
+                                "min_day_stays",
                                 "extra_price",
                                 "service_fee",
                                 "map_lat",
@@ -912,6 +1082,7 @@ class HotelsPath
                                 "status_label",
                                 "has_food",
                                 "term_ids",
+                                "hunting_method_ids",
                             ],
                             properties: [
                                 new OA\Property(property: "id", type: "integer", example: 27),
@@ -949,6 +1120,10 @@ class HotelsPath
                                     nullable: true
                                 ),
                                 new OA\Property(property: "price", type: "number", format: "float", example: 4000, nullable: true),
+                                new OA\Property(property: "check_in_time", type: "string", example: "10:00", nullable: true),
+                                new OA\Property(property: "check_out_time", type: "string", example: "11:00", nullable: true),
+                                new OA\Property(property: "min_day_before_booking", type: "integer", example: 3, nullable: true),
+                                new OA\Property(property: "min_day_stays", type: "integer", example: 2, nullable: true),
                                 new OA\Property(
                                     property: "extra_price",
                                     type: "array",
@@ -988,6 +1163,18 @@ class HotelsPath
                                     type: "array",
                                     items: new OA\Items(type: "integer"),
                                     example: [1, 5, 12]
+                                ),
+                                new OA\Property(
+                                    property: "hunting_method_ids",
+                                    type: "array",
+                                    items: new OA\Items(type: "integer"),
+                                    example: [1, 3]
+                                ),
+                                new OA\Property(
+                                    property: "max_hunts_per_day",
+                                    description: "Количество егерей на базе",
+                                    type: "integer",
+                                    example: 2
                                 ),
                             ],
                             type: "object"
