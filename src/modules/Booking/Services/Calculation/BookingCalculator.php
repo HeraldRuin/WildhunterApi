@@ -413,11 +413,19 @@ class BookingCalculator
             return 0;
         }
 
-        return round(($booking->amount_hunting / $booking->total_hunting) * $huntersCount);
+        // Сумма охоты фиксируется при создании брони и не уменьшается,
+        // если на сбор пришло меньше охотников, чем было забронировано.
+        return round((float) $booking->amount_hunting);
     }
     public function calculateMyOrganisationHunting(Booking $booking, int $huntersCount): float
     {
-        return $this->calculateOrganisationHunting($booking, $huntersCount) / $huntersCount;
+        $total = $this->calculateOrganisationHunting($booking, $huntersCount);
+
+        if ($huntersCount <= 0) {
+            return 0;
+        }
+
+        return round($total / $huntersCount);
     }
 
     public function getOrganisationHunting(Booking $booking, int $huntersCount): array

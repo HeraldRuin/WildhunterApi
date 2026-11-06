@@ -171,8 +171,8 @@ class BookingCalculationStrategyTest extends TestCase
         $this->assertTrue($result['trophy_show']);
         $this->assertTrue($result['penalties_show']);
         $this->assertSame('Организация охоты', $result['items'][0]['name']);
-        $this->assertMoney(4000, $result['items'][0]['total_cost']);
-        $this->assertMoney(2000, $result['items'][0]['my_cost']);
+        $this->assertMoney(8000, $result['items'][0]['total_cost']);
+        $this->assertMoney(4000, $result['items'][0]['my_cost']);
         $this->assertMoney(50, $result['trophies'][0]['my_cost']);
         $this->assertMoney(0, $result['penalties'][0]['my_cost']);
         $this->assertSame(0, $result['addetionals'][0]['my_cost']);
@@ -208,13 +208,13 @@ class BookingCalculationStrategyTest extends TestCase
             array_column($result['all_items'], 'name'),
         );
         $this->assertMoney(1000, $result['prepaid_total']);
-        $this->assertMoney(4000, $result['items'][1]['total_cost']);
-        $this->assertMoney(2000, $result['items'][1]['my_cost']);
+        $this->assertMoney(8000, $result['items'][1]['total_cost']);
+        $this->assertMoney(4000, $result['items'][1]['my_cost']);
         $this->assertMoney(500, $result['all_items'][0]['my_cost']);
         $this->assertMoney(0, $result['all_items'][1]['total_cost']);
         $this->assertMoney(-500, $result['all_items'][1]['my_cost']);
         $this->assertMoney(0, $result['base_total']);
-        $this->assertMoney(4000, $result['total']);
+        $this->assertMoney(8000, $result['total']);
     }
 
     /**

@@ -336,15 +336,15 @@ class BookingCalculatorTest extends TestCase
         ));
     }
 
-    public function test_hunt_organisation_rounds_the_share_of_accepted_hunters(): void
+    public function test_hunt_organisation_keeps_the_booked_amount_and_splits_it_across_gathered_hunters(): void
     {
         $booking = $this->booking([
             'amount_hunting' => 8000,
             'total_hunting' => 4,
         ]);
 
-        $this->assertMoney(6000, $this->calculator->calculateOrganisationHunting($booking, 3));
-        $this->assertMoney(2000, $this->calculator->calculateMyOrganisationHunting($booking, 3));
+        $this->assertMoney(8000, $this->calculator->calculateOrganisationHunting($booking, 3));
+        $this->assertMoney(2667, $this->calculator->calculateMyOrganisationHunting($booking, 3));
     }
 
     public function test_prepayment_share_rounds_half_up(): void
@@ -368,7 +368,7 @@ class BookingCalculatorTest extends TestCase
 
         $this->assertMoney(900, $open['prepaid_total']);
         $this->assertMoney(1300, $open['base_total']);
-        $this->assertMoney(8500, $open['total']);
+        $this->assertMoney(10500, $open['total']);
 
         $booking->is_paid = true;
         $booking->status = Booking::PAID;
@@ -376,7 +376,7 @@ class BookingCalculatorTest extends TestCase
 
         $this->assertMoney(900, $paid['prepaid_total']);
         $this->assertMoney(1300, $paid['base_total']);
-        $this->assertMoney(8500, $paid['total']);
+        $this->assertMoney(10500, $paid['total']);
     }
 
     public function test_history_totals_for_hunting_count_only_base_services(): void
