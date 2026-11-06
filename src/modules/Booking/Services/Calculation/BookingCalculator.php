@@ -242,14 +242,21 @@ class BookingCalculator
     {
         $result = [];
 
-        foreach ($additional as $item) {
-            $totalCost = round($item->price);
-            $myCost = $this->calculateAddetionalByType($item, $user, $huntersCount);
+        $grouped = $additional->groupBy(
+            fn ($item) => ($item->type ?? '') . '|' . $this->servicePlace($item),
+        );
+
+        foreach ($grouped as $items) {
+            $first = $items->first();
+            $totalCost = (int) round($items->sum(fn ($item) => (float) $item->price));
+            $myCost = (int) round($items->sum(
+                fn ($item) => (float) ($this->calculateAddetionalByType($item, $user, $huntersCount) ?? 0),
+            ));
 
             $result[] = [
-                'name' => $item->type,
-                'place' => $this->servicePlace($item),
-                'count' => $this->lineCount($item),
+                'name' => $first->type,
+                'place' => $this->servicePlace($first),
+                'count' => $this->lineCount($items),
                 'total_cost' => $totalCost,
                 'my_cost' => $myCost,
             ];

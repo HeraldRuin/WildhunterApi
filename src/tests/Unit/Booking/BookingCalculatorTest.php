@@ -209,6 +209,39 @@ class BookingCalculatorTest extends TestCase
         $this->assertMoney(50, $totals['food']);
     }
 
+    public function test_same_additional_service_is_one_line(): void
+    {
+        $lines = $this->calculator->calculateAdditional(collect([
+            $this->service(AddetionalPrice::ADDETIONAL, 4000, [
+                'type' => 'Тепловизор',
+                'count' => 2,
+                'place' => 'hunt',
+                'calculation_type' => AddetionalPrice::PERSON,
+            ]),
+            $this->service(AddetionalPrice::ADDETIONAL, 2000, [
+                'type' => 'Тепловизор',
+                'count' => 1,
+                'place' => 'hunt',
+                'calculation_type' => AddetionalPrice::PERSON,
+            ]),
+            $this->service(AddetionalPrice::ADDETIONAL, 1000, [
+                'type' => 'Тепловизор',
+                'count' => 1,
+                'place' => BookingService::PLACE_BASE,
+                'calculation_type' => AddetionalPrice::PERSON,
+            ]),
+        ]), $this->user(1), 2);
+
+        $this->assertCount(2, $lines);
+        $this->assertSame('Тепловизор', $lines[0]['name']);
+        $this->assertSame('hunt', $lines[0]['place']);
+        $this->assertSame(3, $lines[0]['count']);
+        $this->assertMoney(6000, $lines[0]['total_cost']);
+        $this->assertMoney(3000, $lines[0]['my_cost']);
+        $this->assertSame(BookingService::PLACE_BASE, $lines[1]['place']);
+        $this->assertSame(1, $lines[1]['count']);
+    }
+
     public function test_individual_service_for_another_hunter_is_zero(): void
     {
         $foreign = $this->service(AddetionalPrice::ADDETIONAL, 800, [
