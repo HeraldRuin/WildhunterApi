@@ -87,6 +87,30 @@ class BookingCalculatorTest extends TestCase
         $this->assertSame(BookingService::PLACE_BASE, $lines[1]['place']);
     }
 
+    public function test_service_lines_include_quantity(): void
+    {
+        $meals = $this->calculator->calculateMeals(
+            collect([
+                $this->service(AddetionalPrice::FOOD, 100, ['type' => 'Завтрак', 'count' => 2]),
+                $this->service(AddetionalPrice::FOOD, 100, ['type' => 'Завтрак', 'count' => 1]),
+            ]),
+            1,
+            $this->booking(),
+            $this->user(1),
+        );
+        $preparation = $this->service(AddetionalPrice::PREPARATION, 300, ['count' => 1]);
+        $preparation->setRelation('animal', $this->animal('Лось'));
+        $additional = $this->service(AddetionalPrice::ADDETIONAL, 500, [
+            'type' => 'Сауна',
+            'calculation_type' => AddetionalPrice::PERSON,
+            'count' => 4,
+        ]);
+
+        $this->assertSame(3, $meals[0]['count']);
+        $this->assertSame(1, $this->calculator->calculatePreparations(collect([$preparation]), 2)[0]['count']);
+        $this->assertSame(4, $this->calculator->calculateAdditional(collect([$additional]), $this->user(1), 2)[0]['count']);
+    }
+
     public function test_meal_share_is_rounded_per_line(): void
     {
         $meals = $this->calculator->calculateMeals(
@@ -147,6 +171,7 @@ class BookingCalculatorTest extends TestCase
         $this->assertMoney(900, $trophies[0]['total_cost']);
         $this->assertSame(0, $trophies[0]['my_cost']);
         $this->assertSame('Разделка (Лось x 1шт)', $preparations[0]['name']);
+        $this->assertSame(1, $preparations[0]['count']);
         $this->assertMoney(300, $preparations[0]['total_cost']);
         $this->assertSame(0, $preparations[0]['my_cost']);
     }

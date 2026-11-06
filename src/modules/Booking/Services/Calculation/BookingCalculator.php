@@ -183,6 +183,7 @@ class BookingCalculator
             $result[] = [
                 'name' => $first->type,
                 'place' => $this->servicePlace($first),
+                'count' => $this->lineCount($items),
                 'total_cost' => $totalCost,
                 'my_cost' => $myCost,
             ];
@@ -226,6 +227,7 @@ class BookingCalculator
 
             $result[] = [
                 'name' => 'Разделка' . ' (' . $animalName . ' x ' . $preparation->count . 'шт)',
+                'count' => $this->lineCount($preparation),
                 'total_cost' => $totalCost,
                 'my_cost' => $huntersCount > 0 ? round($preparation->price / $huntersCount): 0,
             ];
@@ -245,12 +247,22 @@ class BookingCalculator
             $result[] = [
                 'name' => $item->type,
                 'place' => $this->servicePlace($item),
+                'count' => $this->lineCount($item),
                 'total_cost' => $totalCost,
                 'my_cost' => $myCost,
             ];
         }
 
         return $result;
+    }
+
+    private function lineCount(Collection|BookingService $items): int
+    {
+        if ($items instanceof Collection) {
+            return (int) $items->sum(fn ($item) => (int) ($item->count ?? 0));
+        }
+
+        return (int) ($items->count ?? 0);
     }
 
     private function servicePlace($item): string
