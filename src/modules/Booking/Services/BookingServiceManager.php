@@ -35,6 +35,8 @@ class BookingServiceManager
      *     preliminary_total: int,
      *     booking_type: string,
      *     allowed_types: list<string>,
+     *     can_change: bool,
+     *     services_editable_until: string|null,
      *     catalogs: array<string, mixed>,
      *     items: array<string, mixed>
      * }
@@ -56,6 +58,10 @@ class BookingServiceManager
             'preliminary_total' => $this->preliminaryTotal($services),
             'booking_type' => $booking->type,
             'allowed_types' => $allowedTypes,
+            'can_change' => $isAdmin || $booking->isMasterServicesWindowOpen(),
+            'services_editable_until' => $isAdmin
+                ? null
+                : $booking->servicesEditableUntil()?->toIso8601String(),
             'catalogs' => $this->catalogsFor($booking, $allowedTypes),
             'items' => $this->savedItems($booking, $services),
         ];
@@ -68,7 +74,7 @@ class BookingServiceManager
      */
     public function createTrophy(string $code, StoreTrophyData $data, User $user): array
     {
-        [$booking] = $this->findAuthorizedBooking($code, $user, AddetionalPrice::TROPHY);
+        [$booking] = $this->findMutableBooking($code, $user, AddetionalPrice::TROPHY);
 
         $trophy = AnimalTrophy::query()
             ->whereKey($data->trophyId)
@@ -113,7 +119,7 @@ class BookingServiceManager
      */
     public function updateTrophy(string $code, int $serviceId, StoreTrophyData $data, User $user): array
     {
-        [$booking] = $this->findAuthorizedBooking($code, $user, AddetionalPrice::TROPHY);
+        [$booking] = $this->findMutableBooking($code, $user, AddetionalPrice::TROPHY);
         $service = $this->findOwnedService($booking, $serviceId, AddetionalPrice::TROPHY);
         $price = $this->animalCatalogPrice(
             AnimalTrophy::query()
@@ -144,7 +150,7 @@ class BookingServiceManager
      */
     public function createPenalty(string $code, StorePenaltyData $data, User $user): array
     {
-        [$booking] = $this->findAuthorizedBooking($code, $user, AddetionalPrice::PENALTY);
+        [$booking] = $this->findMutableBooking($code, $user, AddetionalPrice::PENALTY);
         $this->assertHunterInBooking($booking, $data->hunterId);
 
         $penalty = AnimalFine::query()
@@ -191,7 +197,7 @@ class BookingServiceManager
      */
     public function updatePenalty(string $code, int $serviceId, StorePenaltyData $data, User $user): array
     {
-        [$booking] = $this->findAuthorizedBooking($code, $user, AddetionalPrice::PENALTY);
+        [$booking] = $this->findMutableBooking($code, $user, AddetionalPrice::PENALTY);
         $this->assertHunterInBooking($booking, $data->hunterId);
         $service = $this->findOwnedService($booking, $serviceId, AddetionalPrice::PENALTY);
         $price = $this->animalCatalogPrice(
@@ -222,7 +228,7 @@ class BookingServiceManager
      */
     public function createOrUpdatePreparation(string $code, StorePreparationData $data, User $user): array
     {
-        [$booking] = $this->findAuthorizedBooking($code, $user, AddetionalPrice::PREPARATION);
+        [$booking] = $this->findMutableBooking($code, $user, AddetionalPrice::PREPARATION);
 
         $preparation = AnimalPreparation::query()
             ->whereKey($data->preparationId)
@@ -284,7 +290,7 @@ class BookingServiceManager
      */
     public function updatePreparation(string $code, int $serviceId, StorePreparationData $data, User $user): array
     {
-        [$booking] = $this->findAuthorizedBooking($code, $user, AddetionalPrice::PREPARATION);
+        [$booking] = $this->findMutableBooking($code, $user, AddetionalPrice::PREPARATION);
         $service = $this->findOwnedService($booking, $serviceId, AddetionalPrice::PREPARATION);
 
         $preparation = AnimalPreparation::query()
@@ -330,7 +336,7 @@ class BookingServiceManager
      */
     public function createFood(string $code, StoreFoodData $data, User $user): array
     {
-        [$booking] = $this->findAuthorizedBooking($code, $user, AddetionalPrice::FOOD);
+        [$booking] = $this->findMutableBooking($code, $user, AddetionalPrice::FOOD);
 
         $food = $this->hotelFoods($booking)
             ->whereKey($data->foodId)
@@ -384,7 +390,7 @@ class BookingServiceManager
      */
     public function updateFood(string $code, int $serviceId, UpdateFoodData $data, User $user): array
     {
-        [$booking] = $this->findAuthorizedBooking($code, $user, AddetionalPrice::FOOD);
+        [$booking] = $this->findMutableBooking($code, $user, AddetionalPrice::FOOD);
         $service = $this->findOwnedService($booking, $serviceId, AddetionalPrice::FOOD);
 
         if ($data->foodId === null) {
@@ -431,7 +437,7 @@ class BookingServiceManager
      */
     public function createAdditional(string $code, StoreAdditionalData $data, User $user): array
     {
-        [$booking] = $this->findAuthorizedBooking($code, $user, AddetionalPrice::ADDETIONAL);
+        [$booking] = $this->findMutableBooking($code, $user, AddetionalPrice::ADDETIONAL);
 
         $additional = $this->hotelAdditionals($booking)
             ->whereKey($data->additionalId)
@@ -482,7 +488,7 @@ class BookingServiceManager
      */
     public function updateAdditional(string $code, int $serviceId, StoreAdditionalData $data, User $user): array
     {
-        [$booking] = $this->findAuthorizedBooking($code, $user, AddetionalPrice::ADDETIONAL);
+        [$booking] = $this->findMutableBooking($code, $user, AddetionalPrice::ADDETIONAL);
         $service = $this->findOwnedService($booking, $serviceId, AddetionalPrice::ADDETIONAL);
 
         $additional = $this->hotelAdditionals($booking)
@@ -521,7 +527,7 @@ class BookingServiceManager
      */
     public function createSpending(string $code, StoreSpendingData $data, User $user): array
     {
-        [$booking] = $this->findAuthorizedBooking($code, $user, AddetionalPrice::SPENDING);
+        [$booking] = $this->findMutableBooking($code, $user, AddetionalPrice::SPENDING);
         $this->assertHunterInBooking($booking, $data->hunterId);
 
         $service = BookingService::create([
@@ -546,7 +552,7 @@ class BookingServiceManager
      */
     public function updateSpending(string $code, int $serviceId, StoreSpendingData $data, User $user): array
     {
-        [$booking] = $this->findAuthorizedBooking($code, $user, AddetionalPrice::SPENDING);
+        [$booking] = $this->findMutableBooking($code, $user, AddetionalPrice::SPENDING);
         $this->assertHunterInBooking($booking, $data->hunterId);
         $service = $this->findOwnedService($booking, $serviceId, AddetionalPrice::SPENDING);
 
@@ -570,7 +576,7 @@ class BookingServiceManager
      */
     public function deleteService(string $code, int $serviceId, User $user): void
     {
-        [$booking, , $allowedTypes] = $this->findAuthorizedBooking($code, $user);
+        [$booking, , $allowedTypes] = $this->findMutableBooking($code, $user);
 
         $service = BookingService::query()
             ->where('id', $serviceId)
@@ -663,6 +669,28 @@ class BookingServiceManager
             $ids,
             static fn (int $id): bool => $id > 0,
         )));
+    }
+
+    /**
+     * @return array{0: Booking, 1: bool, 2: list<string>}
+     *
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     * @throws ConflictException
+     */
+    private function findMutableBooking(string $code, User $user, ?string $serviceType = null): array
+    {
+        $found = $this->findAuthorizedBooking($code, $user, $serviceType);
+        [$booking, $isAdmin] = $found;
+
+        if (!$isAdmin && !$booking->isMasterServicesWindowOpen()) {
+            throw new ConflictException(
+                errorCode: 'add_services_timer_expired',
+                domain: 'booking',
+            );
+        }
+
+        return $found;
     }
 
     /**

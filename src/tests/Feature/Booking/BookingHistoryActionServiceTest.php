@@ -2,9 +2,11 @@
 
 namespace Tests\Feature\Booking;
 
+use Carbon\Carbon;
 use Modules\Booking\Models\Booking;
 use Modules\Booking\Models\BookingHunterInvitation;
 use Modules\Booking\Services\BookingHistoryActionService;
+use Modules\Hotel\Models\Hotel;
 use Modules\Role\Models\Role;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
@@ -42,22 +44,22 @@ class BookingHistoryActionServiceTest extends TestCase
     public function test_master_hunter_lodging_actions(string $status, array $expected): void
     {
         foreach ([Booking::BookingTypeHotel, Booking::BookingTypeHotelAnimal] as $type) {
-            $this->assertCodes(
-                $this->booking($status, $type, master: true),
-                Role::CUSTOMER,
-                $expected,
-            );
+            $booking = $this->booking($status, $type, master: true);
+            $booking->start_date = now()->addDays(5)->toDateString();
+            $booking->end_date = now()->addDays(7)->toDateString();
+
+            $this->assertCodes($booking, Role::CUSTOMER, $expected);
         }
     }
 
     #[DataProvider('masterAnimalActions')]
     public function test_master_hunter_animal_actions(string $status, array $expected): void
     {
-        $this->assertCodes(
-            $this->booking($status, Booking::BookingTypeAnimal, master: true),
-            Role::CUSTOMER,
-            $expected,
-        );
+        $booking = $this->booking($status, Booking::BookingTypeAnimal, master: true);
+        $booking->start_date = now()->addDays(5)->toDateString();
+        $booking->start_date_animal = now()->addDays(5)->toDateString();
+
+        $this->assertCodes($booking, Role::CUSTOMER, $expected);
     }
 
     #[DataProvider('invitedPendingActions')]
@@ -123,6 +125,53 @@ class BookingHistoryActionServiceTest extends TestCase
         $booking->start_date = now()->addDays(3)->toDateString();
 
         $this->assertCodes($booking, Role::CUSTOMER, ['open_collection', 'add_services', 'calculating']);
+    }
+
+    public function test_master_hunter_loses_services_inside_timer_before_arrival(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-11-06 15:00:00'));
+
+        try {
+            $booking = $this->booking(Booking::PAID, Booking::BookingTypeHotel, master: true);
+            $booking->start_date = '2026-11-07';
+
+            $this->assertCodes($booking, Role::CUSTOMER, ['open_collection', 'calculating']);
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
+    public function test_master_hunter_services_follow_hotel_timer_and_check_in_time(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-11-06 12:00:00'));
+
+        try {
+            $open = $this->booking(Booking::PAID, Booking::BookingTypeHotel, master: true);
+            $open->start_date = '2026-11-08';
+            $open->setRelation('hotel', $this->hotelTimer(24, '10:00'));
+
+            $this->assertCodes($open, Role::CUSTOMER, ['open_collection', 'add_services', 'calculating']);
+
+            $closed = $this->booking(Booking::PAID, Booking::BookingTypeHotel, master: true);
+            $closed->start_date = '2026-11-08';
+            $closed->setRelation('hotel', $this->hotelTimer(48, '10:00'));
+
+            $this->assertCodes($closed, Role::CUSTOMER, ['open_collection', 'calculating']);
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
+    public function test_master_hunter_services_stay_closed_before_prepayment(): void
+    {
+        $booking = $this->booking(Booking::CONFIRMED, Booking::BookingTypeHotel, master: true);
+        $booking->start_date = now()->addDays(10)->toDateString();
+
+        $this->assertNotContains('add_services', array_column(
+            $this->actions->getAvailableActions($booking, Role::CUSTOMER),
+            'code',
+        ));
+        $this->assertFalse($booking->isMasterServicesWindowOpen());
     }
 
     public function test_complete_appears_only_on_checkout_day(): void
@@ -343,6 +392,15 @@ class BookingHistoryActionServiceTest extends TestCase
             'confirmed' => [Booking::CONFIRMED, []],
             'cancelled' => [Booking::CANCELLED, []],
         ];
+    }
+
+    private function hotelTimer(int $hours, string $checkInTime): Hotel
+    {
+        $hotel = new Hotel();
+        $hotel->services_timer_hours = $hours;
+        $hotel->check_in_time = $checkInTime;
+
+        return $hotel;
     }
 
     private function booking(

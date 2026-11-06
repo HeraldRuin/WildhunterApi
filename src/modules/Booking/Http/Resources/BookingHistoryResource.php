@@ -44,6 +44,8 @@ class BookingHistoryResource extends BaseJsonResource
                 'collection_timer_hours' => $booking->hotel->collection_timer_hours ?? null,
                 'paid_timer_hours' => $booking->hotel->paid_timer_hours ?? null,
                 'bed_timer_hours' => $booking->hotel->bed_timer_hours ?? null,
+                'services_timer_hours' => $booking->hotel->services_timer_hours ?? null,
+                'check_in_time' => $booking->hotel->check_in_time ?? null,
             ] : null,
 
             'creator' => $booking->creator ? [
@@ -58,6 +60,7 @@ class BookingHistoryResource extends BaseJsonResource
             'details' => $item->details,
             'collection' => $item->collection,
             'payment' => $item->payment,
+            'services_editable_until' => $booking->servicesEditableUntil()?->toIso8601String(),
             'available_actions' => $item->availableActions,
         ];
     }

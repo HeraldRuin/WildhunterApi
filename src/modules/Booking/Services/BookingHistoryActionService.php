@@ -269,7 +269,7 @@ class BookingHistoryActionService
             Booking::BED_COLLECTION,
             Booking::FINISHED_BED,
             Booking::PAID,
-        ], true)) {
+        ], true) && $booking->isMasterServicesWindowOpen()) {
             $actions[] = 'add_services';
         }
 
@@ -316,7 +316,7 @@ class BookingHistoryActionService
             $actions[] = 'cancel_collection';
         }
 
-        if ($status === Booking::FINISHED_COLLECTION) {
+        if ($status === Booking::FINISHED_COLLECTION && $booking->isMasterServicesWindowOpen()) {
             $actions[] = 'add_services';
         }
 

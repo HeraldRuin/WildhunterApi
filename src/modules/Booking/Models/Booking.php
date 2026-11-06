@@ -259,6 +259,101 @@ class Booking extends BaseModel
         );
     }
 
+    /**
+     * Таймер услуг стартует после предоплаты. Для охоты без проживания
+     * отдельного этапа предоплаты нет — отсчёт начинается с завершения сбора.
+     */
+    public function isServicesTimerStarted(): bool
+    {
+        if ((bool) $this->prepayment_paid) {
+            return true;
+        }
+
+        if (in_array($this->status, [
+            self::FINISHED_PREPAYMENT,
+            self::BED_COLLECTION,
+            self::FINISHED_BED,
+            self::PAID,
+        ], true)) {
+            return true;
+        }
+
+        return $this->type === self::BookingTypeAnimal
+            && $this->status === self::FINISHED_COLLECTION;
+    }
+
+    public function servicesTimerHours(): int
+    {
+        $hours = $this->hotel?->services_timer_hours;
+
+        return is_numeric($hours) && (int) $hours >= 1
+            ? (int) $hours
+            : 24;
+    }
+
+    public function arrivalAt(): ?Carbon
+    {
+        $rawDate = $this->type === self::BookingTypeAnimal
+            ? ($this->start_date_animal ?: $this->start_date)
+            : ($this->start_date ?: $this->start_date_animal);
+
+        if (empty($rawDate)) {
+            return null;
+        }
+
+        [$hour, $minute] = $this->checkInClock();
+
+        return Carbon::parse($rawDate)->startOfDay()->setTime($hour, $minute);
+    }
+
+    /**
+     * Момент, после которого мастер-охотник больше не меняет услуги.
+     */
+    public function servicesEditableUntil(): ?Carbon
+    {
+        if (!$this->isServicesTimerStarted()) {
+            return null;
+        }
+
+        $arrival = $this->arrivalAt();
+
+        if (!$arrival) {
+            return null;
+        }
+
+        return $arrival->copy()->subHours($this->servicesTimerHours());
+    }
+
+    public function isMasterServicesWindowOpen(?Carbon $now = null): bool
+    {
+        $until = $this->servicesEditableUntil();
+
+        if (!$until) {
+            return false;
+        }
+
+        return ($now ?? now())->lt($until);
+    }
+
+    /**
+     * @return array{0: int, 1: int}
+     */
+    private function checkInClock(): array
+    {
+        $raw = trim((string) ($this->hotel?->check_in_time ?? ''));
+
+        if (preg_match('/^(\d{1,2}):(\d{2})/', $raw, $matches) === 1) {
+            $hour = (int) $matches[1];
+            $minute = (int) $matches[2];
+
+            if ($hour <= 23 && $minute <= 59) {
+                return [$hour, $minute];
+            }
+        }
+
+        return [14, 0];
+    }
+
     public function getStatusClassAttribute()
     {
         switch ($this->status) {
