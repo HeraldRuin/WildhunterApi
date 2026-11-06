@@ -26,6 +26,8 @@ class HotelResource extends BaseJsonResource
             'gallery' => $hotel->getGallery(),
             'review_count' => $hotel->reviews->count(),
             'star_rate' => $hotel->star_rate,
+            'check_in_time' => $hotel->check_in_time,
+            'check_out_time' => $hotel->check_out_time,
             'rooms' => HotelRoomResource::collection($hotel->available_rooms ?? []),
             'animals' => AnimalResource::collection($hotel->animals ?? []),
             'location' => LocationResource::make($this->resource->location),
