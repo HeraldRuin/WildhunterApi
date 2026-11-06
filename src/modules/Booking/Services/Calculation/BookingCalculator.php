@@ -152,6 +152,7 @@ class BookingCalculator
 
             $result[] = [
                 'name' => $animalName . ' (' . $trophy->type . ' x ' . $trophy->count . 'шт)',
+                'count' => $this->lineCount($trophy),
                 'total_cost' => round((float)$trophy->price),
                 'my_cost' => $huntersCount > 0 ? round($trophy->price / $huntersCount): 0,
             ];
@@ -209,6 +210,7 @@ class BookingCalculator
 
             $result[] = [
                 'name' => $first->type . ' (' . $animalName . ')',
+                'count' => $this->lineCount($items),
                 'total_cost' => round($totalCost),
                 'my_cost' => round($myCost),
             ];
@@ -226,7 +228,7 @@ class BookingCalculator
             $totalCost = round($preparation->price);
 
             $result[] = [
-                'name' => 'Разделка' . ' (' . $animalName . ' x ' . $preparation->count . 'шт)',
+                'name' => 'Разделка (' . $animalName . ')',
                 'count' => $this->lineCount($preparation),
                 'total_cost' => $totalCost,
                 'my_cost' => $huntersCount > 0 ? round($preparation->price / $huntersCount): 0,

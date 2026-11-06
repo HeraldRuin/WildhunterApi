@@ -168,9 +168,10 @@ class BookingCalculatorTest extends TestCase
         $preparations = $this->calculator->calculatePreparations(collect([$preparation]), 0);
 
         $this->assertSame('Лось (рога x 2шт)', $trophies[0]['name']);
+        $this->assertSame(2, $trophies[0]['count']);
         $this->assertMoney(900, $trophies[0]['total_cost']);
         $this->assertSame(0, $trophies[0]['my_cost']);
-        $this->assertSame('Разделка (Лось x 1шт)', $preparations[0]['name']);
+        $this->assertSame('Разделка (Лось)', $preparations[0]['name']);
         $this->assertSame(1, $preparations[0]['count']);
         $this->assertMoney(300, $preparations[0]['total_cost']);
         $this->assertSame(0, $preparations[0]['my_cost']);
