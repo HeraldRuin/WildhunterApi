@@ -24,6 +24,8 @@ trait PreparesPaymentDatabase
             $table->unsignedBigInteger('object_id')->nullable();
             $table->unsignedBigInteger('hotel_id')->nullable();
             $table->decimal('total', 12, 2)->nullable();
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
             $table->boolean('prepayment_paid')->default(false);
             $table->softDeletes();
             $table->timestamps();

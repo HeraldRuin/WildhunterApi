@@ -415,7 +415,7 @@ class BookingCalculator
         return round(
             $this->getMyAccommodationCost($booking, $user)
             + $result['total']
-            - $this->myPrepaymentMade($booking->total, $huntersCount)
+            - $this->myPrepaymentMade($booking->prepaymentAmount(), $huntersCount)
         );
     }
     public function calculateMyBaseTotalOnlyHunting(Booking $booking, User $user, $services, int $huntersCount): float
@@ -470,12 +470,12 @@ class BookingCalculator
         return [
             'title_name' => 'Внесена предоплата',
             'total_cost' => $this->basePrepaymentMade($booking),
-            'my_cost' => $this->myPrepaymentMade($booking->total, $huntersCount),
+            'my_cost' => $this->myPrepaymentMade($booking->prepaymentAmount(), $huntersCount),
         ];
     }
     public function basePrepaymentMade(Booking $booking): float
     {
-        return round($booking->total);
+        return $booking->prepaymentAmount();
     }
     public function myPrepaymentMade($bookingTotal, int $huntersCount): float
     {

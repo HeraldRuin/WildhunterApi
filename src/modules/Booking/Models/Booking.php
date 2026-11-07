@@ -1737,9 +1737,28 @@ class Booking extends BaseModel
     }
 
     /**
+     * Сумма предоплаты: стоимость первого дня проживания, а не всего срока.
+     * Для новых броней берётся цена суток заезда. Если её нет — доля total на одни сутки.
+     */
+    public function prepaymentAmount(): float
+    {
+        if ($this->exists && $this->id) {
+            $stored = $this->getMeta('first_day_total', null);
+
+            if (is_numeric($stored)) {
+                return round((float) $stored);
+            }
+        }
+
+        $nights = max(1, (int) $this->duration_nights);
+
+        return round((float) $this->total / $nights);
+    }
+
+    /**
      * Сумма уже внесённой предоплаты для писем.
-     * Сначала фактические оплаты, иначе доля проживания на каждого оплатившего.
-     * Когда предоплату внесли все принятые охотники, сумма равна стоимости проживания.
+     * Сначала фактические оплаты, иначе доля первого дня на каждого оплатившего.
+     * Когда предоплату внесли все принятые охотники, сумма равна стоимости первого дня.
      */
     public function collectedPrepaymentAmount(): float
     {
@@ -1758,13 +1777,14 @@ class Booking extends BaseModel
             return round((float) ($this->paid ?? 0), 2);
         }
 
+        $prepayment = $this->prepaymentAmount();
         $accepted = $this->countAcceptedHunters();
 
         if ($accepted > 0 && $paidHunters >= $accepted) {
-            return round((float) $this->total, 2);
+            return round($prepayment, 2);
         }
 
-        $share = round((float) $this->total / max(1, $accepted), 2);
+        $share = round($prepayment / max(1, $accepted), 2);
 
         return round($share * $paidHunters, 2);
     }

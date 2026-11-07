@@ -56,7 +56,7 @@ class MarkPrepaymentCollected extends Command
                 return 'У принятого охотника не заполнен hunter_id.';
             }
 
-            $amount = round((float) $booking->total / $invitations->count(), 2);
+            $amount = round($booking->prepaymentAmount() / $invitations->count(), 2);
 
             foreach ($invitations as $invitation) {
                 $this->markHunterPaid($booking, $invitation, $amount);

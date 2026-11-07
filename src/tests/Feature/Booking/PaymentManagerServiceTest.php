@@ -70,6 +70,23 @@ class PaymentManagerServiceTest extends TestCase
         $this->assertSame('Иван Петров', $this->gateway->invoices[0]->customerName);
     }
 
+    public function test_create_payment_charges_the_first_day_not_the_whole_stay(): void
+    {
+        $first = User::factory()->create();
+        $second = User::factory()->create();
+        $bookingId = $this->seedPrepaymentBooking([$first, $second], 3000, 'BK-PAY');
+        DB::table('bc_bookings')->where('id', $bookingId)->update([
+            'start_date' => '2026-10-05',
+            'end_date' => '2026-10-08',
+        ]);
+
+        $this->manager->createPayment('BK-PAY', $first);
+
+        $payment = Payment::query()->where('create_user', $first->id)->first();
+        $this->assertSame('500.00', $payment->amount);
+        $this->assertSame(500.0, $this->gateway->invoices[0]->amount);
+    }
+
     public function test_create_payment_reuses_active_invoice(): void
     {
         $hunter = User::factory()->create();

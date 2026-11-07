@@ -49,6 +49,8 @@ class BookingStoreService
 
         $selectedRooms = [];
         $total = 0.0;
+        $firstDayTotal = 0.0;
+        $checkInKey = $startDate->format('Y-m-d');
 
         if (!empty($data->rooms)) {
             $availableRooms = collect($this->roomService->getAvailableRooms($hotel, [
@@ -93,6 +95,7 @@ class BookingStoreService
 
                 $roomPrice = (float) ($room->calculated_price ?? $room->tmp_price ?? 0);
                 $total += $roomPrice * $roomInput->number;
+                $firstDayTotal += $this->firstNightPrice($room, $checkInKey, $roomPrice, (int) $numberDays) * $roomInput->number;
                 $totalAdultCapacity += (int) ($room->adults ?? 0) * $roomInput->number;
 
                 $selectedRooms[] = [
@@ -160,6 +163,7 @@ class BookingStoreService
             $animalId,
             $totalGuests,
             $total,
+            $firstDayTotal,
             $amountHunting,
             $startDateAnimal,
             $type,
@@ -205,6 +209,9 @@ class BookingStoreService
             Booking::clearDraftBookings();
 
             $booking->addMeta('duration', $numberDays);
+            if ($firstDayTotal > 0) {
+                $booking->addMeta('first_day_total', round($firstDayTotal, 2));
+            }
             $booking->addMeta('base_price', $hotel->price ?? 0);
             $booking->addMeta('sale_price', $hotel->sale_price ?? 0);
             $booking->addMeta('guests', $totalGuests);
@@ -342,5 +349,16 @@ class BookingStoreService
         if ($bookingDepositFormula === 'deposit_and_fee') {
             $booking->deposit = ($booking->deposit ?? 0);
         }
+    }
+
+    private function firstNightPrice(HotelRoom $room, string $checkInKey, float $stayPrice, int $nights): float
+    {
+        $dates = $room->tmp_dates ?? null;
+
+        if (is_array($dates) && isset($dates[$checkInKey]['price'])) {
+            return (float) $dates[$checkInKey]['price'];
+        }
+
+        return $nights > 0 ? $stayPrice / $nights : $stayPrice;
     }
 }

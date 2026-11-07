@@ -55,7 +55,7 @@ class PaymentManagerService
                 ]);
             }
 
-            $amount = round((float) $booking->total / max(1, $booking->countAcceptedHunters()), 2);
+            $amount = round($booking->prepaymentAmount() / max(1, $booking->countAcceptedHunters()), 2);
             $paymentExpiry = now()->addMinutes((int) config('paykeeper.invoice_ttl_minutes', 30));
             $payment = Payment::query()->create([
                 'booking_id' => $booking->id,

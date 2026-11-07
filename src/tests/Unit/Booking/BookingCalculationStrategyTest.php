@@ -127,13 +127,13 @@ class BookingCalculationStrategyTest extends TestCase
             ['Внесена предоплата', 'Остаток базе', 'Итог охотникам'],
             array_column($result['all_items'], 'name'),
         );
-        $this->assertMoney(1000, $result['all_items'][0]['total_cost']);
-        $this->assertMoney(500, $result['all_items'][0]['my_cost']);
-        $this->assertMoney(100, $result['all_items'][1]['total_cost']);
-        $this->assertMoney(-450, $result['all_items'][1]['my_cost']);
-        $this->assertMoney(1000, $result['prepaid_total']);
-        $this->assertMoney(100, $result['base_total']);
-        $this->assertMoney(100, $result['total']);
+        $this->assertMoney(333, $result['all_items'][0]['total_cost']);
+        $this->assertMoney(167, $result['all_items'][0]['my_cost']);
+        $this->assertMoney(767, $result['all_items'][1]['total_cost']);
+        $this->assertMoney(-117, $result['all_items'][1]['my_cost']);
+        $this->assertMoney(333, $result['prepaid_total']);
+        $this->assertMoney(767, $result['base_total']);
+        $this->assertMoney(767, $result['total']);
     }
 
     public function test_hunting_strategy_assembles_organisation_and_own_charges(): void
@@ -207,14 +207,14 @@ class BookingCalculationStrategyTest extends TestCase
             ['Внесена предоплата', 'Остаток базе', 'Итог охотникам'],
             array_column($result['all_items'], 'name'),
         );
-        $this->assertMoney(1000, $result['prepaid_total']);
+        $this->assertMoney(333, $result['prepaid_total']);
         $this->assertMoney(8000, $result['items'][1]['total_cost']);
         $this->assertMoney(4000, $result['items'][1]['my_cost']);
-        $this->assertMoney(500, $result['all_items'][0]['my_cost']);
-        $this->assertMoney(0, $result['all_items'][1]['total_cost']);
-        $this->assertMoney(-500, $result['all_items'][1]['my_cost']);
-        $this->assertMoney(0, $result['base_total']);
-        $this->assertMoney(8000, $result['total']);
+        $this->assertMoney(167, $result['all_items'][0]['my_cost']);
+        $this->assertMoney(667, $result['all_items'][1]['total_cost']);
+        $this->assertMoney(-167, $result['all_items'][1]['my_cost']);
+        $this->assertMoney(667, $result['base_total']);
+        $this->assertMoney(8667, $result['total']);
     }
 
     /**

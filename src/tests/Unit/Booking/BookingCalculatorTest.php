@@ -408,7 +408,8 @@ class BookingCalculatorTest extends TestCase
     {
         $this->assertMoney(1, $this->calculator->myPrepaymentMade(1, 2));
         $this->assertMoney(333, $this->calculator->myPrepaymentMade(1000, 3));
-        $this->assertMoney(1000, $this->calculator->basePrepaymentMade($this->booking(['total' => 1000])));
+        $this->assertMoney(333, $this->calculator->basePrepaymentMade($this->booking(['total' => 1000])));
+        $this->assertMoney(1000, $this->calculator->basePrepaymentMade($this->booking(['total' => 1000], '2026-10-06')));
     }
 
     public function test_history_totals_count_only_base_services_for_lodging(): void
@@ -423,17 +424,17 @@ class BookingCalculatorTest extends TestCase
 
         $open = $this->calculator->getBookingTotal($booking, $services, 3);
 
-        $this->assertMoney(900, $open['prepaid_total']);
-        $this->assertMoney(1300, $open['base_total']);
-        $this->assertMoney(10500, $open['total']);
+        $this->assertMoney(300, $open['prepaid_total']);
+        $this->assertMoney(1900, $open['base_total']);
+        $this->assertMoney(11100, $open['total']);
 
         $booking->is_paid = true;
         $booking->status = Booking::PAID;
         $paid = $this->calculator->getBookingTotal($booking, $services, 3);
 
-        $this->assertMoney(900, $paid['prepaid_total']);
-        $this->assertMoney(1300, $paid['base_total']);
-        $this->assertMoney(10500, $paid['total']);
+        $this->assertMoney(300, $paid['prepaid_total']);
+        $this->assertMoney(1900, $paid['base_total']);
+        $this->assertMoney(11100, $paid['total']);
     }
 
     public function test_history_totals_for_hunting_count_only_base_services(): void
@@ -485,8 +486,8 @@ class BookingCalculatorTest extends TestCase
         $balance = $this->calculator->getBalanceBase($booking, $this->user(4), $services, 2);
 
         $this->assertSame('Остаток базе', $balance['title_name']);
-        $this->assertMoney(600, $balance['total_cost']);
-        $this->assertMoney(295, $balance['my_cost']);
+        $this->assertMoney(607, $balance['total_cost']);
+        $this->assertMoney(298, $balance['my_cost']);
     }
 
     public function test_confirmed_hunting_balance_stays_calculated(): void
