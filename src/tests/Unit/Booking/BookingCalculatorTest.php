@@ -107,6 +107,7 @@ class BookingCalculatorTest extends TestCase
         ]);
 
         $this->assertSame(3, $meals[0]['count']);
+        $this->assertSame(3, $meals[0]['my_count']);
         $this->assertSame(1, $this->calculator->calculatePreparations(collect([$preparation]), 2)[0]['count']);
         $this->assertSame(4, $this->calculator->calculateAdditional(collect([$additional]), $this->user(1), 2)[0]['count']);
     }
@@ -240,6 +241,62 @@ class BookingCalculatorTest extends TestCase
         $this->assertMoney(3000, $lines[0]['my_cost']);
         $this->assertSame(BookingService::PLACE_BASE, $lines[1]['place']);
         $this->assertSame(1, $lines[1]['count']);
+    }
+
+    public function test_regular_hunter_quantity_counts_only_his_services(): void
+    {
+        $user = $this->user(4);
+        $booking = $this->booking(end: '2026-10-06');
+        $meals = $this->calculator->calculateMeals(collect([
+            $this->service(AddetionalPrice::FOOD, 800, [
+                'type' => 'Завтрак',
+                'calculation_type' => AddetionalPrice::INDIVIDUAL,
+                'hunter_id' => 4,
+                'count' => 2,
+            ]),
+            $this->service(AddetionalPrice::FOOD, 2000, [
+                'type' => 'Завтрак',
+                'calculation_type' => AddetionalPrice::INDIVIDUAL,
+                'hunter_id' => 9,
+                'count' => 4,
+            ]),
+            $this->service(AddetionalPrice::FOOD, 1500, [
+                'type' => 'Ужин',
+                'calculation_type' => AddetionalPrice::INDIVIDUAL,
+                'hunter_id' => 9,
+                'count' => 5,
+            ]),
+        ]), 2, $booking, $user);
+
+        $breakfast = collect($meals)->firstWhere('name', 'Завтрак');
+        $dinner = collect($meals)->firstWhere('name', 'Ужин');
+
+        $this->assertSame(6, $breakfast['count']);
+        $this->assertSame(2, $breakfast['my_count']);
+        $this->assertMoney(800, $breakfast['my_cost']);
+        $this->assertSame(5, $dinner['count']);
+        $this->assertSame(0, $dinner['my_count']);
+        $this->assertMoney(0, $dinner['my_cost']);
+
+        $lines = $this->calculator->calculateAdditional(collect([
+            $this->service(AddetionalPrice::ADDETIONAL, 1000, [
+                'type' => 'Аренда снегохода',
+                'calculation_type' => AddetionalPrice::INDIVIDUAL,
+                'hunter_id' => 9,
+                'count' => 1,
+            ]),
+            $this->service(AddetionalPrice::ADDETIONAL, 1200, [
+                'type' => 'Обед',
+                'calculation_type' => AddetionalPrice::INDIVIDUAL,
+                'hunter_id' => 4,
+                'count' => 1,
+            ]),
+        ]), $user, 2);
+
+        $this->assertSame(0, $lines[0]['my_count']);
+        $this->assertSame(0, $lines[0]['my_cost']);
+        $this->assertSame(1, $lines[1]['my_count']);
+        $this->assertMoney(1200, $lines[1]['my_cost']);
     }
 
     public function test_individual_service_for_another_hunter_is_zero(): void

@@ -150,9 +150,12 @@ class BookingCalculator
         foreach ($trophies as $trophy) {
             $animalName = $trophy->animal?->title ?? '';
 
+            $count = $this->lineCount($trophy);
+
             $result[] = [
                 'name' => $animalName . ' (' . $trophy->type . ')',
-                'count' => $this->lineCount($trophy),
+                'count' => $count,
+                'my_count' => $count,
                 'total_cost' => round((float)$trophy->price),
                 'my_cost' => $huntersCount > 0 ? round($trophy->price / $huntersCount): 0,
             ];
@@ -185,6 +188,7 @@ class BookingCalculator
                 'name' => $first->type,
                 'place' => $this->servicePlace($first),
                 'count' => $this->lineCount($items),
+                'my_count' => $this->myLineCount($items, $user),
                 'total_cost' => $totalCost,
                 'my_cost' => $myCost,
             ];
@@ -211,6 +215,7 @@ class BookingCalculator
             $result[] = [
                 'name' => $animalName . ' (' . $first->type . ')',
                 'count' => $this->lineCount($items),
+                'my_count' => $this->myLineCount($items, $user),
                 'total_cost' => round($totalCost),
                 'my_cost' => round($myCost),
             ];
@@ -227,9 +232,12 @@ class BookingCalculator
             $animalName = $preparation->animal?->title ?? '';
             $totalCost = round($preparation->price);
 
+            $count = $this->lineCount($preparation);
+
             $result[] = [
                 'name' => $animalName . ' (' . $preparation->type . ')',
-                'count' => $this->lineCount($preparation),
+                'count' => $count,
+                'my_count' => $count,
                 'total_cost' => $totalCost,
                 'my_cost' => $huntersCount > 0 ? round($preparation->price / $huntersCount): 0,
             ];
@@ -257,6 +265,7 @@ class BookingCalculator
                 'name' => $first->type,
                 'place' => $this->servicePlace($first),
                 'count' => $this->lineCount($items),
+                'my_count' => $this->myLineCount($items, $user),
                 'total_cost' => $totalCost,
                 'my_cost' => $myCost,
             ];
@@ -272,6 +281,26 @@ class BookingCalculator
         }
 
         return (int) ($items->count ?? 0);
+    }
+
+    private function myLineCount(Collection $items, User $user): int
+    {
+        return (int) $items->sum(function ($item) use ($user) {
+            if ($this->countsOnlyForOwner($item) && (int) $item->hunter_id !== (int) $user->id) {
+                return 0;
+            }
+
+            return (int) ($item->count ?? 0);
+        });
+    }
+
+    private function countsOnlyForOwner($item): bool
+    {
+        if (($item->service_type ?? null) === AddetionalPrice::PENALTY) {
+            return true;
+        }
+
+        return ($item->calculation_type ?? null) === AddetionalPrice::INDIVIDUAL;
     }
 
     private function servicePlace($item): string

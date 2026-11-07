@@ -27,9 +27,16 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(
             property: "count",
-            description: "Количество услуг в строке. Для сгруппированного питания — сумма count. У проживания и итогов поля нет.",
+            description: "Количество услуг в строке по всем охотникам. Для сгруппированного питания — сумма count. У проживания и итогов поля нет.",
             type: "integer",
             example: 3,
+            nullable: true
+        ),
+        new OA\Property(
+            property: "my_count",
+            description: "Количество услуг текущего охотника. У индивидуальной услуги и штрафа — только его строки, у общей — то же, что count.",
+            type: "integer",
+            example: 1,
             nullable: true
         ),
         new OA\Property(
