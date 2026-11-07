@@ -115,6 +115,30 @@ class BookingHistoryItemPresenterTest extends TestCase
         $this->assertSame(2.25, $details['amount_accommodation_per_person']);
     }
 
+    public function test_hunting_keeps_planned_count_until_collection_ends(): void
+    {
+        $booking = $this->huntingBooking(Booking::START_COLLECTION, 120000, 5, acceptedHunters: 4);
+
+        $details = $this->present($booking);
+
+        $this->assertSame(5, $details['total_hunting']);
+        $this->assertSame(120000.0, $details['amount_hunting']);
+        $this->assertSame(24000.0, $details['amount_hunting_per_person']);
+        $this->assertSame(24000.0, $details['animal']['price_per_person']);
+    }
+
+    public function test_hunting_uses_accepted_hunters_after_collection(): void
+    {
+        $booking = $this->huntingBooking(Booking::PREPAYMENT_COLLECTION, 120000, 5, acceptedHunters: 4);
+
+        $details = $this->present($booking);
+
+        $this->assertSame(4, $details['total_hunting']);
+        $this->assertSame(120000.0, $details['amount_hunting']);
+        $this->assertSame(30000.0, $details['amount_hunting_per_person']);
+        $this->assertSame(30000.0, $details['animal']['price_per_person']);
+    }
+
     public function test_accommodation_per_person_uses_accepted_hunters_after_collection(): void
     {
         $booking = $this->hotelBooking(Booking::PREPAYMENT_COLLECTION, 9, 4, acceptedHunters: 3);
@@ -191,6 +215,42 @@ class BookingHistoryItemPresenterTest extends TestCase
     /**
      * @return array<string, mixed>
      */
+    private function huntingBooking(
+        string $status,
+        float $amountHunting,
+        int $plannedHunters,
+        int $acceptedHunters,
+    ): Booking {
+        $booking = new class extends Booking {
+            public int $acceptedHunters = 0;
+
+            public function countAcceptedHunters(): int
+            {
+                return $this->acceptedHunters;
+            }
+        };
+
+        $booking->acceptedHunters = $acceptedHunters;
+        $booking->id = 106;
+        $booking->status = $status;
+        $booking->type = Booking::BookingTypeHotelAnimal;
+        $booking->create_user = 1;
+        $booking->start_date = '2026-11-19';
+        $booking->end_date = '2026-11-22';
+        $booking->total_hunting = $plannedHunters;
+        $booking->total_guests = $plannedHunters;
+        $booking->amount_hunting = $amountHunting;
+        $booking->setRelation('hunterInvitations', collect());
+        $booking->setRelation('bookingHunters', collect());
+        $booking->setRelation('roomsBooking', collect());
+        $animal = new Animal(['title' => 'Лось']);
+        $animal->id = 7;
+        $booking->setRelation('animal', $animal);
+        $booking->setRelation('bookingServices', collect());
+
+        return $booking;
+    }
+
     private function hotelBooking(
         string $status,
         float $total,

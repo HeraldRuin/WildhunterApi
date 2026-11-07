@@ -204,7 +204,9 @@ class BookingHistoryItemPresenter
             'amount_accommodation' => $this->resolveAccommodationTotal($booking),
             'amount_accommodation_per_person' => $this->resolveAccommodationPricePerPerson($booking),
             'start_date_animal' => $booking->start_date_animal,
-            'total_hunting' => $booking->total_hunting,
+            'total_hunting' => $booking->total_hunting === null
+                ? null
+                : $this->resolveHuntingPeopleCount($booking),
             'amount_hunting' => $amountHunting,
             'amount_hunting_per_person' => $amountHuntingPerPerson,
             'amount_hunting_with_services' => $amountHuntingWithServices,
@@ -362,11 +364,30 @@ class BookingHistoryItemPresenter
 
     private function resolveOrganisationHuntingPricePerPerson(Booking $booking): ?float
     {
-        if ($booking->amount_hunting === null || !$booking->total_hunting) {
+        $peopleCount = $this->resolveHuntingPeopleCount($booking);
+
+        if ($booking->amount_hunting === null || $peopleCount <= 0) {
             return null;
         }
 
-        return $this->resolvePricePerPerson((float) $booking->amount_hunting, (int) $booking->total_hunting);
+        return $this->resolvePricePerPerson((float) $booking->amount_hunting, $peopleCount);
+    }
+
+    /**
+     * До конца сбора делим охоту на запланированное число людей.
+     * После сбора — на тех, кто подтвердил участие, общая сумма охоты не меняется.
+     */
+    private function resolveHuntingPeopleCount(Booking $booking): int
+    {
+        $planned = (int) ($booking->total_hunting ?? 0);
+
+        if ($planned <= 0 || !$this->isGatheringFinished($booking)) {
+            return $planned;
+        }
+
+        $accepted = $booking->countAcceptedHunters();
+
+        return $accepted > 0 ? $accepted : $planned;
     }
 
     private function resolveHuntingTotal(Booking $booking): ?float
@@ -380,12 +401,14 @@ class BookingHistoryItemPresenter
 
     private function resolveHuntingPricePerPerson(Booking $booking, int $userId): ?float
     {
-        if ($booking->amount_hunting === null || !$booking->total_hunting) {
+        $peopleCount = $this->resolveHuntingPeopleCount($booking);
+
+        if ($booking->amount_hunting === null || $peopleCount <= 0) {
             return null;
         }
 
         $shared = (float) $booking->amount_hunting + $this->resolveSharedServicesTotal($booking);
-        $perPerson = $this->resolvePricePerPerson($shared, (int) $booking->total_hunting);
+        $perPerson = $this->resolvePricePerPerson($shared, $peopleCount);
 
         if ($perPerson === null) {
             return null;
