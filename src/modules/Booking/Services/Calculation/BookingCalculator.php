@@ -503,19 +503,30 @@ class BookingCalculator
     }
     public function getBalanceBase(Booking $booking, User $user, $services, int $huntersCount): array
     {
+        $baseServices = $this->servicesAtBase($services);
+
         return [
             'title_name' =>  'Остаток базе',
-            'total_cost' => max(0, round($this->calculateStayEventTotal($booking, $services, $huntersCount) - $this->basePrepaymentMade($booking))),
-            'my_cost' => $this->calculateMyBaseTotal($booking, $user, $services, $huntersCount),
+            'total_cost' => max(0, round($this->calculateStayEventTotal($booking, $baseServices, $huntersCount) - $this->basePrepaymentMade($booking))),
+            'my_cost' => $this->calculateMyBaseTotal($booking, $user, $baseServices, $huntersCount),
         ];
     }
     public function getBalanceBaseHunting(Booking $booking, User $user, $services, int $huntersCount): array
     {
+        $baseServices = $this->servicesAtBase($services);
+
         return [
             'title_name' =>  'Остаток базе',
-            'total_cost' => $this->calculateBaseTotal($booking, $services, $huntersCount),
-            'my_cost' => $this->calculateMyBaseTotalOnlyHunting($booking, $user, $services, $huntersCount),
+            'total_cost' => $this->calculateBaseTotal($booking, $baseServices, $huntersCount),
+            'my_cost' => $this->calculateMyBaseTotalOnlyHunting($booking, $user, $baseServices, $huntersCount),
         ];
+    }
+
+    private function servicesAtBase($services): Collection
+    {
+        return collect($services)
+            ->filter(fn ($item) => $this->servicePlace($item) === BookingService::PLACE_BASE)
+            ->values();
     }
 
     //Подсчет в историю бронирования в колонку оплата (админа базы)

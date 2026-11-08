@@ -475,6 +475,40 @@ class BookingCalculatorTest extends TestCase
         );
     }
 
+    public function test_base_balance_is_only_the_base_section_minus_prepayment(): void
+    {
+        $booking = $this->booking([
+            'type' => Booking::BookingTypeHotelAnimal,
+            'total' => 9,
+            'amount_hunting' => 0,
+            'total_hunting' => 3,
+        ]);
+        $services = collect([
+            $this->service(AddetionalPrice::FOOD, 5600, [
+                'type' => 'Завтрак',
+                'place' => BookingService::PLACE_BASE,
+            ]),
+            $this->service(AddetionalPrice::FOOD, 3600, [
+                'type' => 'Обед',
+                'place' => BookingService::PLACE_BASE,
+            ]),
+            $this->service(AddetionalPrice::PREPARATION, 5000, [
+                'place' => BookingService::PLACE_BASE,
+            ]),
+            $this->service(AddetionalPrice::ADDETIONAL, 62000, [
+                'type' => 'Загон',
+                'place' => 'hunt',
+                'calculation_type' => AddetionalPrice::PERSON,
+            ]),
+            $this->service(AddetionalPrice::TROPHY, 10000),
+        ]);
+
+        $balance = $this->calculator->getBalanceBase($booking, $this->user(4), $services, 3);
+
+        $this->assertMoney(14206, $balance['total_cost']);
+        $this->assertMoney(86206, $this->calculator->getBookingTotal($booking, $services, 3)['total']);
+    }
+
     public function test_hunter_balance_subtracts_their_prepayment(): void
     {
         $booking = $this->booking([
