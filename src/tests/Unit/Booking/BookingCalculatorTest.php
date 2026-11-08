@@ -172,6 +172,8 @@ class BookingCalculatorTest extends TestCase
         $this->assertSame(2, $trophies[0]['count']);
         $this->assertMoney(900, $trophies[0]['total_cost']);
         $this->assertSame(0, $trophies[0]['my_cost']);
+        $this->assertSame(0, $trophies[0]['my_service_cost']);
+        $this->assertSame(0, $preparations[0]['my_service_cost']);
         $this->assertSame('Лось (Разделка)', $preparations[0]['name']);
         $this->assertSame(1, $preparations[0]['count']);
         $this->assertMoney(300, $preparations[0]['total_cost']);
@@ -274,9 +276,11 @@ class BookingCalculatorTest extends TestCase
         $this->assertSame(6, $breakfast['count']);
         $this->assertSame(2, $breakfast['my_count']);
         $this->assertMoney(800, $breakfast['my_cost']);
+        $this->assertMoney(800, $breakfast['my_service_cost']);
         $this->assertSame(5, $dinner['count']);
         $this->assertSame(0, $dinner['my_count']);
         $this->assertMoney(0, $dinner['my_cost']);
+        $this->assertMoney(0, $dinner['my_service_cost']);
 
         $lines = $this->calculator->calculateAdditional(collect([
             $this->service(AddetionalPrice::ADDETIONAL, 1000, [
@@ -295,8 +299,10 @@ class BookingCalculatorTest extends TestCase
 
         $this->assertSame(0, $lines[0]['my_count']);
         $this->assertSame(0, $lines[0]['my_cost']);
+        $this->assertMoney(0, $lines[0]['my_service_cost']);
         $this->assertSame(1, $lines[1]['my_count']);
         $this->assertMoney(1200, $lines[1]['my_cost']);
+        $this->assertMoney(1200, $lines[1]['my_service_cost']);
     }
 
     public function test_individual_service_for_another_hunter_is_zero(): void
@@ -340,6 +346,7 @@ class BookingCalculatorTest extends TestCase
         $lines = $this->calculator->calculateAdditional(collect([$item]), $this->user(4), 3);
 
         $this->assertMoney(33, $lines[0]['my_cost']);
+        $this->assertMoney(0, $lines[0]['my_service_cost']);
         $this->assertMoney(100, $lines[0]['total_cost']);
     }
 
@@ -372,6 +379,7 @@ class BookingCalculatorTest extends TestCase
         $this->assertSame('Кабан (подранок)', $lines[0]['name']);
         $this->assertMoney(110, $lines[0]['total_cost']);
         $this->assertMoney(40, $lines[0]['my_cost']);
+        $this->assertMoney(40, $lines[0]['my_service_cost']);
         $this->assertMoney(40, $totals['penalty']);
     }
 

@@ -40,6 +40,14 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
         new OA\Property(
+            property: "my_service_cost",
+            description: "Стоимость услуг, назначенных лично текущему охотнику. Доля от общей услуги сюда не входит. У проживания и итогов поля нет.",
+            type: "number",
+            format: "float",
+            example: 4000,
+            nullable: true
+        ),
+        new OA\Property(
             property: "due_to_me",
             description: "Доля остальных охотников по своей трате. У чужой траты null.",
             type: "number",

@@ -158,6 +158,7 @@ class BookingCalculator
                 'my_count' => $count,
                 'total_cost' => round((float)$trophy->price),
                 'my_cost' => $huntersCount > 0 ? round($trophy->price / $huntersCount): 0,
+                'my_service_cost' => 0,
             ];
         }
 
@@ -180,8 +181,10 @@ class BookingCalculator
                 $myCost = round($items
                     ->filter(fn ($food) => (int) $food->hunter_id === (int) $user->id)
                     ->sum(fn ($food) => $food->foodLineAmount()));
+                $myServiceCost = $myCost;
             } else {
                 $myCost = $huntersCount > 0 ? round($totalCost / $huntersCount) : 0;
+                $myServiceCost = 0;
             }
 
             $result[] = [
@@ -191,6 +194,7 @@ class BookingCalculator
                 'my_count' => $this->myLineCount($items, $user),
                 'total_cost' => $totalCost,
                 'my_cost' => $myCost,
+                'my_service_cost' => $myServiceCost,
             ];
         }
 
@@ -212,12 +216,15 @@ class BookingCalculator
                 ->where('hunter_id', $user->id)
                 ->sum('price');
 
+            $myServiceCost = round($myCost);
+
             $result[] = [
                 'name' => $animalName . ' (' . $first->type . ')',
                 'count' => $this->lineCount($items),
                 'my_count' => $this->myLineCount($items, $user),
                 'total_cost' => round($totalCost),
-                'my_cost' => round($myCost),
+                'my_cost' => $myServiceCost,
+                'my_service_cost' => $myServiceCost,
             ];
         }
 
@@ -240,6 +247,7 @@ class BookingCalculator
                 'my_count' => $count,
                 'total_cost' => $totalCost,
                 'my_cost' => $huntersCount > 0 ? round($preparation->price / $huntersCount): 0,
+                'my_service_cost' => 0,
             ];
         }
 
@@ -260,6 +268,17 @@ class BookingCalculator
             $myCost = (int) round($items->sum(
                 fn ($item) => (float) ($this->calculateAddetionalByType($item, $user, $huntersCount) ?? 0),
             ));
+            $myServiceCost = (int) round($items->sum(function ($item) use ($user) {
+                if (($item->calculation_type ?? null) !== AddetionalPrice::INDIVIDUAL) {
+                    return 0;
+                }
+
+                if ((int) $item->hunter_id !== (int) $user->id) {
+                    return 0;
+                }
+
+                return (float) $item->price;
+            }));
 
             $result[] = [
                 'name' => $first->type,
@@ -268,6 +287,7 @@ class BookingCalculator
                 'my_count' => $this->myLineCount($items, $user),
                 'total_cost' => $totalCost,
                 'my_cost' => $myCost,
+                'my_service_cost' => $myServiceCost,
             ];
         }
 
