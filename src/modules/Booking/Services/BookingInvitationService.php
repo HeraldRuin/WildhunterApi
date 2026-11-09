@@ -249,8 +249,21 @@ class BookingInvitationService
                 );
             }
 
-            $invitation->hunter_id = $hunter->id;
-            $invitation->email = $hunter->email ?: null;
+            BookingHunterInvitation::onlyTrashed()
+                ->where('booking_hunter_id', $masterHunter->id)
+                ->where('hunter_id', $hunter->id)
+                ->forceDelete();
+
+            $invitation->fill([
+                'hunter_id' => $hunter->id,
+                'email' => $hunter->email,
+                'invited' => true,
+                'status' => BookingHunterInvitation::STATUS_ACCEPTED,
+                'invited_at' => $invitation->invited_at ?? now(),
+                'accepted_at' => $invitation->accepted_at ?? now(),
+                'declined_at' => null,
+                'invitation_token' => "{$booking->code}-{$hunter->id}",
+            ]);
 
             if ($booking->status === Booking::PREPAYMENT_COLLECTION) {
                 $invitation->prepayment_paid = false;
@@ -284,6 +297,16 @@ class BookingInvitationService
 
         $this->bookingMailService->sendHunterInvitation($booking, $result->hunter);
         $this->bookingNotificationService->sendHunterInvited($booking, $result->hunter);
+        BookingHistoryUpdatedEvent::dispatchSafely(
+            $booking,
+            $result->hunter->id,
+            BookingHistoryUpdatedEvent::ACTION_ADDED,
+        );
+        BookingHistoryUpdatedEvent::dispatchSafely(
+            $booking,
+            $data->oldHunterId,
+            BookingHistoryUpdatedEvent::ACTION_REMOVED,
+        );
 
         return $result;
     }
