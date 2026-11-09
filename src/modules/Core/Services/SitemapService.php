@@ -20,7 +20,6 @@ class SitemapService
         '/hunters',
         '/hunting-farms',
         '/locations',
-        '/offer',
         '/personal-data',
         '/politika_konfidencialnosti',
         '/privacy',
