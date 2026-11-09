@@ -81,7 +81,7 @@ class BookingInvitationService
                 );
             }
 
-            $invitation->delete();
+            $invitation->forceDelete();
 
             return $booking;
         });
