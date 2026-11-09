@@ -4,7 +4,6 @@ namespace Modules\Hotel\Services;
 
 use Modules\Hotel\Dto\CalendarAvailabilityData;
 use Modules\Hotel\Models\Hotel;
-use Modules\Hotel\Models\HotelRoom;
 use Modules\Hotel\Models\HotelRoomBooking;
 use Modules\Hotel\Models\HotelRoomDate;
 
@@ -54,18 +53,6 @@ class RoomService
             $rooms[] = $room;
         }
 
-        $requestedAdults = (int) ($filters['adults'] ?? 0);
-        if ($requestedAdults > 0 && $hasDates) {
-            $totalCapacity = array_sum(array_map(
-                fn (HotelRoom $room) => $room->adults * $room->available_number,
-                $rooms
-            ));
-
-            if ($totalCapacity < $requestedAdults) {
-                return [];
-            }
-        }
-
         return $rooms;
     }
 
@@ -75,12 +62,6 @@ class RoomService
     public function getCalendarAvailabilityDays(Hotel $hotel, CalendarAvailabilityData $dto): array
     {
         $rooms = $hotel->rooms;
-
-        if ($dto->adults !== null) {
-            $rooms = $rooms->filter(
-                fn (HotelRoom $room) => (int) $room->adults >= $dto->adults
-            );
-        }
 
         $days = [];
         $period = periodDate($dto->start, $dto->end, false);
