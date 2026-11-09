@@ -11,6 +11,12 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class MediaImageService
 {
+    /** @var array<string, int> */
+    private const WEBP_QUALITY = [
+        'medium' => 75,
+        'large' => 82,
+    ];
+
     public function isResizableSize(string $size): bool
     {
         return isset(FileHelper::$defaultSize[$size]);
@@ -31,8 +37,13 @@ class MediaImageService
     public function cacheRelativePath(MediaFile $file, string $size): string
     {
         [$width, $height] = FileHelper::$defaultSize[$size];
+        $relative = ltrim($file->file_path, '/');
 
-        return 'uploads/_cache/' . $size . '/' . $width . 'x' . $height . '/' . ltrim($file->file_path, '/');
+        if ($this->servesWebp($size)) {
+            $relative = $this->withWebpExtension($relative);
+        }
+
+        return 'uploads/_cache/' . $size . '/' . $width . 'x' . $height . '/' . $relative;
     }
 
     public function ensureResized(MediaFile $file, string $size): string
@@ -65,9 +76,31 @@ class MediaImageService
 
         Image::decode($originalPath)
             ->scaleDown($width, $height)
-            ->save($cachePath, quality: 100);
+            ->save($cachePath, quality: $this->qualityFor($size));
 
         return $cachePath;
+    }
+
+    private function servesWebp(string $size): bool
+    {
+        return isset(self::WEBP_QUALITY[$size]);
+    }
+
+    private function qualityFor(string $size): int
+    {
+        return self::WEBP_QUALITY[$size] ?? 100;
+    }
+
+    private function withWebpExtension(string $relative): string
+    {
+        $directory = pathinfo($relative, PATHINFO_DIRNAME);
+        $filename = pathinfo($relative, PATHINFO_FILENAME) . '.webp';
+
+        if ($directory === '' || $directory === '.') {
+            return $filename;
+        }
+
+        return $directory . '/' . $filename;
     }
 
     public function forgetCache(MediaFile $file): void
