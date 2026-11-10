@@ -1440,7 +1440,7 @@ class BookingServiceManager
         return [
             'id' => $service->id,
             'animal_id' => $service->animal_id,
-            'animal_title' => $service->animal->title ?? '—',
+            'animal_title' => $service->animal?->title ?: '—',
             'hunter_ids' => $ids,
             'hunter_name' => $hunterName !== '' ? $hunterName : '—',
             'price' => round((float) $service->price, 2),
