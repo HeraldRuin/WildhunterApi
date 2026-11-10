@@ -579,6 +579,31 @@ class BookingCalculatorTest extends TestCase
         $this->assertMoney(33, $spendings['total_due_to_me']);
     }
 
+    public function test_extra_hunt_share_is_split_between_hunters_saved_on_the_line(): void
+    {
+        $deer = $this->service(AddetionalPrice::EXTRA_HUNT, 35000, [
+            'comment' => json_encode([7, 8]),
+        ]);
+        $deer->setRelation('animal', $this->animal('Олень пятнистый'));
+        $boar = $this->service(AddetionalPrice::EXTRA_HUNT, 30000, [
+            'comment' => json_encode([7]),
+        ]);
+        $boar->setRelation('animal', $this->animal('Кабан'));
+
+        $lines = $this->calculator->calculateExtraHunts(collect([$deer, $boar]), $this->user(7), 2);
+
+        $this->assertSame('Дополнительная охота (Олень пятнистый)', $lines[0]['name']);
+        $this->assertMoney(35000, $lines[0]['total_cost']);
+        $this->assertMoney(17500, $lines[0]['my_cost']);
+        $this->assertMoney(30000, $lines[1]['total_cost']);
+        $this->assertMoney(30000, $lines[1]['my_cost']);
+
+        $other = $this->calculator->calculateExtraHunts(collect([$boar]), $this->user(8), 2);
+
+        $this->assertMoney(30000, $other[0]['total_cost']);
+        $this->assertMoney(0, $other[0]['my_cost']);
+    }
+
     public function test_due_to_me_is_only_the_current_hunters_share_of_the_others(): void
     {
         $user = $this->user(4, 'Вуг');

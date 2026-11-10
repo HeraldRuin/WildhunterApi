@@ -52,7 +52,7 @@ class HotelHuntingCalculationStrategy implements BookingCalculationStrategy
 
         // === Подсчёты итогов ===
         $organisationHunting = $this->bookingCalculator->getOrganisationHunting($booking, $paidCount);
-        $extraHunts = $this->bookingCalculator->calculateExtraHunts(collect($grouped['extra_hunt'] ?? []), $paidCount);
+        $extraHunts = $this->bookingCalculator->calculateExtraHunts(collect($grouped['extra_hunt'] ?? []), $user, $paidCount);
         $accommodation = $this->bookingCalculator->getAccommodation($booking, $user);
         $prepaymentMade = $this->bookingCalculator->getPrepaymentMade($booking, $paidCount);
         $balanceBase = $this->bookingCalculator->getBalanceBase($booking, $user, $services, $paidCount);

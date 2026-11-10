@@ -424,24 +424,48 @@ class BookingCalculator
     }
 
     /**
+     * Общая сумма строки — цена периода. Личная доля делится на охотников,
+     * записанных в этой дополнительной охоте, а не на всех участников брони.
+     *
      * @return list<array{name: string, total_cost: float, my_cost: float}>
      */
-    public function calculateExtraHunts(Collection $hunts, int $huntersCount): array
+    public function calculateExtraHunts(Collection $hunts, User $user, int $huntersCount): array
     {
         $result = [];
 
         foreach ($hunts as $hunt) {
             $total = round((float) $hunt->price);
             $animal = trim((string) ($hunt->animal?->title ?? ''));
+            $hunterIds = $this->extraHuntHunterIds($hunt);
+            $shareCount = count($hunterIds) > 0 ? count($hunterIds) : $huntersCount;
+            $share = $shareCount > 0 ? round($total / $shareCount) : 0;
+            $assignedToMe = $hunterIds === [] || in_array((int) $user->id, $hunterIds, true);
 
             $result[] = [
                 'name' => 'Дополнительная охота ('.($animal !== '' ? $animal : '—').')',
                 'total_cost' => $total,
-                'my_cost' => $huntersCount > 0 ? round($total / $huntersCount) : 0,
+                'my_cost' => $assignedToMe ? $share : 0,
             ];
         }
 
         return $result;
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function extraHuntHunterIds(object $hunt): array
+    {
+        $decoded = json_decode((string) ($hunt->comment ?? ''), true);
+
+        if (!is_array($decoded)) {
+            return [];
+        }
+
+        return array_values(array_unique(array_filter(
+            array_map(static fn (mixed $id): int => (int) $id, $decoded),
+            static fn (int $id): bool => $id > 0,
+        )));
     }
 
     public function calculateStayEventTotal(Booking $booking, $services, int $huntersCount): float
