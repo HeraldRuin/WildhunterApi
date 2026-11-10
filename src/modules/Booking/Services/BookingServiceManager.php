@@ -666,6 +666,36 @@ class BookingServiceManager
      * @throws ConflictException
      * @throws ForbiddenException
      * @throws NotFoundException
+     * @throws ValidationException
+     */
+    public function updateExtraHunt(string $code, int $serviceId, StoreExtraHuntData $data, User $user): array
+    {
+        [$booking] = $this->findMutableBooking($code, $user, AddetionalPrice::EXTRA_HUNT);
+
+        foreach ($data->hunterIds as $hunterId) {
+            $this->assertHunterInBooking($booking, $hunterId);
+        }
+
+        $service = $this->findOwnedService($booking, $serviceId, AddetionalPrice::EXTRA_HUNT);
+        $price = $this->extraHuntPeriodPrice($booking, $data->animalId);
+
+        $service->fill([
+            'animal_id' => $data->animalId,
+            'price' => $price,
+            'comment' => json_encode(array_values($data->hunterIds)),
+        ]);
+        $service->save();
+        $service->load('animal');
+
+        $this->notifyHistoryUpdated($booking, $user);
+
+        return $this->withPreliminaryTotal($booking, $this->extraHuntItem($booking, $service));
+    }
+
+    /**
+     * @throws ConflictException
+     * @throws ForbiddenException
+     * @throws NotFoundException
      */
     public function deleteService(string $code, int $serviceId, User $user): void
     {

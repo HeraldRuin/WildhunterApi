@@ -579,6 +579,28 @@ class BookingController extends Controller
      * @throws NotFoundException
      * @throws ValidationException
      */
+    public function updateExtraHunt(StoreExtraHuntRequest $request, string $code, int $id): JsonResponse
+    {
+        $data = $this->bookingServiceManager->updateExtraHunt(
+            $code,
+            $id,
+            StoreExtraHuntData::fromRequest($request),
+            Auth::user(),
+        );
+
+        return new SuccessResponse(
+            code: 'service_updated',
+            domain: 'booking',
+            data: $data,
+        );
+    }
+
+    /**
+     * @throws ConflictException
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     * @throws ValidationException
+     */
     public function storeTrophy(StoreTrophyRequest $request, string $code): JsonResponse
     {
         $data = $this->bookingServiceManager->createTrophy(
