@@ -50,6 +50,7 @@ class HuntingCalculationStrategy implements BookingCalculationStrategy
 
         // === Подсчёты итогов ===
         $organisationHunting = $this->bookingCalculator->getOrganisationHunting($booking, $totalHunting);
+        $extraHunts = $this->bookingCalculator->calculateExtraHunts(collect($grouped['extra_hunt'] ?? []), $totalHunting);
         $balanceBase = $this->bookingCalculator->getBalanceBaseHunting($booking, $user, $services, $totalHunting);
         $paymentDisplayData = $this->bookingCalculator->getBookingTotal($booking, $services, $totalHunting);
 
@@ -81,6 +82,7 @@ class HuntingCalculationStrategy implements BookingCalculationStrategy
                     'my_cost' => $organisationHunting['my_cost'],
                 ],
             ],
+            'extra_hunts' => $extraHunts,
             'trophy_show' => !empty($trophies),
             'trophies' => $trophies,
             'penalties_show' => !empty($penalties),

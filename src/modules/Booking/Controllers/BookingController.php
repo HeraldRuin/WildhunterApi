@@ -16,6 +16,7 @@ use Modules\Booking\Dto\CreateBookingData;
 use Modules\Booking\Dto\ReplaceHunterData;
 use Modules\Booking\Dto\SelectPlaceData;
 use Modules\Booking\Dto\StoreAdditionalData;
+use Modules\Booking\Dto\StoreExtraHuntData;
 use Modules\Booking\Dto\StoreFoodData;
 use Modules\Booking\Dto\UpdateFoodData;
 use Modules\Booking\Dto\StorePenaltyData;
@@ -32,6 +33,7 @@ use Modules\Booking\Http\Requests\RemoveHunterRequest;
 use Modules\Booking\Http\Requests\ReplaceHunterRequest;
 use Modules\Booking\Http\Requests\SelectPlaceRequest;
 use Modules\Booking\Http\Requests\StoreAdditionalRequest;
+use Modules\Booking\Http\Requests\StoreExtraHuntRequest;
 use Modules\Booking\Http\Requests\StoreFoodRequest;
 use Modules\Booking\Http\Requests\UpdateFoodRequest;
 use Modules\Booking\Http\Requests\StorePenaltyRequest;
@@ -533,6 +535,27 @@ class BookingController extends Controller
     {
         return new SuccessResponse(
             data: $this->bookingServiceManager->getServices($code, Auth::user()),
+        );
+    }
+
+    /**
+     * @throws ConflictException
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     * @throws ValidationException
+     */
+    public function storeExtraHunt(StoreExtraHuntRequest $request, string $code): JsonResponse
+    {
+        $data = $this->bookingServiceManager->createExtraHunt(
+            $code,
+            StoreExtraHuntData::fromRequest($request),
+            Auth::user(),
+        );
+
+        return new SuccessResponse(
+            code: 'service_added',
+            domain: 'booking',
+            data: $data,
         );
     }
 

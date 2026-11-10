@@ -51,6 +51,7 @@ class AddetionalPrice extends BaseModel
     public const string PREPARATION = 'preparation';
     public const string PENALTY = 'penalty';
     public const string TROPHY = 'trophy';
+    public const string EXTRA_HUNT = 'extra_hunt';
 
     public const string FOOD_NAME = 'Питание';
 

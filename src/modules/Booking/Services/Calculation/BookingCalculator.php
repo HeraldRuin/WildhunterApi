@@ -416,7 +416,32 @@ class BookingCalculator
             AddetionalPrice::PENALTY,
         ]);
 
-        return $this->calculateOrganisationHunting($booking, $huntersCount) + $result['total'];
+        $extraHuntTotal = collect($services)
+            ->filter(fn ($item) => ($item->service_type ?? null) === AddetionalPrice::EXTRA_HUNT)
+            ->sum(fn ($item) => (float) $item->price);
+
+        return $this->calculateOrganisationHunting($booking, $huntersCount) + $result['total'] + round($extraHuntTotal);
+    }
+
+    /**
+     * @return list<array{name: string, total_cost: float, my_cost: float}>
+     */
+    public function calculateExtraHunts(Collection $hunts, int $huntersCount): array
+    {
+        $result = [];
+
+        foreach ($hunts as $hunt) {
+            $total = round((float) $hunt->price);
+            $animal = trim((string) ($hunt->animal?->title ?? ''));
+
+            $result[] = [
+                'name' => 'Дополнительная охота ('.($animal !== '' ? $animal : '—').')',
+                'total_cost' => $total,
+                'my_cost' => $huntersCount > 0 ? round($total / $huntersCount) : 0,
+            ];
+        }
+
+        return $result;
     }
 
     public function calculateStayEventTotal(Booking $booking, $services, int $huntersCount): float

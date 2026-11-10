@@ -41,6 +41,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/bookings/{code}/calculating', [BookingController::class, 'calculating']);
     Route::get('/bookings/{code}/services', [BookingController::class, 'services']);
+    Route::post('/bookings/{code}/services/extra-hunts', [BookingController::class, 'storeExtraHunt']);
     Route::post('/bookings/{code}/services/trophies', [BookingController::class, 'storeTrophy']);
     Route::put('/bookings/{code}/services/trophies/{id}', [BookingController::class, 'updateTrophy']);
     Route::post('/bookings/{code}/services/penalties', [BookingController::class, 'storePenalty']);

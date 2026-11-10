@@ -7,13 +7,16 @@ use App\Exceptions\ForbiddenException;
 use App\Exceptions\NotFoundException;
 use App\Exceptions\ValidationException;
 use App\Models\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Modules\Animals\Models\Animal;
 use Modules\Animals\Models\AnimalFine;
 use Modules\Animals\Models\AnimalPreparation;
+use Modules\Animals\Models\AnimalPricePeriod;
 use Modules\Animals\Models\AnimalTrophy;
 use Modules\Attendance\Models\AddetionalPrice;
 use Modules\Booking\Dto\StoreAdditionalData;
+use Modules\Booking\Dto\StoreExtraHuntData;
 use Modules\Booking\Dto\StoreFoodData;
 use Modules\Booking\Dto\UpdateFoodData;
 use Modules\Booking\Dto\StorePenaltyData;
@@ -573,6 +576,36 @@ class BookingServiceManager
      * @throws ConflictException
      * @throws ForbiddenException
      * @throws NotFoundException
+     * @throws ValidationException
+     */
+    public function createExtraHunt(string $code, StoreExtraHuntData $data, User $user): array
+    {
+        [$booking] = $this->findMutableBooking($code, $user, AddetionalPrice::EXTRA_HUNT);
+
+        foreach ($data->hunterIds as $hunterId) {
+            $this->assertHunterInBooking($booking, $hunterId);
+        }
+
+        $price = $this->extraHuntPeriodPrice($booking, $data->animalId);
+
+        $service = BookingService::create([
+            'booking_id' => $booking->id,
+            'service_type' => AddetionalPrice::EXTRA_HUNT,
+            'animal_id' => $data->animalId,
+            'count' => 1,
+            'price' => $price,
+            'comment' => json_encode(array_values($data->hunterIds)),
+        ])->load('animal');
+
+        $this->notifyHistoryUpdated($booking, $user);
+
+        return $this->withPreliminaryTotal($booking, $this->extraHuntItem($booking, $service));
+    }
+
+    /**
+     * @throws ConflictException
+     * @throws ForbiddenException
+     * @throws NotFoundException
      */
     public function deleteService(string $code, int $serviceId, User $user): void
     {
@@ -800,6 +833,7 @@ class BookingServiceManager
         if ($isAdmin) {
             $types = [];
             if ($isHunting) {
+                $types[] = AddetionalPrice::EXTRA_HUNT;
                 $types[] = AddetionalPrice::TROPHY;
                 $types[] = AddetionalPrice::PENALTY;
                 $types[] = AddetionalPrice::PREPARATION;
@@ -828,6 +862,7 @@ class BookingServiceManager
     private function catalogsFor(Booking $booking, array $allowedTypes): array
     {
         $needsHunters = array_intersect($allowedTypes, [
+            AddetionalPrice::EXTRA_HUNT,
             AddetionalPrice::PENALTY,
             AddetionalPrice::ADDETIONAL,
             AddetionalPrice::SPENDING,
@@ -1307,7 +1342,106 @@ class BookingServiceManager
                     'hunter_name' => $this->hunterName($service->hunter),
                 ])
                 ->all(),
+            'extra_hunts' => $services
+                ->where('service_type', AddetionalPrice::EXTRA_HUNT)
+                ->values()
+                ->map(fn (BookingService $service) => $this->extraHuntItem($booking, $service))
+                ->all(),
         ];
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function extraHuntHunterIds(BookingService $service): array
+    {
+        $decoded = json_decode((string) $service->comment, true);
+
+        if (!is_array($decoded)) {
+            return [];
+        }
+
+        return array_values(array_unique(array_filter(
+            array_map('intval', $decoded),
+            static fn (int $id): bool => $id > 0,
+        )));
+    }
+
+    /**
+     * @return array{
+     *     id: int,
+     *     animal_id: int|null,
+     *     animal_title: string,
+     *     hunter_ids: list<int>,
+     *     hunter_name: string,
+     *     price: float
+     * }
+     */
+    private function extraHuntItem(Booking $booking, BookingService $service): array
+    {
+        $ids = $this->extraHuntHunterIds($service);
+        $names = collect($this->acceptedHunters($booking))->keyBy('id');
+        $hunterName = collect($ids)
+            ->map(function (int $id) use ($names) {
+                $hunter = $names->get($id);
+
+                return is_array($hunter) ? ($hunter['name'] ?? null) : null;
+            })
+            ->filter()
+            ->implode(', ');
+
+        return [
+            'id' => $service->id,
+            'animal_id' => $service->animal_id,
+            'animal_title' => $service->animal->title ?? '—',
+            'hunter_ids' => $ids,
+            'hunter_name' => $hunterName !== '' ? $hunterName : '—',
+            'price' => round((float) $service->price, 2),
+        ];
+    }
+
+    /**
+     * @throws NotFoundException
+     */
+    private function extraHuntPeriodPrice(Booking $booking, int $animalId): float
+    {
+        $animal = Animal::query()
+            ->forHotel($booking->hotel_id)
+            ->where('bc_animals.id', $animalId)
+            ->first();
+
+        if (!$animal) {
+            throw new NotFoundException(
+                errorCode: 'service_price_not_found',
+                domain: 'booking',
+            );
+        }
+
+        $rawDate = $booking->start_date_animal ?: $booking->start_date;
+        if (!$rawDate) {
+            throw new NotFoundException(
+                errorCode: 'service_price_not_found',
+                domain: 'booking',
+            );
+        }
+
+        $day = Carbon::parse($rawDate)->toDateString();
+        $period = AnimalPricePeriod::query()
+            ->where('animal_id', $animalId)
+            ->whereDate('start_date', '<=', $day)
+            ->whereDate('end_date', '>=', $day)
+            ->whereNotNull('price')
+            ->orderBy('start_date')
+            ->first();
+
+        if (!$period) {
+            throw new NotFoundException(
+                errorCode: 'service_price_not_found',
+                domain: 'booking',
+            );
+        }
+
+        return round((float) $period->price, 2);
     }
 
     /**
