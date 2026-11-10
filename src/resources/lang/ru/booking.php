@@ -289,5 +289,10 @@ return [
         'service_added' => 'Услуга добавлена',
         'service_updated' => 'Услуга обновлена',
         'service_deleted' => 'Услуга удалена',
-    ]
+    ],
+    'service_log' => [
+        'added' => 'Добавлена',
+        'updated' => 'Изменена',
+        'deleted' => 'Удалена',
+    ],
 ];

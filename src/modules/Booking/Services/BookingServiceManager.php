@@ -28,6 +28,7 @@ use Modules\Booking\Events\BookingServicesUpdatedEvent;
 use Modules\Booking\Models\Booking;
 use Modules\Booking\Models\BookingHunterInvitation;
 use Modules\Booking\Models\BookingService;
+use Modules\Booking\Models\BookingServiceLog;
 use Modules\Role\Models\Role;
 
 class BookingServiceManager
@@ -67,6 +68,52 @@ class BookingServiceManager
                 : $booking->servicesEditableUntil()?->toIso8601String(),
             'catalogs' => $this->catalogsFor($booking, $allowedTypes),
             'items' => $this->savedItems($booking, $services),
+        ];
+    }
+
+    /**
+     * Журнал добавления, изменения и удаления услуг брони.
+     * Строки остаются после удаления услуги из bc_booking_services.
+     *
+     * @return array{items: list<array<string, mixed>>}
+     *
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     * @throws ConflictException
+     */
+    public function getServiceHistory(string $code, User $user): array
+    {
+        [$booking, , $allowedTypes] = $this->findAuthorizedBooking($code, $user);
+
+        $logs = BookingServiceLog::query()
+            ->where('booking_id', $booking->id)
+            ->whereIn('service_type', $allowedTypes)
+            ->orderByDesc('id')
+            ->get();
+
+        return [
+            'items' => $logs
+                ->map(fn (BookingServiceLog $log) => [
+                    'id' => $log->id,
+                    'action' => $log->action,
+                    'action_label' => __('booking.service_log.' . $log->action),
+                    'service_type' => $log->service_type,
+                    'booking_service_id' => $log->booking_service_id,
+                    'title' => $log->title,
+                    'calculation_type' => $log->calculation_type,
+                    'count' => $log->count,
+                    'price' => $log->price !== null ? round((float) $log->price, 2) : null,
+                    'hunter_id' => $log->hunter_id,
+                    'hunter_name' => $log->hunter_name,
+                    'animal_id' => $log->animal_id,
+                    'animal_title' => $log->animal_title,
+                    'comment' => $log->comment,
+                    'place' => $log->place,
+                    'user_id' => $log->user_id,
+                    'user_name' => $log->user_name,
+                    'created_at' => $log->created_at?->toIso8601String(),
+                ])
+                ->all(),
         ];
     }
 

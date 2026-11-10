@@ -539,6 +539,20 @@ class BookingController extends Controller
     }
 
     /**
+     * История добавления, изменения и удаления услуг брони.
+     *
+     * @throws ConflictException
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     */
+    public function serviceHistory(string $code): JsonResponse
+    {
+        return new SuccessResponse(
+            data: $this->bookingServiceManager->getServiceHistory($code, Auth::user()),
+        );
+    }
+
+    /**
      * @throws ConflictException
      * @throws ForbiddenException
      * @throws NotFoundException

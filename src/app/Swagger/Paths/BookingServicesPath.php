@@ -1256,4 +1256,86 @@ class BookingServicesPath
     )]
     public function DeleteService(): void
     {}
+
+    #[OA\Get(
+        path: "/api/" . ApiConfig::VERSION . "/bookings/{code}/services/history",
+        description: "Журнал действий по услугам этой брони: добавление, изменение и удаление. Записи сохраняются отдельно и остаются после удаления услуги. Набор service_type ограничен ролью так же, как список услуг. Сортировка от новых к старым.",
+        summary: "История услуг бронирования",
+        security: [['bearerAuth' => []]],
+        tags: ["BookingService"],
+        parameters: [
+            new OA\Parameter(
+                name: "code",
+                description: "Код бронирования",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(type: "string", example: "faa1c65d4b0de02146a27cea429340fb")
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "История услуг",
+                content: new OA\JsonContent(
+                    required: ["success", "message", "data"],
+                    properties: [
+                        new OA\Property(property: "success", type: "boolean", example: true),
+                        new OA\Property(property: "message", type: "string", example: ""),
+                        new OA\Property(
+                            property: "data",
+                            required: ["items"],
+                            properties: [
+                                new OA\Property(
+                                    property: "items",
+                                    type: "array",
+                                    items: new OA\Items(
+                                        required: ["id", "action", "action_label", "created_at"],
+                                        properties: [
+                                            new OA\Property(property: "id", type: "integer", example: 15),
+                                            new OA\Property(
+                                                property: "action",
+                                                type: "string",
+                                                enum: ["added", "updated", "deleted"],
+                                                example: "added"
+                                            ),
+                                            new OA\Property(property: "action_label", type: "string", example: "Добавлена"),
+                                            new OA\Property(
+                                                property: "service_type",
+                                                type: "string",
+                                                enum: ["trophy", "penalty", "preparation", "food", "addetional", "spending", "extra_hunt"],
+                                                example: "addetional"
+                                            ),
+                                            new OA\Property(property: "booking_service_id", type: "integer", nullable: true, example: 41),
+                                            new OA\Property(property: "title", type: "string", nullable: true, example: "Баня"),
+                                            new OA\Property(property: "calculation_type", type: "string", nullable: true, example: "individual"),
+                                            new OA\Property(property: "count", type: "integer", nullable: true, example: 2),
+                                            new OA\Property(property: "price", type: "number", nullable: true, example: 4000),
+                                            new OA\Property(property: "hunter_id", type: "integer", nullable: true),
+                                            new OA\Property(property: "hunter_name", type: "string", nullable: true, example: "Иван Петров"),
+                                            new OA\Property(property: "animal_id", type: "integer", nullable: true),
+                                            new OA\Property(property: "animal_title", type: "string", nullable: true),
+                                            new OA\Property(property: "comment", type: "string", nullable: true),
+                                            new OA\Property(property: "place", type: "string", nullable: true, example: "base"),
+                                            new OA\Property(property: "user_id", type: "integer", nullable: true, description: "Кто выполнил действие"),
+                                            new OA\Property(property: "user_name", type: "string", nullable: true, example: "Админ базы"),
+                                            new OA\Property(property: "created_at", type: "string", format: "date-time"),
+                                        ],
+                                        type: "object"
+                                    )
+                                ),
+                            ],
+                            type: "object"
+                        ),
+                    ],
+                    type: "object"
+                )
+            ),
+            new OA\Response(ref: "#/components/responses/AuthResponse", response: 401),
+            new OA\Response(response: 403, description: "Нет доступа"),
+            new OA\Response(ref: "#/components/responses/NotFoundResponse", response: 404),
+            new OA\Response(response: 409, description: "Услуги на текущем этапе недоступны"),
+        ]
+    )]
+    public function ServiceHistory(): void
+    {}
 }
