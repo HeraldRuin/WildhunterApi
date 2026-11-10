@@ -11,6 +11,8 @@ class StoreTrophyData
         public int $animalId,
         public string $type,
         public int $count,
+        /** @var list<int> */
+        public array $hunterIds,
     ) {}
 
     public static function fromRequest(StoreTrophyRequest $request): self
@@ -22,6 +24,7 @@ class StoreTrophyData
             animalId: (int) $data['animal_id'],
             type: $data['type'],
             count: (int) $data['count'],
+            hunterIds: array_values(array_unique(array_map('intval', $data['hunter_ids']))),
         );
     }
 }

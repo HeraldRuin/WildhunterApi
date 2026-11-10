@@ -121,10 +121,15 @@ class BookingServiceManager
      * @throws ConflictException
      * @throws ForbiddenException
      * @throws NotFoundException
+     * @throws ValidationException
      */
     public function createTrophy(string $code, StoreTrophyData $data, User $user): array
     {
         [$booking] = $this->findMutableBooking($code, $user, AddetionalPrice::TROPHY);
+
+        foreach ($data->hunterIds as $hunterId) {
+            $this->assertHunterInBooking($booking, $hunterId);
+        }
 
         $trophy = AnimalTrophy::query()
             ->whereKey($data->trophyId)
@@ -155,21 +160,28 @@ class BookingServiceManager
             'animal_id' => $data->animalId,
             'count' => $data->count,
             'price' => round((float) $price * $data->count, 2),
+            'comment' => json_encode(array_values($data->hunterIds)),
         ])->load('animal');
 
         $this->notifyHistoryUpdated($booking, $user);
 
-        return $this->trophyItem($service);
+        return $this->trophyItem($booking, $service);
     }
 
     /**
      * @throws ConflictException
      * @throws ForbiddenException
      * @throws NotFoundException
+     * @throws ValidationException
      */
     public function updateTrophy(string $code, int $serviceId, StoreTrophyData $data, User $user): array
     {
         [$booking] = $this->findMutableBooking($code, $user, AddetionalPrice::TROPHY);
+
+        foreach ($data->hunterIds as $hunterId) {
+            $this->assertHunterInBooking($booking, $hunterId);
+        }
+
         $service = $this->findOwnedService($booking, $serviceId, AddetionalPrice::TROPHY);
         $price = $this->animalCatalogPrice(
             AnimalTrophy::query()
@@ -183,13 +195,14 @@ class BookingServiceManager
             'animal_id' => $data->animalId,
             'count' => $data->count,
             'price' => round($price * $data->count, 2),
+            'comment' => json_encode(array_values($data->hunterIds)),
         ]);
         $service->save();
         $service->load('animal');
 
         $this->notifyHistoryUpdated($booking, $user);
 
-        return $this->withPreliminaryTotal($booking, $this->trophyItem($service));
+        return $this->withPreliminaryTotal($booking, $this->trophyItem($booking, $service));
     }
 
     /**
@@ -1204,14 +1217,27 @@ class BookingServiceManager
     /**
      * @return array<string, mixed>
      */
-    private function trophyItem(BookingService $service): array
+    private function trophyItem(Booking $booking, BookingService $service): array
     {
+        $ids = $this->extraHuntHunterIds($service);
+        $names = collect($this->acceptedHunters($booking))->keyBy('id');
+        $hunterName = collect($ids)
+            ->map(function (int $id) use ($names) {
+                $hunter = $names->get($id);
+
+                return is_array($hunter) ? ($hunter['name'] ?? null) : null;
+            })
+            ->filter()
+            ->implode(', ');
+
         return [
             'id' => $service->id,
             'animal_id' => $service->animal_id,
             'animal_title' => $service->animal->title ?? '—',
             'type' => $service->type,
             'count' => $service->count,
+            'hunter_ids' => $ids,
+            'hunter_name' => $hunterName,
             'price' => $service->price,
         ];
     }
@@ -1325,14 +1351,7 @@ class BookingServiceManager
             'trophies' => $services
                 ->where('service_type', AddetionalPrice::TROPHY)
                 ->values()
-                ->map(fn (BookingService $service) => [
-                    'id' => $service->id,
-                    'animal_id' => $service->animal_id,
-                    'animal_title' => $service->animal->title ?? '—',
-                    'type' => $service->type,
-                    'count' => $service->count,
-                    'price' => $service->price,
-                ])
+                ->map(fn (BookingService $service) => $this->trophyItem($booking, $service))
                 ->all(),
             'penalties' => $services
                 ->where('service_type', AddetionalPrice::PENALTY)

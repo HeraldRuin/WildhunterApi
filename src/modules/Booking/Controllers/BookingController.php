@@ -577,6 +577,7 @@ class BookingController extends Controller
      * @throws ConflictException
      * @throws ForbiddenException
      * @throws NotFoundException
+     * @throws ValidationException
      */
     public function storeTrophy(StoreTrophyRequest $request, string $code): JsonResponse
     {
@@ -597,6 +598,7 @@ class BookingController extends Controller
      * @throws ConflictException
      * @throws ForbiddenException
      * @throws NotFoundException
+     * @throws ValidationException
      */
     public function updateTrophy(StoreTrophyRequest $request, string $code, int $id): JsonResponse
     {

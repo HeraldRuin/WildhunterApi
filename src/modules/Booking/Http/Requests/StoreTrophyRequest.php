@@ -18,6 +18,8 @@ class StoreTrophyRequest extends FormRequest
             'type' => ['required', 'string'],
             'count' => ['required', 'integer', 'min:1'],
             'trophy_id' => ['required', 'integer', 'exists:bc_animal_trophies,id'],
+            'hunter_ids' => ['required', 'array', 'min:1'],
+            'hunter_ids.*' => ['integer', 'distinct', 'exists:users,id'],
         ];
     }
 
@@ -35,6 +37,11 @@ class StoreTrophyRequest extends FormRequest
             'trophy_id.required' => __('booking.validation.trophy_id_required'),
             'trophy_id.integer' => __('booking.validation.trophy_id_must_be_integer'),
             'trophy_id.exists' => __('booking.validation.trophy_id_not_found'),
+            'hunter_ids.required' => __('booking.validation.hunter_id_required'),
+            'hunter_ids.array' => __('booking.validation.hunter_id_must_be_integer'),
+            'hunter_ids.min' => __('booking.validation.hunter_id_required'),
+            'hunter_ids.*.integer' => __('booking.validation.hunter_id_must_be_integer'),
+            'hunter_ids.*.exists' => __('booking.validation.hunter_id_not_found'),
         ];
     }
 }

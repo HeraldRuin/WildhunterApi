@@ -248,6 +248,12 @@ class BookingServicesPath
                                                     new OA\Property(property: "animal_title", type: "string"),
                                                     new OA\Property(property: "type", type: "string"),
                                                     new OA\Property(property: "count", type: "integer"),
+                                                    new OA\Property(
+                                                        property: "hunter_ids",
+                                                        type: "array",
+                                                        items: new OA\Items(type: "integer")
+                                                    ),
+                                                    new OA\Property(property: "hunter_name", type: "string"),
                                                     new OA\Property(property: "price", type: "number", example: 5000),
                                                 ],
                                                 type: "object"
@@ -384,12 +390,13 @@ class BookingServicesPath
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ["animal_id", "trophy_id", "type", "count"],
+                required: ["animal_id", "trophy_id", "type", "count", "hunter_ids"],
                 properties: [
                     new OA\Property(property: "animal_id", type: "integer", example: 3),
                     new OA\Property(property: "trophy_id", type: "integer", example: 8),
                     new OA\Property(property: "type", type: "string", example: "Клык"),
                     new OA\Property(property: "count", type: "integer", example: 1),
+                    new OA\Property(property: "hunter_ids", type: "array", items: new OA\Items(type: "integer"), example: [12, 15]),
                 ],
                 type: "object"
             )
@@ -422,6 +429,8 @@ class BookingServicesPath
                                 new OA\Property(property: "animal_title", type: "string"),
                                 new OA\Property(property: "type", type: "string"),
                                 new OA\Property(property: "count", type: "integer"),
+                                new OA\Property(property: "hunter_ids", type: "array", items: new OA\Items(type: "integer")),
+                                new OA\Property(property: "hunter_name", type: "string"),
                                 new OA\Property(property: "price", type: "number", example: 5000),
                             ],
                             type: "object"
@@ -448,12 +457,13 @@ class BookingServicesPath
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ["animal_id", "trophy_id", "type", "count"],
+                required: ["animal_id", "trophy_id", "type", "count", "hunter_ids"],
                 properties: [
                     new OA\Property(property: "animal_id", type: "integer", example: 3),
                     new OA\Property(property: "trophy_id", type: "integer", example: 8),
                     new OA\Property(property: "type", type: "string", example: "Клык"),
                     new OA\Property(property: "count", type: "integer", example: 2),
+                    new OA\Property(property: "hunter_ids", type: "array", items: new OA\Items(type: "integer"), example: [12, 15]),
                 ],
                 type: "object"
             )
@@ -481,6 +491,8 @@ class BookingServicesPath
                                 new OA\Property(property: "animal_title", type: "string"),
                                 new OA\Property(property: "type", type: "string"),
                                 new OA\Property(property: "count", type: "integer"),
+                                new OA\Property(property: "hunter_ids", type: "array", items: new OA\Items(type: "integer")),
+                                new OA\Property(property: "hunter_name", type: "string"),
                                 new OA\Property(property: "price", description: "Цена за единицу × count", type: "number", example: 10000),
                                 new OA\Property(property: "preliminary_total", description: "Сумма услуг брони после изменения", type: "integer", example: 15000),
                             ],
