@@ -108,7 +108,7 @@ return [
 
         'check_in_required' => 'Укажите дату заезда',
         'check_in_must_be_date' => 'Дата заезда должна быть корректной датой',
-        'check_in_must_be_today_or_later' => 'Дата заезда не может быть в прошлом',
+        'check_in_available_from_tomorrow' => 'Дата заезда доступна начиная с завтрашнего дня',
 
         'check_out_required' => 'Укажите дату выезда',
         'check_out_must_be_date' => 'Дата выезда должна быть корректной датой',

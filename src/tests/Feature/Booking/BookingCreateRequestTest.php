@@ -67,7 +67,19 @@ class BookingCreateRequestTest extends TestCase
         $response
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['check_in'])
-            ->assertJsonPath('errors.check_in.0', 'Дата заезда не может быть в прошлом');
+            ->assertJsonPath('errors.check_in.0', 'Дата заезда доступна начиная с завтрашнего дня');
+    }
+
+    public function test_booking_rejects_check_in_today(): void
+    {
+        $response = $this->postJson('/api/v1/bookings', $this->payload([
+            'check_in' => now()->toDateString(),
+        ]));
+
+        $response
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['check_in'])
+            ->assertJsonPath('errors.check_in.0', 'Дата заезда доступна начиная с завтрашнего дня');
     }
 
     public function test_booking_rejects_check_out_that_is_not_after_check_in(): void

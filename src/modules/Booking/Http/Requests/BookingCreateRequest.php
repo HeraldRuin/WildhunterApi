@@ -17,7 +17,7 @@ class BookingCreateRequest extends FormRequest
         return [
             'hotel_id' => ['required', 'integer', 'exists:bc_hotels,id'],
             'animal_id' => ['nullable', 'integer', 'exists:bc_animals,id'],
-            'check_in' => ['required', 'date', 'after_or_equal:today'],
+            'check_in' => ['required', 'date', 'after:today'],
             'check_out' => ['required', 'date', 'after:check_in'],
             'adults' => ['nullable', 'integer', 'min:1'],
             'hunters' => ['nullable', 'integer', 'min:1'],
@@ -61,7 +61,7 @@ class BookingCreateRequest extends FormRequest
 
             'check_in.required' => __('booking.validation.check_in_required'),
             'check_in.date' => __('booking.validation.check_in_must_be_date'),
-            'check_in.after_or_equal' => __('booking.validation.check_in_must_be_today_or_later'),
+            'check_in.after' => __('booking.validation.check_in_available_from_tomorrow'),
 
             'check_out.required' => __('booking.validation.check_out_required'),
             'check_out.date' => __('booking.validation.check_out_must_be_date'),
