@@ -6,7 +6,9 @@ use App\Models\User;
 use Carbon\Carbon;
 use Modules\Animals\Models\Animal;
 use Modules\Attendance\Models\AddetionalPrice;
+use Modules\Booking\Dto\BookingHistoryItemData;
 use Modules\Booking\Models\Booking;
+use Modules\Booking\Models\BookingHunterInvitation;
 use Modules\Booking\Models\BookingService;
 use Modules\Booking\Services\BookingHistoryActionService;
 use Modules\Booking\Services\BookingHistoryItemPresenter;
@@ -167,6 +169,33 @@ class BookingHistoryItemPresenterTest extends TestCase
         $this->assertNull($details['amount_hunting_with_services_per_person']);
     }
 
+    public function test_paid_invitation_exposes_prepayment_share(): void
+    {
+        $booking = $this->hotelBooking(Booking::PAID, 9000, 3);
+        $booking->duration_nights = 3;
+
+        $paid = new BookingHunterInvitation();
+        $paid->id = 1;
+        $paid->hunter_id = 5;
+        $paid->status = BookingHunterInvitation::STATUS_ACCEPTED;
+        $paid->prepayment_paid = true;
+        $paid->prepayment_paid_status = BookingHunterInvitation::PREPAYMENT_PAID;
+
+        $pending = new BookingHunterInvitation();
+        $pending->id = 2;
+        $pending->hunter_id = 6;
+        $pending->status = BookingHunterInvitation::STATUS_ACCEPTED;
+        $pending->prepayment_paid = false;
+        $pending->prepayment_paid_status = BookingHunterInvitation::PREPAYMENT_PENDING;
+
+        $booking->setRelation('hunterInvitations', collect([$paid, $pending]));
+
+        $invitations = $this->presentItem($booking)->collection['invitations'];
+
+        $this->assertSame(1500.0, $invitations[0]['prepayment_amount']);
+        $this->assertNull($invitations[1]['prepayment_amount']);
+    }
+
     /**
      * @param list<BookingService> $services
      */
@@ -302,5 +331,17 @@ class BookingHistoryItemPresenterTest extends TestCase
         return (new BookingHistoryItemPresenter($actions))
             ->present($booking, $user, 'customer')
             ->details;
+    }
+
+    private function presentItem(Booking $booking, int $userId = 1): BookingHistoryItemData
+    {
+        $actions = $this->createStub(BookingHistoryActionService::class);
+        $actions->method('getAvailableActions')->willReturn([]);
+
+        $user = new User();
+        $user->id = $userId;
+
+        return (new BookingHistoryItemPresenter($actions))
+            ->present($booking, $user, 'customer');
     }
 }

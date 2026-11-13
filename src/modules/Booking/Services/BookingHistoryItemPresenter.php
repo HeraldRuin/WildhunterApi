@@ -9,6 +9,7 @@ use Modules\Booking\Dto\BookingHistoryItemData;
 use Modules\Booking\Models\Booking;
 use Modules\Booking\Models\BookingHunterInvitation;
 use Modules\Booking\Models\BookingService;
+use Modules\Booking\Models\Payment;
 use Modules\Hotel\Models\HotelRoom;
 use Modules\Hotel\Models\HotelRoomBooking;
 
@@ -48,7 +49,7 @@ class BookingHistoryItemPresenter
                     ->count(),
                 'total_needed' => $this->resolveNeededHuntersCount($booking),
                 'paid_count' => $invitations->where('prepayment_paid', true)->count(),
-                'invitations' => $this->mapInvitations($invitations),
+                'invitations' => $this->mapInvitations($booking, $invitations),
                 'collection_end_at' => ($timerMeta['collection_end_at'] ?? null) ?: null,
                 'paid_end_at' => ($timerMeta['paid_end_at'] ?? null) ?: null,
                 'beds_end_at' => ($timerMeta['beds_end_at'] ?? null) ?: null,
@@ -160,14 +161,27 @@ class BookingHistoryItemPresenter
      * @param Collection<int, BookingHunterInvitation> $invitations
      * @return list<array<string, mixed>>
      */
-    private function mapInvitations(Collection $invitations): array
+    private function mapInvitations(Booking $booking, Collection $invitations): array
     {
-        return $invitations->map(static function (BookingHunterInvitation $invitation) {
+        $paidAmounts = $this->paidPrepaymentAmounts($booking, $invitations);
+        $share = $this->needsPrepaymentShare($invitations, $paidAmounts)
+            ? $this->prepaymentShare($invitations, $booking)
+            : null;
+
+        return $invitations->map(function (BookingHunterInvitation $invitation) use ($paidAmounts, $share) {
             $hunter = $invitation->hunter;
             $name = trim(implode(' ', array_filter([
                 $hunter?->first_name,
                 $hunter?->last_name,
             ])));
+            $paid = (bool) $invitation->prepayment_paid
+                || $invitation->prepayment_paid_status === BookingHunterInvitation::PREPAYMENT_PAID;
+            $amount = null;
+
+            if ($paid) {
+                $hunterId = (int) $invitation->hunter_id;
+                $amount = $paidAmounts[$hunterId] ?? $share;
+            }
 
             return [
                 'invitation_id' => $invitation->id,
@@ -179,8 +193,80 @@ class BookingHistoryItemPresenter
                 'is_accepted' => $invitation->status === BookingHunterInvitation::STATUS_ACCEPTED,
                 'prepayment_paid' => (bool) $invitation->prepayment_paid,
                 'prepayment_paid_status' => $invitation->prepayment_paid_status,
+                'prepayment_amount' => $amount,
             ];
         })->values()->all();
+    }
+
+    /**
+     * Фактическая сумма оплаченной предоплаты по охотнику.
+     * Берётся последняя успешная оплата. Для броней, собранных в памяти тестов, запрос не выполняется.
+     *
+     * @param Collection<int, BookingHunterInvitation> $invitations
+     * @return array<int, float>
+     */
+    private function paidPrepaymentAmounts(Booking $booking, Collection $invitations): array
+    {
+        if (!$booking->exists || !$booking->id) {
+            return [];
+        }
+
+        $hunterIds = $invitations
+            ->filter(fn (BookingHunterInvitation $invitation): bool => (bool) $invitation->prepayment_paid
+                || $invitation->prepayment_paid_status === BookingHunterInvitation::PREPAYMENT_PAID)
+            ->pluck('hunter_id')
+            ->filter()
+            ->map(static fn ($hunterId): int => (int) $hunterId)
+            ->unique()
+            ->values();
+
+        if ($hunterIds->isEmpty()) {
+            return [];
+        }
+
+        return Payment::query()
+            ->where('booking_id', $booking->id)
+            ->where('status', Payment::STATUS_PAID)
+            ->whereIn('user_id', $hunterIds)
+            ->orderByDesc('id')
+            ->get()
+            ->unique('user_id')
+            ->mapWithKeys(static fn (Payment $payment): array => [
+                (int) $payment->user_id => round((float) $payment->amount, 2),
+            ])
+            ->all();
+    }
+
+    /**
+     * @param Collection<int, BookingHunterInvitation> $invitations
+     * @param array<int, float> $paidAmounts
+     */
+    private function needsPrepaymentShare(Collection $invitations, array $paidAmounts): bool
+    {
+        return $invitations->contains(function (BookingHunterInvitation $invitation) use ($paidAmounts): bool {
+            $paid = (bool) $invitation->prepayment_paid
+                || $invitation->prepayment_paid_status === BookingHunterInvitation::PREPAYMENT_PAID;
+
+            return $paid && !array_key_exists((int) $invitation->hunter_id, $paidAmounts);
+        });
+    }
+
+    /**
+     * Доля предоплаты на принятого охотника, если отдельной оплаты в базе нет.
+     *
+     * @param Collection<int, BookingHunterInvitation> $invitations
+     */
+    private function prepaymentShare(Collection $invitations, Booking $booking): ?float
+    {
+        $accepted = $invitations
+            ->where('status', BookingHunterInvitation::STATUS_ACCEPTED)
+            ->count();
+
+        if ($accepted <= 0) {
+            return null;
+        }
+
+        return round($booking->prepaymentAmount() / $accepted, 2);
     }
 
     /**

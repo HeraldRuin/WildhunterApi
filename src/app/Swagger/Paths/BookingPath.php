@@ -355,6 +355,14 @@ class BookingPath
                                                                             example: "pending",
                                                                             nullable: true
                                                                         ),
+                                                                        new OA\Property(
+                                                                            property: "prepayment_amount",
+                                                                            description: "Сумма внесённой предоплаты этого охотника",
+                                                                            type: "number",
+                                                                            format: "float",
+                                                                            example: 10002,
+                                                                            nullable: true
+                                                                        ),
                                                                     ],
                                                                     type: "object"
                                                                 )
