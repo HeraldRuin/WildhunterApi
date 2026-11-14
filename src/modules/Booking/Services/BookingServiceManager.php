@@ -1011,7 +1011,7 @@ class BookingServiceManager
     }
 
     /**
-     * @return list<array{id: int, title: string, price?: float|null, trophies?: mixed, fines?: mixed, preparations?: mixed}>
+     * @return list<array{id: int, title: string, hunt_type: array{code: string, title: string}|null, price?: float|null, trophies?: mixed, fines?: mixed, preparations?: mixed}>
      */
     private function mapAnimalsWithService(Booking $booking, string $relation): array
     {
@@ -1032,6 +1032,7 @@ class BookingServiceManager
                 $row = [
                     'id' => $animal->id,
                     'title' => $animal->title,
+                    'hunt_type' => $animal->huntTypePayload(),
                 ];
 
                 if ($withAnimalPrice) {

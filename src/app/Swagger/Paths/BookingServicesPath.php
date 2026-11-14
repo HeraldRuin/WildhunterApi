@@ -74,10 +74,26 @@ class BookingServicesPath
                                             property: "trophy_animals",
                                             type: "array",
                                             items: new OA\Items(
-                                                required: ["id", "title", "price", "trophies"],
+                                                required: ["id", "title", "hunt_type", "price", "trophies"],
                                                 properties: [
                                                     new OA\Property(property: "id", type: "integer", example: 3),
                                                     new OA\Property(property: "title", type: "string", example: "Кабан"),
+                                                    new OA\Property(
+                                                        property: "hunt_type",
+                                                        description: "Тип охоты: индивидуальная или групповая. null, если тип не задан",
+                                                        nullable: true,
+                                                        required: ["code", "title"],
+                                                        properties: [
+                                                            new OA\Property(
+                                                                property: "code",
+                                                                type: "string",
+                                                                enum: ["individual", "group"],
+                                                                example: "individual"
+                                                            ),
+                                                            new OA\Property(property: "title", type: "string", example: "Индивидуальная"),
+                                                        ],
+                                                        type: "object"
+                                                    ),
                                                     new OA\Property(
                                                         property: "price",
                                                         description: "Сумма цен типов трофея. null, если цен нет",
@@ -106,10 +122,26 @@ class BookingServicesPath
                                             property: "penalty_animals",
                                             type: "array",
                                             items: new OA\Items(
-                                                required: ["id", "title", "price", "fines"],
+                                                required: ["id", "title", "hunt_type", "price", "fines"],
                                                 properties: [
                                                     new OA\Property(property: "id", type: "integer"),
                                                     new OA\Property(property: "title", type: "string"),
+                                                    new OA\Property(
+                                                        property: "hunt_type",
+                                                        description: "Тип охоты: индивидуальная или групповая. null, если тип не задан",
+                                                        nullable: true,
+                                                        required: ["code", "title"],
+                                                        properties: [
+                                                            new OA\Property(
+                                                                property: "code",
+                                                                type: "string",
+                                                                enum: ["individual", "group"],
+                                                                example: "group"
+                                                            ),
+                                                            new OA\Property(property: "title", type: "string", example: "Групповая"),
+                                                        ],
+                                                        type: "object"
+                                                    ),
                                                     new OA\Property(
                                                         property: "price",
                                                         description: "Сумма цен типов штрафа. null, если цен нет",
@@ -138,10 +170,26 @@ class BookingServicesPath
                                             property: "preparation_animals",
                                             type: "array",
                                             items: new OA\Items(
-                                                required: ["id", "title", "preparations"],
+                                                required: ["id", "title", "hunt_type", "preparations"],
                                                 properties: [
                                                     new OA\Property(property: "id", type: "integer"),
                                                     new OA\Property(property: "title", type: "string"),
+                                                    new OA\Property(
+                                                        property: "hunt_type",
+                                                        description: "Тип охоты: индивидуальная или групповая. null, если тип не задан",
+                                                        nullable: true,
+                                                        required: ["code", "title"],
+                                                        properties: [
+                                                            new OA\Property(
+                                                                property: "code",
+                                                                type: "string",
+                                                                enum: ["individual", "group"],
+                                                                example: "individual"
+                                                            ),
+                                                            new OA\Property(property: "title", type: "string", example: "Индивидуальная"),
+                                                        ],
+                                                        type: "object"
+                                                    ),
                                                     new OA\Property(
                                                         property: "preparations",
                                                         type: "array",

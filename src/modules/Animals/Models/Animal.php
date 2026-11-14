@@ -120,6 +120,8 @@ class Animal extends Model
             ->select([
                 'bc_animals.id',
                 'bc_animals.title as title',
+                'bc_animals.hunt_individual',
+                'bc_animals.hunt_group',
                 'bha.status as animal_status',
             ])
             ->with([
