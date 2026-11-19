@@ -13,4 +13,11 @@ class BlogService
             ->orderByDesc('created_at')
             ->get();
     }
+
+    public function findPublishedBySlug(string $slug): ?Blog
+    {
+        return Blog::published()
+            ->where('slug', $slug)
+            ->first();
+    }
 }

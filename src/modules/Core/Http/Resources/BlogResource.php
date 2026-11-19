@@ -4,6 +4,7 @@ namespace Modules\Core\Http\Resources;
 
 use App\Http\Resources\BaseJsonResource;
 use Modules\Core\Models\Blog;
+use Modules\Core\Services\BlogContentParser;
 
 class BlogResource extends BaseJsonResource
 {
@@ -18,7 +19,7 @@ class BlogResource extends BaseJsonResource
             'slug' => $blog->slug,
             'status' => $blog->status,
             'excerpt' => $blog->excerpt,
-            'content' => $blog->content_json,
+            'blocks' => app(BlogContentParser::class)->parse($blog->content_json),
             'image_url' => $blog->getImageUrl() ?: null,
             'author_id' => $blog->author_id,
             'created_at' => $blog->created_at,

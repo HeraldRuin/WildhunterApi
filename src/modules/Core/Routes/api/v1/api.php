@@ -5,6 +5,7 @@ use Modules\Core\Controllers\BlogController;
 use Modules\Core\Controllers\NotificationController;
 
 Route::get('/blogs', [BlogController::class, 'index']);
+Route::get('/blogs/{slug}', [BlogController::class, 'show'])->where('slug', '[A-Za-z0-9\-]+');
 
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);

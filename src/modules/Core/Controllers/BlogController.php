@@ -3,6 +3,7 @@
 namespace Modules\Core\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Responses\NotFoundResponse;
 use App\Http\Responses\SuccessResponse;
 use Illuminate\Http\JsonResponse;
 use Modules\Core\Http\Resources\BlogResource;
@@ -19,5 +20,15 @@ class BlogController extends Controller
         $blogs = $this->blogService->listPublished();
 
         return new SuccessResponse(data: BlogResource::collection($blogs));
+    }
+
+    public function show(string $slug): JsonResponse
+    {
+        $blog = $this->blogService->findPublishedBySlug($slug);
+        if ($blog === null) {
+            return new NotFoundResponse(message: 'Статья не найдена');
+        }
+
+        return new SuccessResponse(data: new BlogResource($blog));
     }
 }
