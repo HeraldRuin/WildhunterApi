@@ -1,7 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Modules\Core\Controllers\BlogController;
 use Modules\Core\Controllers\NotificationController;
+
+Route::get('/blogs', [BlogController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
